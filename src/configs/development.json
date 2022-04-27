@@ -20,5 +20,9 @@
   "recovery": {
     "length": 4,
     "expiredTime": 180000
+  },
+  "sendgrid": {
+    "apiKey": "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",
+    "fromEmail": "default@sample.com"
   }
 }

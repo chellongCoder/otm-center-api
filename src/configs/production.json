@@ -14,5 +14,9 @@
   "cors": {
     "origin": true,
     "credentials": true
+  },
+  "sendgrid": {
+    "apiKey": "",
+    "fromEmail": "default@sample.com"
   }
 }

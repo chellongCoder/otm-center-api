@@ -1,6 +1,6 @@
-import { Account } from "@/models/accounts.model";
-import { RecoveryCodes } from "@/models/recoveryCodes.model";
-import { RefreshToken } from "@/models/refreshTokens.model";
+import { Account } from "../models/accounts.model";
+import { RecoveryCodes } from "../models/recoveryCodes.model";
+import { RefreshToken } from "../models/refreshTokens.model";
 import config from "config";
 
 import { DataSourceOptions } from "typeorm";
@@ -14,7 +14,7 @@ export default {
   database: config.get('dbConfig.database') || process.env.DB_DBNAME,
   synchronize: config.get('dbConfig.synchronize') || false,
   logging: config.get('dbConfig.logging') || false,
-  // COMMENT FOR SEED
+  // // COMMENT FOR SEED
   // host: process.env.DB_HOST,
   // port: process.env.DB_PORT,
   // username: process.env.DB_USER,

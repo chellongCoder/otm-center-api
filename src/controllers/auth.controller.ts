@@ -9,16 +9,20 @@ import { plainToInstance } from "class-transformer";
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   Req,
+  Res,
   UseBefore,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
 import { Service } from "typedi";
 import passport from "passport";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { ForgotDto } from "@/models/dto/forgot.dto";
 import { VerifyRecoveryDto } from "@/models/dto/verifyRecovery.dto";
+import { Constant } from "@/constants";
 
 @Service()
 @Controller("/auth")
@@ -82,6 +86,21 @@ export class AuthController {
     }
   }
 
+  @Get("/verify-recovery-code/:email/:code")
+  @OpenAPI({ summary: "Forgot password" })
+  async verifyRecoveryCodeFromUrl(@Param('email') email: string, @Param('code') code: string, @Res() response: Response) {
+    try {
+      const veirfied = await this.service.verifyRecoveryCode(email, code);
+      if (veirfied) {
+        response.redirect(Constant.FORGOT_PASSWORD_URL);
+      } else {
+        response.redirect(Constant.FORGOT_PASSWORD_URL_ERR);
+      }
+    } catch (error) {
+      return { error };
+    }
+  }
+
   @Post("/refresh-token")
   @OpenAPI({ summary: "Refresh token" })
   async refreshToken(@Body() body: RefreshTokenDto) {
@@ -92,3 +111,7 @@ export class AuthController {
     }
   }
 }
+function GET(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+

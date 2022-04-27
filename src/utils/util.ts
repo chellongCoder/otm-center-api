@@ -1,6 +1,8 @@
 import { randomInt } from "crypto";
+import ejs from "ejs";
 import path from "path";
-import { uid, suid } from 'rand-token';
+import { uid, suid } from "rand-token";
+import { logger } from "./logger";
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const i = "Notes app"; // Issuer
@@ -49,11 +51,11 @@ export const isEmpty = (value: string | number | object): boolean => {
 
 export const generateRandToken = (): string => {
   return suid(64);
-}
+};
 
 export const generateRecoveryCode = (): number => {
   return randomInt(1000, 9999);
-}
+};
 
 export const generateAccessToken = (payload: string | object): string => {
   const privateKEY = fs.readFileSync(
@@ -69,4 +71,9 @@ export const verifyAccessToken = (token: string): object => {
     "utf8"
   );
   return jwt.verify(token, publicKEY, verifyOptions);
+};
+
+export const templateToString = (templateUrl: string, params: any): string => {
+  const template: string = fs.readFileSync(templateUrl);
+  return ejs.render(template.toString(), params);
 };
