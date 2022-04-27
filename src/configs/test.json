@@ -1,0 +1,18 @@
+{
+  "env": "test",
+  "dbConfig": {
+    "host": "localhost",
+    "database": "nexus_db_test",
+    "user": "postgres",
+    "password": "123321@",
+    "port": 5432
+  },
+  "log": {
+    "format": "dev",
+    "dir": "../logs"
+  },
+  "cors": {
+    "origin": true,
+    "credentials": true
+  }
+}

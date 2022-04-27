@@ -1,0 +1,33 @@
+@baseURL = http://localhost:8000/api
+@authToken = {{login.response.body.$.data.accessToken}}
+
+
+# @name login
+POST {{baseURL}}/auth/login HTTP/1.1
+content-type: application/json
+
+{
+  "password": "123@",
+  "email": "user01@gmail.com"
+}
+
+######################################
+# register
+POST {{baseURL}}/auth/register HTTP/1.1
+content-type: application/json
+
+{
+  "email": "test01@gmail.com",
+  "password": "123@",
+  "phone": "091919191",
+  "name": "test01"
+}
+
+######################################
+# forgot password
+POST {{baseURL}}/auth/forgot-password HTTP/1.1
+content-type: application/json
+
+{
+  "email": "test01@gmail.com"
+}
