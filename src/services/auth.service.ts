@@ -77,9 +77,11 @@ export class AuthService {
     try {
       const added: Account = await item.save();
       const mailClient = new SendGridClient();
-      return mailClient.sendWelcomeEmail(added.email, {});  
+      await mailClient.sendWelcomeEmail(added.email, {});  
+      return added;
     } catch (error) {
-      logger.error(error)
+      logger.error(error);
+      throw error;
     }
     
   }

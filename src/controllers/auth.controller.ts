@@ -87,7 +87,7 @@ export class AuthController {
   }
 
   @Get("/verify-recovery-code/:email/:code")
-  @OpenAPI({ summary: "Forgot password" })
+  @OpenAPI({ summary: "Forgot password for web" })
   async verifyRecoveryCodeFromUrl(@Param('email') email: string, @Param('code') code: string, @Res() response: Response) {
     try {
       const veirfied = await this.service.verifyRecoveryCode(email, code);
