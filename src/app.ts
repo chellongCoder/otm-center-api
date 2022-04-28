@@ -113,9 +113,9 @@ export default class App {
         credentials: config.get("cors.credentials"),
       },
       routePrefix: "/api",
-      middlewares: [path.join(__dirname + "/middlewares/*.ts")],
-      controllers: [path.join(__dirname + "/controllers/*.ts")],
-      interceptors: [path.join(__dirname + "/interceptors/*.ts")],
+      middlewares: [path.join(__dirname + "/middlewares/*{.ts,.js}")],
+      controllers: [path.join(__dirname + "/controllers/*{.ts,.js}")],
+      interceptors: [path.join(__dirname + "/interceptors/*{.ts,.js}")],
       defaultErrorHandler: false,
     });
   }
