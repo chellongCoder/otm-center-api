@@ -1,0 +1,22 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    restart: always
+    build: .
+    environment:
+      - PORT=8000
+      - NODE_ENV=production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/usr/src/app/dist/logs
+    links:
+      - db
+  db:
+    container_name: db
+    image: postgres:latest
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "5432:5432"
