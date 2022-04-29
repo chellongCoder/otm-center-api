@@ -1,3 +1,4 @@
+import isPast from 'date-fns/isPast'
 import { HttpException } from "@/exceptions/HttpException";
 import { Account } from "@/models/accounts.model";
 import { LoginDto } from "@/models/dto/login.dto";
@@ -23,6 +24,7 @@ import { Request, Response } from "express";
 import { ForgotDto } from "@/models/dto/forgot.dto";
 import { VerifyRecoveryDto } from "@/models/dto/verifyRecovery.dto";
 import { Constant } from "@/constants";
+import { UpdateNewPasswordDto } from "@/models/dto/updatePass.dto";
 
 @Service()
 @Controller("/auth")
@@ -58,7 +60,7 @@ export class AuthController {
   @OpenAPI({ summary: "Forgot password" })
   async forgotPassword(@Body() body: ForgotDto) {
     try {
-      const foundAcc = await this.service.forgot(body.email);
+      const foundAcc = await this.service.forgot(body);
       if (foundAcc) {
         logger.info('RecoveryCode ' + JSON.stringify(foundAcc))
         return { message: "ok" };
@@ -92,10 +94,23 @@ export class AuthController {
     try {
       const veirfied = await this.service.verifyRecoveryCode(email, code);
       if (veirfied) {
-        response.redirect(Constant.FORGOT_PASSWORD_URL);
+        if (isPast(new Date(veirfied.expiredAt || ''))) { // code expired
+          response.redirect(`${veirfied.errorUrl}?mesg=code_is_expired`);
+        } // code valid
+        response.redirect(`${veirfied.forgotUrl}?email=${email}&code=${code}`);
       } else {
-        response.redirect(Constant.FORGOT_PASSWORD_URL_ERR);
+        response.redirect('/error?code=401&mesg=code_not_valid');
       }
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Post("/update-password")
+  @OpenAPI({ summary: "Update Forgot password for web" })
+  async updatePassword(@Body() body: UpdateNewPasswordDto) {
+    try {
+      return this.service.updatePassword(body);
     } catch (error) {
       return { error };
     }

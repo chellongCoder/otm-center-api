@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   OneToMany,
+  BeforeUpdate,
 } from "typeorm";
 import { RefreshToken } from "./refreshTokens.model";
 
@@ -18,14 +19,17 @@ export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
   @Column()
   email: string;
+
+  @Column({ default: 0 }) // 0: INACTIVE, 1: ACTIVE
+  status: number;
 
   @Column()
   @Exclude({ toPlainOnly: true })
@@ -55,6 +59,7 @@ export class Account extends BaseEntity {
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   async setPassword() {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

@@ -12,6 +12,8 @@ import { logger } from "@/utils/logger";
 import { RecoveryCodes } from "@/models/recoveryCodes.model";
 import config from "config";
 import { SendGridClient } from "@/utils/sendgrid";
+import { UpdateNewPasswordDto } from "@/models/dto/updatePass.dto";
+import { ForgotDto } from "@/models/dto/forgot.dto";
 @Service()
 export class AuthService {
   /**
@@ -77,32 +79,33 @@ export class AuthService {
     try {
       const added: Account = await item.save();
       const mailClient = new SendGridClient();
-      await mailClient.sendWelcomeEmail(added.email, {});  
+      await mailClient.sendWelcomeEmail(added.email, {});
       return added;
     } catch (error) {
       logger.error(error);
       throw error;
     }
-    
   }
 
   /**
    * forgot
    */
-  public async forgot(email: string) {
-    const acc = await Account.findByEmail(email);
+  public async forgot(body: ForgotDto) {
+    const acc = await Account.findByEmail(body.email);
     if (acc) {
       const mailClient = new SendGridClient();
       // 1. generate verify code
       const code = generateRecoveryCode();
       // 2. save to db
-      const recCode = new RecoveryCodes(email, code.toString());
+      const recCode = new RecoveryCodes(body.email, code.toString(), body.forgotUrl, body.errorUrl);
       const expiredAt =
         new Date().getTime() + parseInt(config.get("recovery.expiredTime"));
       recCode.expiredAt = new Date(expiredAt);
-      const added = await RecoveryCodes.insert(recCode);
+      await RecoveryCodes.insert(recCode);
       // 3. send email
-      return mailClient.sendForgotPasswordEmail(email, { email, recCode });
+      await mailClient.sendForgotPasswordEmail(body.email, { email: body.email, recCode });
+
+      return acc;
     }
     return null;
   }
@@ -113,22 +116,29 @@ export class AuthService {
   public async verifyRecoveryCode(email: string, code: string) {
     const rec = await RecoveryCodes.findByEmailAndCode(email, code);
     if (rec && !rec.used) {
-      rec.used = true;
-      await rec.save();
-      return true;
+     return rec;
     }
-    return false;
+    return null;
   }
 
   /**
    * update password
    */
-  public async updatePassword(email: string, newPassword: string) {
-    const account = await Account.findByEmail(email);
-    if (account) {
-      account.password = newPassword;
-      await account.save();
-      return account;
+  public async updatePassword(params: UpdateNewPasswordDto) {
+    const rec = await RecoveryCodes.findByEmailAndCode(
+      params.email,
+      params.code
+    );
+    if (rec) {
+      const account = await Account.findByEmail(params.email);
+      if (account) {
+        account.password = params.password;
+        await account.save();
+        rec.used = true;
+        await rec.save();
+        return account;
+      }
+      return null;
     }
     return null;
   }

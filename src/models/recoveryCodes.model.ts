@@ -12,10 +12,12 @@ import {
 @Entity("recovery_codes")
 export class RecoveryCodes extends BaseEntity {
 
-  constructor(_email?: string, _code?: string) {
+  constructor(_email?: string, _code?: string, _forgotUrl?: string, _errorUrl?: string) {
     super();
     this.email = _email || '';
     this.code = _code || '';
+    this.forgotUrl = _forgotUrl || '';
+    this.errorUrl = _errorUrl || '';
   }
 
   @PrimaryGeneratedColumn()
@@ -29,6 +31,12 @@ export class RecoveryCodes extends BaseEntity {
 
   @Column({ default: false })
   used: boolean;
+
+  @Column()
+  forgotUrl: string;
+
+  @Column()
+  errorUrl: string;
 
   @Column({ name: "expired_at" })
   expiredAt?: Date;

@@ -36,6 +36,16 @@ export class SendGridClient {
     }
   }
 
+  async sendActiveAccountEmail(to: string, params: any) {
+    return this.send(
+      to,
+      Constant.ACTIVE_ACCOUNT_EMAIL_TITLE,
+      Constant.ACTIVE_ACCOUNT_EMAIL_TEMPLATE,
+      params
+    );
+  }
+
+
   async sendWelcomeEmail(to: string, params: any) {
     return this.send(
       to,

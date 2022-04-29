@@ -1,4 +1,6 @@
 import { Account } from "@/models/accounts.model";
+import { ActiveAccountDto } from "@/models/dto/activeAccount.dto";
+import { NewAccountDto } from "@/models/dto/newAccount.dto";
 import { AccountsService } from "@/services/accounts.service";
 import {
   Body,
@@ -6,6 +8,7 @@ import {
   Delete,
   Get,
   Param,
+  Params,
   Post,
   Put,
   QueryParam,
@@ -46,9 +49,19 @@ export class AccountsController {
 
   @Post("/")
   @OpenAPI({ summary: "Create account" })
-  async create(@Body({ required: true }) body: Account) {
+  async create(@Body({ required: true }) body: NewAccountDto) {
     try {
       return this.service.create(body);
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Post("/:id/active")
+  @OpenAPI({ summary: "Active account" })
+  async active(@Param("id") id: number, @Body({ required: true }) body: ActiveAccountDto) {
+    try {
+      return this.service.active(id, body);
     } catch (error) {
       return { error };
     }
