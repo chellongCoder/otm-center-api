@@ -4,10 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start": "node dist/server.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
-    "build": "tsc && npx tsc-alias",
+    "build": "tsc && npx tsc-alias && yarn run copyfile && yarn run copykey",
     "db:seed": "ts-node node_modules/typeorm-seeding/dist/cli.js -n ./src/database/ormconfig.ts seed",
     "db:config": "ts-node node_modules/typeorm-seeding/dist/cli.js -n ./src/database/ormconfig.ts config",
+    "copyfile": "copyfiles -f src/**/*.ejs dist/templates",
+    "copykey": "cp -r src/utils/keys dist/utils",
     "test": ""
   },
   "dependencies": {
@@ -45,6 +48,7 @@
     "class-validator-jsonschema": "^3.1.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
+    "copyfiles": "^2.4.1",
     "cors": "^2.8.5",
     "ejs": "^3.1.7",
     "envalid": "^7.3.1",
