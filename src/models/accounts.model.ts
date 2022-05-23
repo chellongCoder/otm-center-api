@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { Exclude, ExcludeOptions } from "class-transformer";
+import { Exclude } from "class-transformer";
 import {
   Entity,
   PrimaryGeneratedColumn,

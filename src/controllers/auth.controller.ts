@@ -1,9 +1,9 @@
 import isPast from 'date-fns/isPast'
 import { HttpException } from "@/exceptions/HttpException";
 import { Account } from "@/models/accounts.model";
-import { LoginDto } from "@/models/dto/login.dto";
-import { RefreshTokenDto } from "@/models/dto/refreshToken.dto";
-import { RegisterDto } from "@/models/dto/register.dto";
+import { LoginDto } from "@/dtos/login.dto";
+import { RefreshTokenDto } from "@/dtos/refreshToken.dto";
+import { RegisterDto } from "@/dtos/register.dto";
 import { AuthService } from "@/services/auth.service";
 import { logger } from "@/utils/logger";
 import { plainToInstance } from "class-transformer";
@@ -21,10 +21,9 @@ import { OpenAPI } from "routing-controllers-openapi";
 import { Service } from "typedi";
 import passport from "passport";
 import { Request, Response } from "express";
-import { ForgotDto } from "@/models/dto/forgot.dto";
-import { VerifyRecoveryDto } from "@/models/dto/verifyRecovery.dto";
-import { Constant } from "@/constants";
-import { UpdateNewPasswordDto } from "@/models/dto/updatePass.dto";
+import { ForgotDto } from "@/dtos/forgot.dto";
+import { VerifyRecoveryDto } from "@/dtos/verifyRecovery.dto";
+import { UpdateNewPasswordDto } from "@/dtos/updatePass.dto";
 
 @Service()
 @Controller("/auth")
@@ -125,8 +124,5 @@ export class AuthController {
       return { error };
     }
   }
-}
-function GET(arg0: string) {
-  throw new Error("Function not implemented.");
 }
 

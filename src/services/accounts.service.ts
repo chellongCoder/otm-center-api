@@ -1,10 +1,10 @@
 import { Constant } from "@/constants";
 import { Account } from "@/models/accounts.model";
-import { ActiveAccountDto } from "@/models/dto/activeAccount.dto";
-import { NewAccountDto } from "@/models/dto/newAccount.dto";
+import { ActiveAccountDto } from "@/dtos/activeAccount.dto";
+import { NewAccountDto } from "@/dtos/newAccount.dto";
 import { SendGridClient } from "@/utils/sendgrid";
 import { Service } from "typedi";
-import { FindOptionsOrder, FindOptionsOrderValue } from "typeorm";
+import { FindOptionsOrderValue } from "typeorm";
 
 @Service()
 export class AccountsService {

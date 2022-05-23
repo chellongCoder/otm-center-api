@@ -6,7 +6,6 @@ import {
   DeleteDateColumn,
   BaseEntity,
   UpdateDateColumn,
-  BeforeInsert,
   ManyToOne,
   IsNull,
 } from "typeorm";

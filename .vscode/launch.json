@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Dev app",
+            "command": "npm run dev"
+        },
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Start app",
+            "command": "npm run start"
+        },
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Test app",
+            "command": "npm run test"
+        },
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Lint app",
+            "command": "npm run lint"
+        },
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Lint:Fix app",
+            "command": "npm run lint:fix"
+        }
+    ]
+}

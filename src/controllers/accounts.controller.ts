@@ -1,6 +1,5 @@
-import { Account } from "@/models/accounts.model";
-import { ActiveAccountDto } from "@/models/dto/activeAccount.dto";
-import { NewAccountDto } from "@/models/dto/newAccount.dto";
+import { ActiveAccountDto } from "@/dtos/activeAccount.dto";
+import { NewAccountDto } from "@/dtos/newAccount.dto";
 import { AccountsService } from "@/services/accounts.service";
 import {
   Body,
@@ -8,7 +7,6 @@ import {
   Delete,
   Get,
   Param,
-  Params,
   Post,
   Put,
   QueryParam,
@@ -71,6 +69,7 @@ export class AccountsController {
   @OpenAPI({ summary: "Update account" })
   async update() {
     try {
+      //TODO
     } catch (error) {
       return { error };
     }

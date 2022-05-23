@@ -12,8 +12,8 @@ import { logger } from "@/utils/logger";
 import { RecoveryCodes } from "@/models/recoveryCodes.model";
 import config from "config";
 import { SendGridClient } from "@/utils/sendgrid";
-import { UpdateNewPasswordDto } from "@/models/dto/updatePass.dto";
-import { ForgotDto } from "@/models/dto/forgot.dto";
+import { UpdateNewPasswordDto } from "@/dtos/updatePass.dto";
+import { ForgotDto } from "@/dtos/forgot.dto";
 @Service()
 export class AuthService {
   /**
