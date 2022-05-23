@@ -15,7 +15,7 @@
     "copykey": "cp -r src/utils/keys dist/utils",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "test": ""
+    "test": "yarn test"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.2",
@@ -62,7 +62,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "helmet": "^5.0.2",
-    "husky": "^7.0.1",
+    "husky": "^8.0.0",
     "hpp": "^0.2.3",
     "jest": "27.4.x",
     "lint-staged": "^11.0.0",
