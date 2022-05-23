@@ -1,8 +1,9 @@
 {
   "name": "ts-rest-pg",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
+  "description": "Base app restapi with pg",
+  "author": "Hisoft Vietnam",
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
@@ -63,6 +64,8 @@
     "helmet": "^5.0.2",
     "husky": "^7.0.1",
     "hpp": "^0.2.3",
+    "jest": "27.4.x",
+    "lint-staged": "^11.0.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "passport-local": "^1.0.0",
