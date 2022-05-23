@@ -17,6 +17,7 @@ import passport from 'passport';
 import session from 'express-session';
 import '@/utils/passport';
 import { DbConnection } from '@/database/dbConnection';
+import errorMiddleware from '@/middlewares/error.middleware';
 
 export default class App {
   public app: express.Application;
@@ -34,6 +35,7 @@ export default class App {
     this.initializeRoutes();
     this.initializeSwagger();
     this.initializePassport();
+    this.initializeErrorHandling();
   }
 
   public getServer() {
@@ -114,6 +116,10 @@ export default class App {
       interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
       defaultErrorHandler: false,
     });
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 
   public listen() {
