@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
-import { Exclude } from "class-transformer";
+import bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -11,10 +11,10 @@ import {
   BeforeInsert,
   OneToMany,
   BeforeUpdate,
-} from "typeorm";
-import { RefreshToken } from "./refreshTokens.model";
+} from 'typeorm';
+import { RefreshToken } from './refreshTokens.model';
 
-@Entity("accounts")
+@Entity('accounts')
 export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -35,19 +35,19 @@ export class Account extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   password: string;
 
-  @CreateDateColumn({ name: "created_at" })
+  @CreateDateColumn({ name: 'created_at' })
   @Exclude()
   createdAt?: Date;
 
-  @UpdateDateColumn({ name: "updated_at" })
+  @UpdateDateColumn({ name: 'updated_at' })
   @Exclude()
   updatedAt?: Date;
 
-  @DeleteDateColumn({ name: "deleted_at" })
+  @DeleteDateColumn({ name: 'deleted_at' })
   @Exclude()
   deletedAt?: Date;
 
-  @OneToMany(() => RefreshToken, (rt) => rt.account)
+  @OneToMany(() => RefreshToken, rt => rt.account)
   refreshTokens: RefreshToken[];
 
   static findById(id: number) {

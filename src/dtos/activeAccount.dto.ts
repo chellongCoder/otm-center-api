@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsPhoneNumber, IsString, Length, MinLength } from "class-validator";
+import { IsString } from 'class-validator';
 
 export class ActiveAccountDto {
   @IsString()

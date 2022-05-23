@@ -1,19 +1,14 @@
-import { Constant } from "@/constants";
-import { Account } from "@/models/accounts.model";
-import { ActiveAccountDto } from "@/dtos/activeAccount.dto";
-import { NewAccountDto } from "@/dtos/newAccount.dto";
-import { SendGridClient } from "@/utils/sendgrid";
-import { Service } from "typedi";
-import { FindOptionsOrderValue } from "typeorm";
+import { Constant } from '@/constants';
+import { Account } from '@/models/accounts.model';
+import { ActiveAccountDto } from '@/dtos/activeAccount.dto';
+import { NewAccountDto } from '@/dtos/newAccount.dto';
+import { SendGridClient } from '@/utils/sendgrid';
+import { Service } from 'typedi';
+import { FindOptionsOrderValue } from 'typeorm';
 
 @Service()
 export class AccountsService {
-  public async findAll(
-    page: number,
-    limit: number,
-    orderBy: FindOptionsOrderValue,
-    search: string
-  ) {
+  public async findAll(page: number, limit: number, orderBy: FindOptionsOrderValue) {
     return Account.find({
       order: {
         id: orderBy,
@@ -42,7 +37,7 @@ export class AccountsService {
     const acc: Account = new Account();
     acc.email = item.email;
     acc.name = item.name;
-    acc.password = "";
+    acc.password = '';
     const results = await Account.insert(acc);
     const mailClient = new SendGridClient();
     await mailClient.sendActiveAccountEmail(item.email, {

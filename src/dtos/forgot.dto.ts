@@ -1,4 +1,4 @@
-import { IsEmail, IsUrl } from "class-validator";
+import { IsEmail, IsUrl } from 'class-validator';
 
 export class ForgotDto {
   @IsEmail()
@@ -6,7 +6,7 @@ export class ForgotDto {
 
   @IsUrl()
   forgotUrl: string;
-  
+
   @IsUrl()
   errorUrl: string;
 }

@@ -1,12 +1,12 @@
-import { Account } from "../models/accounts.model";
-import { RecoveryCodes } from "../models/recoveryCodes.model";
-import { RefreshToken } from "../models/refreshTokens.model";
-import config from "config";
+import { Account } from '../models/accounts.model';
+import { RecoveryCodes } from '../models/recoveryCodes.model';
+import { RefreshToken } from '../models/refreshTokens.model';
+import config from 'config';
 
-import { DataSourceOptions } from "typeorm";
+import { DataSourceOptions } from 'typeorm';
 
 export default {
-  type: "postgres",
+  type: 'postgres',
   host: config.get('dbConfig.host') || process.env.DB_HOST,
   port: config.get('dbConfig.port') || process.env.DB_PORT,
   username: config.get('dbConfig.user') || process.env.DB_USER,
@@ -25,11 +25,11 @@ export default {
   entities: [Account, RefreshToken, RecoveryCodes],
   seeds: ['src/database/seeds/**/*{.ts,.js}'],
   factories: ['src/database/factories/**/*{.ts,.js}'],
-  migrations: ["src/database/migrations/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"],
+  migrations: ['src/database/migrations/**/*.ts'],
+  subscribers: ['src/subscriber/**/*.ts'],
   cli: {
-    entitiesDir: "src/models",
-    migrationsDir: "database/migrations",
-    subscribersDir: "src/subscriber",
+    entitiesDir: 'src/models',
+    migrationsDir: 'database/migrations',
+    subscribersDir: 'src/subscriber',
   },
 } as DataSourceOptions;

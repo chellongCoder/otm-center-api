@@ -1,32 +1,23 @@
-import { ActiveAccountDto } from "@/dtos/activeAccount.dto";
-import { NewAccountDto } from "@/dtos/newAccount.dto";
-import { AccountsService } from "@/services/accounts.service";
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  QueryParam,
-} from "routing-controllers";
-import { OpenAPI } from "routing-controllers-openapi";
-import { Service } from "typedi";
-import { FindOptionsOrderValue } from "typeorm";
+import { ActiveAccountDto } from '@/dtos/activeAccount.dto';
+import { NewAccountDto } from '@/dtos/newAccount.dto';
+import { AccountsService } from '@/services/accounts.service';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
+import { Service } from 'typedi';
+import { FindOptionsOrderValue } from 'typeorm';
 
 @Service()
-@Controller("/accounts")
+@Controller('/accounts')
 export class AccountsController {
   constructor(public service: AccountsService) {}
 
-  @Get("/")
-  @OpenAPI({ summary: "Get accounts list" })
+  @Get('/')
+  @OpenAPI({ summary: 'Get accounts list' })
   async findAll(
-    @QueryParam("page") page: number,
-    @QueryParam("limit") limit: number,
-    @QueryParam("orderBy") orderBy: FindOptionsOrderValue,
-    @QueryParam("search") search: string
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('orderBy') orderBy: FindOptionsOrderValue,
+    @QueryParam('search') search: string,
   ) {
     try {
       return this.service.findAll(page, limit, orderBy, search);
@@ -35,9 +26,9 @@ export class AccountsController {
     }
   }
 
-  @Get("/:id")
-  @OpenAPI({ summary: "Get account by id" })
-  async findById(@Param("id") id: number) {
+  @Get('/:id')
+  @OpenAPI({ summary: 'Get account by id' })
+  async findById(@Param('id') id: number) {
     try {
       return this.service.findById(id);
     } catch (error) {
@@ -45,8 +36,8 @@ export class AccountsController {
     }
   }
 
-  @Post("/")
-  @OpenAPI({ summary: "Create account" })
+  @Post('/')
+  @OpenAPI({ summary: 'Create account' })
   async create(@Body({ required: true }) body: NewAccountDto) {
     try {
       return this.service.create(body);
@@ -55,9 +46,9 @@ export class AccountsController {
     }
   }
 
-  @Post("/:id/active")
-  @OpenAPI({ summary: "Active account" })
-  async active(@Param("id") id: number, @Body({ required: true }) body: ActiveAccountDto) {
+  @Post('/:id/active')
+  @OpenAPI({ summary: 'Active account' })
+  async active(@Param('id') id: number, @Body({ required: true }) body: ActiveAccountDto) {
     try {
       return this.service.active(id, body);
     } catch (error) {
@@ -65,8 +56,8 @@ export class AccountsController {
     }
   }
 
-  @Put("/:id")
-  @OpenAPI({ summary: "Update account" })
+  @Put('/:id')
+  @OpenAPI({ summary: 'Update account' })
   async update() {
     try {
       //TODO
@@ -75,9 +66,9 @@ export class AccountsController {
     }
   }
 
-  @Delete("/:id")
-  @OpenAPI({ summary: "Delete account" })
-  async delete(@Param("id") id: number) {
+  @Delete('/:id')
+  @OpenAPI({ summary: 'Delete account' })
+  async delete(@Param('id') id: number) {
     try {
       return this.service.delete(id);
     } catch (error) {

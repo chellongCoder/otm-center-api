@@ -1,17 +1,8 @@
-import { Exclude } from "class-transformer";
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  BaseEntity,
-  UpdateDateColumn,
-} from "typeorm";
+import { Exclude } from 'class-transformer';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 
-@Entity("recovery_codes")
+@Entity('recovery_codes')
 export class RecoveryCodes extends BaseEntity {
-
   constructor(_email?: string, _code?: string, _forgotUrl?: string, _errorUrl?: string) {
     super();
     this.email = _email || '';
@@ -38,18 +29,18 @@ export class RecoveryCodes extends BaseEntity {
   @Column()
   errorUrl: string;
 
-  @Column({ name: "expired_at" })
+  @Column({ name: 'expired_at' })
   expiredAt?: Date;
 
-  @CreateDateColumn({ name: "created_at" })
+  @CreateDateColumn({ name: 'created_at' })
   @Exclude()
   createdAt?: Date;
 
-  @UpdateDateColumn({ name: "updated_at" })
+  @UpdateDateColumn({ name: 'updated_at' })
   @Exclude()
   updatedAt?: Date;
 
-  @DeleteDateColumn({ name: "deleted_at" })
+  @DeleteDateColumn({ name: 'deleted_at' })
   @Exclude()
   deletedAt?: Date;
 

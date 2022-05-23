@@ -1,7 +1,7 @@
 import { Faker } from '@faker-js/faker';
 
-import { define } from 'typeorm-seeding'
-import { Account } from '../../models/accounts.model'
+import { define } from 'typeorm-seeding';
+import { Account } from '../../models/accounts.model';
 
 define(Account, (faker: Faker) => {
   const randName = faker.name.findName();
@@ -13,5 +13,4 @@ define(Account, (faker: Faker) => {
   account.phone = randPhone;
   account.password = '123';
   return account;
-})
- 
+});

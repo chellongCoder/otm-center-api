@@ -1,19 +1,14 @@
-import bcrypt from "bcrypt";
-import { Account } from "@/models/accounts.model";
-import { Service } from "typedi";
-import { FindOptionsOrder, FindOptionsOrderValue } from "typeorm";
-import {
-  generateAccessToken,
-  generateRandToken,
-  generateRecoveryCode,
-} from "@/utils/util";
-import { RefreshToken } from "@/models/refreshTokens.model";
-import { logger } from "@/utils/logger";
-import { RecoveryCodes } from "@/models/recoveryCodes.model";
-import config from "config";
-import { SendGridClient } from "@/utils/sendgrid";
-import { UpdateNewPasswordDto } from "@/dtos/updatePass.dto";
-import { ForgotDto } from "@/dtos/forgot.dto";
+import bcrypt from 'bcrypt';
+import { Account } from '@/models/accounts.model';
+import { Service } from 'typedi';
+import { generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
+import { RefreshToken } from '@/models/refreshTokens.model';
+import { logger } from '@/utils/logger';
+import { RecoveryCodes } from '@/models/recoveryCodes.model';
+import config from 'config';
+import { SendGridClient } from '@/utils/sendgrid';
+import { UpdateNewPasswordDto } from '@/dtos/updatePass.dto';
+import { ForgotDto } from '@/dtos/forgot.dto';
 @Service()
 export class AuthService {
   /**
@@ -98,8 +93,7 @@ export class AuthService {
       const code = generateRecoveryCode();
       // 2. save to db
       const recCode = new RecoveryCodes(body.email, code.toString(), body.forgotUrl, body.errorUrl);
-      const expiredAt =
-        new Date().getTime() + parseInt(config.get("recovery.expiredTime"));
+      const expiredAt = new Date().getTime() + parseInt(config.get('recovery.expiredTime'));
       recCode.expiredAt = new Date(expiredAt);
       await RecoveryCodes.insert(recCode);
       // 3. send email
@@ -116,7 +110,7 @@ export class AuthService {
   public async verifyRecoveryCode(email: string, code: string) {
     const rec = await RecoveryCodes.findByEmailAndCode(email, code);
     if (rec && !rec.used) {
-     return rec;
+      return rec;
     }
     return null;
   }
@@ -125,10 +119,7 @@ export class AuthService {
    * update password
    */
   public async updatePassword(params: UpdateNewPasswordDto) {
-    const rec = await RecoveryCodes.findByEmailAndCode(
-      params.email,
-      params.code
-    );
+    const rec = await RecoveryCodes.findByEmailAndCode(params.email, params.code);
     if (rec) {
       const account = await Account.findByEmail(params.email);
       if (account) {
