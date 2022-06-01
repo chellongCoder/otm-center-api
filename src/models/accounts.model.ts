@@ -12,7 +12,7 @@ import {
   OneToMany,
   BeforeUpdate,
 } from 'typeorm';
-import { RefreshToken } from './refreshTokens.model';
+import { RefreshToken } from './refresh-tokens.model';
 
 @Entity('accounts')
 export class Account extends BaseEntity {
@@ -56,6 +56,21 @@ export class Account extends BaseEntity {
 
   static findByEmail(email: string) {
     return this.findOneBy({ email: email });
+  }
+
+  static findByCond(query: any) {
+    const queryBuider = this.createQueryBuilder('accounts');
+    if (query.search && query.search.length > 0) {
+      for (let i = 0; i < query.search.length; i++) {
+        const element = query.search[i];
+        if (i === 0) {
+          queryBuider.where(`accounts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+        } else {
+          queryBuider.andWhere(`accounts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+        }
+      }
+    }
+    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 
   @BeforeInsert()

@@ -1,8 +1,8 @@
 import isPast from 'date-fns/isPast';
-import { HttpException } from '@/exceptions/HttpException';
+import { HttpException } from '@/exceptions/http-exception';
 import { Account } from '@/models/accounts.model';
 import { LoginDto } from '@/dtos/login.dto';
-import { RefreshTokenDto } from '@/dtos/refreshToken.dto';
+import { RefreshTokenDto } from '@/dtos/refresh-token.dto';
 import { RegisterDto } from '@/dtos/register.dto';
 import { AuthService } from '@/services/auth.service';
 import { logger } from '@/utils/logger';

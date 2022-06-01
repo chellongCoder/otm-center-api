@@ -2,9 +2,9 @@
   "env": "development",
   "dbConfig": {
     "host": "localhost",
-    "database": "nexus_db",
+    "database": "base",
     "user": "postgres",
-    "password": "123321@",
+    "password": "123321!",
     "port": 5432,
     "synchronize": true,
     "logging": false

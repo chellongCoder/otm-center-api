@@ -3,9 +3,9 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@Controller('/')
+@Controller('')
 export class HomeController {
-  @Get('/')
+  @Get('/version')
   @OpenAPI({ summary: 'Version' })
   async version() {
     try {

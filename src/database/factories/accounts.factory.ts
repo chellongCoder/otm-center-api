@@ -11,6 +11,6 @@ define(Account, (faker: Faker) => {
   account.name = randName;
   account.email = randEmail.toLowerCase();
   account.phone = randPhone;
-  account.password = '123';
+  account.password = '123@';
   return account;
 });

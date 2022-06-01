@@ -1,8 +1,5 @@
-import { Account } from '../models/accounts.model';
-import { RecoveryCodes } from '../models/recoveryCodes.model';
-import { RefreshToken } from '../models/refreshTokens.model';
 import config from 'config';
-
+import path from 'path';
 import { DataSourceOptions } from 'typeorm';
 
 export default {
@@ -22,11 +19,12 @@ export default {
   // database: process.env.DB_DBNAME,
   // synchronize: false,
   // logging: false,
-  entities: [Account, RefreshToken, RecoveryCodes],
-  seeds: ['src/database/seeds/**/*{.ts,.js}'],
-  factories: ['src/database/factories/**/*{.ts,.js}'],
-  migrations: ['src/database/migrations/**/*.ts'],
-  subscribers: ['src/subscriber/**/*.ts'],
+  // =======================
+  entities: [path.join(__dirname, '../../src/models/**/*{.ts,.js}')],
+  seeds: [path.join(__dirname, '../../src/database/seeds/**/*{.ts,.js}')],
+  factories: [path.join(__dirname, '../../src/database/factories/**/*{.ts,.js}')],
+  migrations: [path.join(__dirname, '../../src/database/migrations/**/*.ts')],
+  subscribers: [path.join(__dirname, '../../src/subscriber/**/*.ts')],
   cli: {
     entitiesDir: 'src/models',
     migrationsDir: 'database/migrations',

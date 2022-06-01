@@ -3,3 +3,5 @@ node_modules
 yarn-error.log
 src/logs
 dist
+.DS_Store
+*/.DS_Store

@@ -1,14 +1,14 @@
 import { Constant } from '@/constants';
 import { Account } from '@/models/accounts.model';
-import { ActiveAccountDto } from '@/dtos/activeAccount.dto';
-import { NewAccountDto } from '@/dtos/newAccount.dto';
+import { ActiveAccountDto } from '@/dtos/active-account.dto';
+import { NewAccountDto } from '@/dtos/new-account.dto';
 import { SendGridClient } from '@/utils/sendgrid';
 import { Service } from 'typedi';
 import { FindOptionsOrderValue } from 'typeorm';
 
 @Service()
 export class AccountsService {
-  public async findAll(page: number, limit: number, orderBy: FindOptionsOrderValue) {
+  public async findAll(page: number, limit: number, orderBy: FindOptionsOrderValue, search: any) {
     return Account.find({
       order: {
         id: orderBy,

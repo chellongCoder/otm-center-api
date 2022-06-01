@@ -1,5 +1,5 @@
-import { ActiveAccountDto } from '@/dtos/activeAccount.dto';
-import { NewAccountDto } from '@/dtos/newAccount.dto';
+import { ActiveAccountDto } from '@/dtos/active-account.dto';
+import { NewAccountDto } from '@/dtos/new-account.dto';
 import { AccountsService } from '@/services/accounts.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
