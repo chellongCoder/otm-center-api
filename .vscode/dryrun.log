@@ -1,8 +1,7 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory `/Users/hs.hoangnm/Documents/workspace/hisoft-noibo/base-express-restapi-postgres'
+make: Entering directory `/Users/hs.hoangnm/Documents/workspace/hisoft-noibo/base-express-api'
 docker build -t hisoft-baseapp\
 		--target development-build-stage\
 		-f Dockerfile .
- 
-make: Leaving directory `/Users/hs.hoangnm/Documents/workspace/hisoft-noibo/base-express-restapi-postgres'
+make: Leaving directory `/Users/hs.hoangnm/Documents/workspace/hisoft-noibo/base-express-api'
  

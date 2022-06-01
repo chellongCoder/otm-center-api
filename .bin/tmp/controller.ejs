@@ -1,0 +1,65 @@
+import { <%= className %> } from '@/models/<%= name %>.model';
+import { <%= className %>Service } from '@/services/<%= name %>.service';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
+import { Service } from 'typedi';
+
+@Service()
+@Controller('/<%= name %>')
+export class <%= className %>Controller {
+  constructor(public service: <%= className %>Service) {}
+
+  @Get('/')
+  @OpenAPI({ summary: 'Get <%= name %> list' })
+  async findAll(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('order') order: string,
+    @QueryParam('search') search: string,
+  ) {
+    try {
+      return this.service.findAll(page, limit, order, search);
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Get('/:id')
+  @OpenAPI({ summary: 'Get <%= name %> by id' })
+  async findById(@Param('id') id: number) {
+    try {
+      return this.service.findById(id);
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Post('/')
+  @OpenAPI({ summary: 'Create <%= name %>' })
+  async create(@Body({ required: true }) body: <%= className %>) {
+    try {
+      return this.service.create(body);
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Put('/:id')
+  @OpenAPI({ summary: 'Update <%= name %>' })
+  async update() {
+    try {
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @Delete('/:id')
+  @OpenAPI({ summary: 'Delete <%= name %>' })
+  async delete(@Param('id') id: number) {
+    try {
+      return this.service.delete(id);
+    } catch (error) {
+      return { error };
+    }
+  }
+}
