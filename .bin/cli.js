@@ -10,6 +10,34 @@
 const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
+const { Parser } = require('@dbml/core');
+const typeMapping = {
+  integer: 'number',
+  int: 'number',
+  double: 'number',
+  decimal: 'number',
+  varchar: 'string',
+  char: 'string',
+  text: 'string',
+  datetime: 'Date',
+  date: 'Date',
+  time: 'Date',
+};
+const excludeColumns = [
+  'id',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'created_by',
+  'updated_by',
+  'deleted_by',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'createdBy',
+  'updatedBy',
+  'deletedBy',
+];
 const createModel = async (name, props) => {
   console.log('create model...', name, props);
   const params = props.split(',').map(item => ({ name: item.split(':')[0], type: item.split(':')[1] }));
@@ -58,7 +86,28 @@ const capitalizeFirstLetter = string => {
       createService(args[2]);
       createController(args[2]);
     } else {
-      console.log('command invalid');
+      const schemaPath = path.join(__dirname, '../schema.dbml');
+      const schemaExist = fs.existsSync(schemaPath);
+      if (!schemaExist) {
+        console.log('command invalid');
+      } else {
+        const dbml = fs.readFileSync(schemaPath, 'utf-8');
+        const database = Parser.parse(dbml, 'dbml');
+        const schema = database.schemas[0];
+        schema.tables.forEach(item => {
+          const tableName = item.name;
+          const fields = item.fields
+            .map(f => {
+              if (excludeColumns.indexOf(f.name) > -1) return null;
+              return `${f.name}:${typeMapping[f.type.type_name]}`;
+            })
+            .filter(item => item != null)
+            .join(',');
+          createModel(tableName, fields);
+          createService(tableName);
+          createController(tableName);
+        });
+      }
     }
   } else {
     console.log('command invalid');

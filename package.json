@@ -19,6 +19,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@dbml/core": "^2.4.2",
     "@sendgrid/mail": "^7.6.2",
     "@types/bcryptjs": "^2.4.2",
     "bcryptjs": "^2.4.3",
@@ -63,11 +64,11 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "helmet": "^5.0.2",
-    "husky": "^8.0.0",
     "hpp": "^0.2.3",
+    "husky": "^8.0.0",
     "jest": "27.4.x",
-    "lint-staged": "^11.0.0",
     "jsonwebtoken": "^8.5.1",
+    "lint-staged": "^11.0.0",
     "morgan": "^1.10.0",
     "passport-local": "^1.0.0",
     "pg": "^8.7.3",
