@@ -15,7 +15,8 @@
     "copykey": "cp -r src/utils/keys dist/utils",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "test": "yarn test"
+    "test": "yarn test",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.2",
