@@ -1,17 +1,16 @@
-import { ActiveAccountDto } from '@/dtos/active-account.dto';
-import { NewAccountDto } from '@/dtos/new-account.dto';
-import { AccountsService } from '@/services/accounts.service';
+import { Test } from '@/models/test.model';
+import { TestService } from '@/services/test.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@Controller('/accounts')
-export class AccountsController {
-  constructor(public service: AccountsService) {}
+@Controller('/test')
+export class TestController {
+  constructor(public service: TestService) {}
 
   @Get('/')
-  @OpenAPI({ summary: 'Get accounts list' })
+  @OpenAPI({ summary: 'Get test list' })
   async findAll(
     @QueryParam('page') page: number,
     @QueryParam('limit') limit: number,
@@ -26,7 +25,7 @@ export class AccountsController {
   }
 
   @Get('/:id')
-  @OpenAPI({ summary: 'Get account by id' })
+  @OpenAPI({ summary: 'Get test by id' })
   async findById(@Param('id') id: number) {
     try {
       return this.service.findById(id);
@@ -36,8 +35,8 @@ export class AccountsController {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create account' })
-  async create(@Body({ required: true }) body: NewAccountDto) {
+  @OpenAPI({ summary: 'Create test' })
+  async create(@Body({ required: true }) body: Test) {
     try {
       return this.service.create(body);
     } catch (error) {
@@ -45,28 +44,17 @@ export class AccountsController {
     }
   }
 
-  @Post('/:id/active')
-  @OpenAPI({ summary: 'Active account' })
-  async active(@Param('id') id: number, @Body({ required: true }) body: ActiveAccountDto) {
-    try {
-      return this.service.active(id, body);
-    } catch (error) {
-      return { error };
-    }
-  }
-
   @Put('/:id')
-  @OpenAPI({ summary: 'Update account' })
+  @OpenAPI({ summary: 'Update test' })
   async update() {
     try {
-      //TODO
     } catch (error) {
       return { error };
     }
   }
 
   @Delete('/:id')
-  @OpenAPI({ summary: 'Delete account' })
+  @OpenAPI({ summary: 'Delete test' })
   async delete(@Param('id') id: number) {
     try {
       return this.service.delete(id);

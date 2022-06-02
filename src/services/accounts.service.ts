@@ -4,19 +4,25 @@ import { ActiveAccountDto } from '@/dtos/active-account.dto';
 import { NewAccountDto } from '@/dtos/new-account.dto';
 import { SendGridClient } from '@/utils/sendgrid';
 import { Service } from 'typedi';
-import { FindOptionsOrderValue } from 'typeorm';
+import { QueryParser } from '@/utils/query-parser';
 
 @Service()
 export class AccountsService {
-  public async findAll(page: number, limit: number, orderBy: FindOptionsOrderValue, search: any) {
-    return Account.find({
-      order: {
-        id: orderBy,
-      },
+  public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
+    const orderCond = QueryParser.toOrderCond(order);
+    const filteredAccounts = await Account.findByCond({
+      sort: orderCond.sort,
+      order: orderCond.order,
       skip: (page - 1) * limit,
       take: limit,
       cache: false,
+      search: QueryParser.toFilters(search),
     });
+    return {
+      data: filteredAccounts[0],
+      total: filteredAccounts[1],
+      pages: Math.ceil(filteredAccounts[1] / limit),
+    };
   }
 
   /**
