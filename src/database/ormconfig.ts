@@ -4,11 +4,11 @@ import { DataSourceOptions } from 'typeorm';
 
 export default {
   type: 'postgres',
-  host: config.get('dbConfig.host') || process.env.DB_HOST,
-  port: config.get('dbConfig.port') || process.env.DB_PORT,
-  username: config.get('dbConfig.user') || process.env.DB_USER,
-  password: config.get('dbConfig.password') || process.env.DB_PASS,
-  database: config.get('dbConfig.database') || process.env.DB_DBNAME,
+  host: process.env.DB_HOST || config.get('dbConfig.host'),
+  port: process.env.DB_PORT || config.get('dbConfig.port'),
+  username: process.env.DB_USER || config.get('dbConfig.user'),
+  password: process.env.DB_PASS || config.get('dbConfig.password'),
+  database: process.env.DB_DBNAME || config.get('dbConfig.database'),
   synchronize: config.get('dbConfig.synchronize') || false,
   logging: config.get('dbConfig.logging') || false,
   // // COMMENT FOR SEED

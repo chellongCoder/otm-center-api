@@ -1,0 +1,9 @@
+import { Factory, Seeder } from 'typeorm-seeding';
+import { <%=className%> } from '../../models/<%=name%>.model';
+
+// create-<%=name%>.seed.ts
+export default class Create<%=className%> implements Seeder {
+  public async run(factory: Factory): Promise<any> {
+    await factory(<%=className%>)().createMany(100);
+  }
+}

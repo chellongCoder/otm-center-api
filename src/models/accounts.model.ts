@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -37,14 +37,17 @@ export class Account extends BaseEntity {
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
+  @Expose({ name: 'created_at' })
   createdAt?: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
   @Exclude()
+  @Expose({ name: 'updated_at' })
   updatedAt?: Date;
 
   @DeleteDateColumn({ name: 'deleted_at' })
   @Exclude()
+  @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
   @OneToMany(() => RefreshToken, rt => rt.account)

@@ -35,6 +35,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^6.2.0",
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.2.197",
     "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.2",
     "@types/config": "^0.0.41",

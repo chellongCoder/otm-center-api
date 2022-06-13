@@ -11,6 +11,19 @@ const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
 const { Parser } = require('@dbml/core');
+const { exec } = require('child_process');
+const currentBranch = async () => new Promise((resolve, reject) => {
+  exec('git symbolic-ref --short -q HEAD', (error, stdout, stderr) => {
+    if (error) reject(error);
+    resolve(stdout.trim());
+  });
+});
+const cleanAndBuild = async () => new Promise((resolve, reject) => {
+  exec('rm -rf dist && yarn build', (error, stdout, stderr) => {
+    if (error) reject(error);
+    resolve(stdout.trim());
+  });
+})
 const typeMapping = {
   integer: 'number',
   int: 'number',
@@ -69,6 +82,26 @@ const createController = async (name, props) => {
   });
   fs.writeFileSync(path.join(__dirname, `../src/controllers/${name}.controller.ts`), content);
 };
+const createFactory = async (name, props) => {
+  console.log('create factory...', name, props);
+
+  const fileContent = fs.readFileSync(path.join(__dirname, 'tmp/factory.ejs'), 'utf8');
+  const content = ejs.render(fileContent, {
+    name,
+    className: capitalizeFirstLetter(name),
+  });
+  fs.writeFileSync(path.join(__dirname, `../src/database/factories/${name}.factory.ts`), content);
+};
+const createSeed = async (name, props) => {
+  console.log('create seed...', name, props);
+
+  const fileContent = fs.readFileSync(path.join(__dirname, 'tmp/seed.ejs'), 'utf8');
+  const content = ejs.render(fileContent, {
+    name,
+    className: capitalizeFirstLetter(name),
+  });
+  fs.writeFileSync(path.join(__dirname, `../src/database/seeds/create-${name}.seed.ts`), content);
+};
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
@@ -81,6 +114,10 @@ const capitalizeFirstLetter = string => {
       createService(args[2]);
     } else if (args[1] === 'c' || args[1] === 'controller') {
       createController(args[2]);
+    } else if (args[1] === 'f' || args[1] === 'factory') {
+      createFactory(args[2]);
+    } else if (args[1] === 'sd' || args[1] === 'seed') {
+      createSeed(args[2]);
     } else if (args[1] === 'scaffold') {
       createModel(args[2], args[3]);
       createService(args[2]);
@@ -109,6 +146,13 @@ const capitalizeFirstLetter = string => {
         });
       }
     }
+  } else if (args[0] === 'd' || args[0] === 'deploy') {
+    const branch = await currentBranch();
+    console.log(await cleanAndBuild());
+    //=========
+    // TODO 
+    // 1. s
+    // 
   } else {
     console.log('command invalid');
   }

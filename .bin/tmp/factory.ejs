@@ -1,0 +1,10 @@
+import { Faker } from '@faker-js/faker';
+
+import { define } from 'typeorm-seeding';
+import { <%=className%> } from '../../models/<%=name%>.model';
+
+define(<%=className%>, (faker: Faker) => {
+  const <%=name%> = new <%=className%>();
+  <%=name%>.prop = faker.lorem.text();;
+  return <%=name%>;
+});
