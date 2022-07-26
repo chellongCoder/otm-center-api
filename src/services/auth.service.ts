@@ -9,6 +9,8 @@ import config from 'config';
 import { SendGridClient } from '@/utils/sendgrid';
 import { UpdateNewPasswordDto } from '@/dtos/updatePass.dto';
 import { ForgotDto } from '@/dtos/forgot.dto';
+import e from 'express';
+import { HttpException } from '@/exceptions/http-exception';
 @Service()
 export class AuthService {
   /**
@@ -19,28 +21,37 @@ export class AuthService {
     if (account) {
       const match = await bcrypt.compare(password, account.password);
       if (match) {
-        const accessToken = await generateAccessToken({
-          id: account.id,
-          email: account.email,
-        });
-        // find refreshToken and remove
-        const currToken = await RefreshToken.findByAccount(account.id);
-        if (currToken) {
-          await currToken.softRemove();
+        if (account.status === 1) {
+          // account actived
+          const accessToken = await generateAccessToken({
+            id: account.id,
+            email: account.email,
+          });
+          // find refreshToken and remove
+          const currToken = await RefreshToken.findByAccount(account.id);
+          if (currToken) {
+            await currToken.softRemove();
+          }
+          const refreshToken = generateRandToken();
+          const rt: RefreshToken = new RefreshToken();
+          rt.token = refreshToken;
+          rt.account = account;
+          await rt.save();
+          return {
+            refreshToken,
+            accessToken,
+            account,
+          };
+        } else {
+          // account inactived
+          throw new HttpException(401, 'Account not actived');
         }
-        const refreshToken = generateRandToken();
-        const rt: RefreshToken = new RefreshToken();
-        rt.token = refreshToken;
-        rt.account = account;
-        await rt.save();
-        return {
-          refreshToken,
-          accessToken,
-          account,
-        };
+      } else {
+        throw new HttpException(404, 'Email or password is not correct');
       }
+    } else {
+      throw new HttpException(404, 'Email or password is not correct');
     }
-    return null;
   }
   /**
    * login with passport
