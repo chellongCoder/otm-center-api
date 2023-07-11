@@ -5,6 +5,7 @@
 ### 2. Generate Model (Tên model viết thường, danh từ số nhiều, tiếng anh)
 ```
 ./cli.sh g model users name:string,age:number
+./cli.sh g model posts name:string,content:string,author_id:number,heart:number
 ```
 ### 3. Generate Controller
 ```
