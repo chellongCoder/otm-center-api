@@ -1,12 +1,12 @@
-import { <%= className %> } from '@/models/<%= fileName %>.model';
+import { Courses } from '@/models/courses.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
 @Service()
-export class <%= className %>Service {
+export class CoursesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
-    const filteredData = await <%= className %>.findByCond({
+    const filteredData = await Courses.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
       skip: (page - 1) * limit,
@@ -25,7 +25,7 @@ export class <%= className %>Service {
    * findById
    */
   public async findById(id: number) {
-    return <%= className %>.findOne({
+    return Courses.findOne({
       where: {
         id,
       },
@@ -35,22 +35,22 @@ export class <%= className %>Service {
   /**
    * create
    */
-  public async create(item: <%= className %>) {
-    const results = <%= className %>.insert(item);
+  public async create(item: Courses) {
+    const results = Courses.insert(item);
     return results;
   }
 
   /**
    * update
    */
-  public async update(id: number, item: <%= className %>) {
-    return <%= className %>.update(id, item);
+  public async update(id: number, item: Courses) {
+    return Courses.update(id, item);
   }
 
   /**
    * delete
    */
   public async delete(id: number) {
-    return <%= className %>.delete(id);
+    return Courses.delete(id);
   }
 }

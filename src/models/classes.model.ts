@@ -1,14 +1,38 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-@Entity('<%=name%>')
-export class <%=className%> extends BaseEntity {
+@Entity('classes')
+export class Classes extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-<% for (let i = 0; i < props.length; i++) {%>
-  @Column({ name: '<%= props[i].columnName %>' })
-  <%= props[i].name %>: <%= props[i].type %>;
-<%}%>
+
+  @Column({ name: 'name' })
+  name: string;
+
+  @Column({ name: 'course_id' })
+  courseId: string;
+
+  @Column({ name: 'from_time' })
+  fromTime: Date;
+
+  @Column({ name: 'to_time' })
+  toTime: Date;
+
+  @Column({ name: 'attended_number' })
+  attendedNumber: number;
+
+  @Column({ name: 'session_number' })
+  sessionNumber: number;
+
+  @Column({ name: 'code' })
+  code: string;
+
+  @Column({ name: 'status' })
+  status: string;
+
+  @Column({ name: 'workspace_id' })
+  workspaceId: string;
+
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
   @Expose({ name: 'created_at' })
@@ -25,14 +49,14 @@ export class <%=className%> extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('<%=name%>');
+    const queryBuider = this.createQueryBuilder('classes');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`<%=name%>.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.where(`classes.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`<%=name%>.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.andWhere(`classes.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

@@ -1,16 +1,16 @@
-import { <%= className %> } from '@/models/<%= fileName %>.model';
-import { <%= className %>Service } from '@/services/<%= fileName %>.service';
+import { Posts } from '@/models/posts.model';
+import { PostsService } from '@/services/posts.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@Controller('/<%= name %>')
-export class <%= className %>Controller {
-  constructor(public service: <%= className %>Service) {}
+@Controller('/posts')
+export class PostsController {
+  constructor(public service: PostsService) {}
 
   @Get('/')
-  @OpenAPI({ summary: 'Get <%= name %> list' })
+  @OpenAPI({ summary: 'Get posts list' })
   async findAll(
     @QueryParam('page') page: number,
     @QueryParam('limit') limit: number,
@@ -25,7 +25,7 @@ export class <%= className %>Controller {
   }
 
   @Get('/:id')
-  @OpenAPI({ summary: 'Get <%= name %> by id' })
+  @OpenAPI({ summary: 'Get posts by id' })
   async findById(@Param('id') id: number) {
     try {
       return this.service.findById(id);
@@ -35,8 +35,8 @@ export class <%= className %>Controller {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create <%= name %>' })
-  async create(@Body({ required: true }) body: <%= className %>) {
+  @OpenAPI({ summary: 'Create posts' })
+  async create(@Body({ required: true }) body: Posts) {
     try {
       return this.service.create(body);
     } catch (error) {
@@ -45,7 +45,7 @@ export class <%= className %>Controller {
   }
 
   @Put('/:id')
-  @OpenAPI({ summary: 'Update <%= name %>' })
+  @OpenAPI({ summary: 'Update posts' })
   async update() {
     try {
     } catch (error) {
@@ -54,7 +54,7 @@ export class <%= className %>Controller {
   }
 
   @Delete('/:id')
-  @OpenAPI({ summary: 'Delete <%= name %>' })
+  @OpenAPI({ summary: 'Delete posts' })
   async delete(@Param('id') id: number) {
     try {
       return this.service.delete(id);

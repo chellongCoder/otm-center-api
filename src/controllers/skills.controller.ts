@@ -1,16 +1,16 @@
-import { <%= className %> } from '@/models/<%= fileName %>.model';
-import { <%= className %>Service } from '@/services/<%= fileName %>.service';
+import { Skills } from '@/models/skills.model';
+import { SkillsService } from '@/services/skills.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@Controller('/<%= name %>')
-export class <%= className %>Controller {
-  constructor(public service: <%= className %>Service) {}
+@Controller('/skills')
+export class SkillsController {
+  constructor(public service: SkillsService) {}
 
   @Get('/')
-  @OpenAPI({ summary: 'Get <%= name %> list' })
+  @OpenAPI({ summary: 'Get skills list' })
   async findAll(
     @QueryParam('page') page: number,
     @QueryParam('limit') limit: number,
@@ -25,7 +25,7 @@ export class <%= className %>Controller {
   }
 
   @Get('/:id')
-  @OpenAPI({ summary: 'Get <%= name %> by id' })
+  @OpenAPI({ summary: 'Get skills by id' })
   async findById(@Param('id') id: number) {
     try {
       return this.service.findById(id);
@@ -35,8 +35,8 @@ export class <%= className %>Controller {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create <%= name %>' })
-  async create(@Body({ required: true }) body: <%= className %>) {
+  @OpenAPI({ summary: 'Create skills' })
+  async create(@Body({ required: true }) body: Skills) {
     try {
       return this.service.create(body);
     } catch (error) {
@@ -45,7 +45,7 @@ export class <%= className %>Controller {
   }
 
   @Put('/:id')
-  @OpenAPI({ summary: 'Update <%= name %>' })
+  @OpenAPI({ summary: 'Update skills' })
   async update() {
     try {
     } catch (error) {
@@ -54,7 +54,7 @@ export class <%= className %>Controller {
   }
 
   @Delete('/:id')
-  @OpenAPI({ summary: 'Delete <%= name %>' })
+  @OpenAPI({ summary: 'Delete skills' })
   async delete(@Param('id') id: number) {
     try {
       return this.service.delete(id);

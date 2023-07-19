@@ -1,21 +1,331 @@
-Table users {
-    id integer [primary key]
-    username varchar
-    role varchar
-    createdAt timestamp
+Table workspaces {
+  id uuid
+  code varchar
+  name timestamp
+  name_slug varchar
+  parent_id  uuid
+  hierarchy_level integer
+  is_active boolean
 }
-
-Table posts {
-    id integer [primary key]
-    title varchar
-    body text [note: 'Content of the post']
-    userId integer
-    createdAt timestamp
+Table user_workspaces {
+  id uuid [primary key]
+  workspace_id uuid
+  username varchar
+  fullname varchar
+  email varchar
+  sex varchar
+  lang varchar
+  is_owner varchar
+  is_active varchar
+  verify_status varchar
+  phone_number varchar
+  avatar varchar
+  address varchar
+  status varchar
+  zalo varchar
+  skype varchar
+  class_name_leaning varchar
+  city_id uuid
+  country_id uuid
+  district_id uuid
+  ward_id uuid
+  birthplace varchar
+  attach_image_url varchar
+  referral_source varchar
+  presenter_id uuid
+  school_name varchar
+  note varchar
+  facebook varchar
+  user_type varchar
 }
-
+Table user_workspace_tokens {
+  id uuid
+  user_workspace_id uuid
+  workspace_id uuid
+  hash_access_token varchar
+  hash_refresh_token varchar
+  status varchar
+  is_active boolean
+}
+Table user_workspace_devices {
+  id uuid 
+  device_name varchar
+  device_id uuid
+  fcm_push_token varchar
+  device_platform varchar
+  is_emulator boolean
+  user_workspace_id uuid
+  workspace_id uuid
+  is_active boolean
+}
+Table user_workspace_notifications{
+  id uuid
+  title varchar
+  platform varchar
+  status varchar
+  firebase_push_type varchar
+  date timestamp
+  push_type varchar
+  notification_message_id uuid
+  receiver_user_workspace_id uuid
+  workspace_id uuid
+}
+Table notification_messages {
+  id uuid
+  title varchar
+  body varchar
+  description varchar
+  metadata text
+  firebase_push_type varchar
+  date timestamp
+  workspace_id uuid
+}
 Table courses {
-    id integer [primary key]
-    title varchar
-    desc text
-    createdAt timestamp
+  id uuid
+  name varchar
+  number_of_lesson integer
+  payment_method varchar
+  code varchar
+  hours_of_lesson integer
+  price integer
+  subject varchar
+  unit integer
+  workspace_id uuid
+}
+Table curriculums {
+  id uuid
+  name varchar
+  content varchar
+  course_id uuid
+  workspace_id uuid
+}
+Table lectures {
+  id uuid
+  lesson_id uuid
+  name varchar
+  content varchar
+  exercise varchar
+  equipment varchar
+  is_use_name boolean
+  lecture_file_id uuid
+  curriculum_id uuid
+  workspace_id uuid
+}
+Table files {
+  id uuid
+  url varchar
+  lecture_id uuid
+  post_id uuid
+  workspace_id uuid
+}
+Table lessons {
+  id uuid
+  name varchar
+  content text [note: 'Nội dung bài học']
+  exercise text [note: 'Bài tập về nhà']
+  curriculum_id uuid
+  workspace_id uuid
+}
+Table skills {
+  id uuid
+  name varchar
+  rate_by varchar
+  maximum_score integer
+  status  varchar
+  course_id uuid
+  workspace_id uuid
+}
+Table characters_of_skill{
+  id uuid
+  skill_id uuid
+  name varchar
+  value integer
+  workspace_id uuid
+}
+Table assignments {
+  id uuid
+  test_schedule_type  varchar
+  test_schedule_value integer
+  status varchar
+  course_id uuid
+  workspace_id uuid
+}
+Table assignment_skills {
+  id uuid
+  assignment_id uuid
+  skill_id uuid
+  workspace_id uuid
+}
+Table documents {
+  id uuid
+  name varchar
+  url varchar
+  course_id uuid
+  workspace_id uuid
+}
+Table classes {
+  id uuid
+  name varchar
+  course_id uuid
+  from_time timestamp
+  to_time timestamp
+  attended_number integer  [note: 'Đã học']
+  session_number integer [note: 'Số buổi']
+  code varchar
+  status varchar
+  workspace_id uuid
+}
+Table user_workspace_courses {
+  id uuid
+  course_id uuid
+  user_workspace_id uuid
+  workspace_id uuid
+}
+Table posts {
+  id uuid
+  content varchar
+  class_id uuid
+  allow_comment boolean
+  workspace_id uuid
+}
+Table classrooms {
+  id uuid
+  name  varchar
+  code varchar
+  seat_number integer
+  status varchar
+  workspace_id uuid
+}
+Table permissions {
+  id uuid
+  key varchar
+  workspace_id uuid
+  is_active boolean
+  is_all_permissions boolean
+  group_permission_id uuid
+}
+Table cities{
+  id uuid
+  name varchar
+  code varchar
+  country_id uuid
+  description varchar
+  is_active boolean
+}
+Table countries{
+  id uuid
+  name varchar
+  code varchar
+  description varchar
+  is_active boolean
+}
+Table wards{
+  id uuid
+  name varchar
+  code varchar
+  country_id uuid
+  district_id uuid
+  city_id uuid
+  description varchar
+  is_active boolean
+}
+Table districts {
+  id uuid
+  name varchar
+  code varchar
+  country_id uuid
+  city_id uuid
+  description varchar
+  is_active boolean
+}
+Table group_permissions{
+  id uuid
+  name varchar
+  description varchar
+  workspace_id uuid
+  scope_key varchar
+  is_super_admin boolean
+  is_active boolean
+}
+Table scope_permissions {
+  id uuid
+  organization_id uuid
+  group_permission_id uuid
+  workspace_id uuid
+  is_active boolean
+}
+Table organizations {
+  id uuid
+  name varchar
+  code varchar
+  workspace_id uuid
+  is_active boolean
+}
+Table video_files {
+  id uuid
+  url varchar
+  post_id uuid
+  workspace_id uuid
+}
+Table image_files {
+  id uuid
+  url varchar
+  post_id uuid
+  workspace_id uuid
+}
+Table shift_weekdays{
+  id uuid
+  shift_id uuid
+  weekday number
+  workspace_id uuid
+}
+Table shifts {
+  id uuid
+  from_time timestamp
+  to_time timestamp
+  is_everyday boolean
+  workspace_id uuid
+}
+Table timetables {
+  id uuid
+  lesson_id uuid
+  classroom_id uuid
+  date timestamp
+  shift_id uuid
+  workspace_id uuid
+}
+Table user_workspace_timetables{
+  id uuid
+  user_workspace_id uuid
+  timetable_id uuid
+  title varchar 
+  note varchar
+  from_time timestamp
+  to_time timestamp
+  workspace_id uuid
+}
+Table events {
+  id uuid
+  name varchar
+  image varchar
+  description varchar
+  maximum_register integer
+  from_time timestamp
+  to_time timestamp
+  register_from_time timestamp
+  register_to_time timestamp
+  content text
+  is_important boolean
+  schedule_send timestamp
+  scope_send varchar
+  workspace_id uuid
+}
+Table appliance_absents {
+  id uuid
+  user_workspace_id uuid
+  from_time timestamp
+  to_time timestamp
+  note varchar
+  workspace_id uuid
+  class_id uuid
 }

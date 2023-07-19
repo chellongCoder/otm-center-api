@@ -2,7 +2,7 @@
   "env": "development",
   "dbConfig": {
     "host": "localhost",
-    "database": "base",
+    "database": "otmdb",
     "user": "postgres",
     "password": "123321!",
     "port": 5432,

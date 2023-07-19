@@ -1,12 +1,12 @@
-import { <%= className %> } from '@/models/<%= fileName %>.model';
+import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
 @Service()
-export class <%= className %>Service {
+export class UserWorkspaceDevicesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
-    const filteredData = await <%= className %>.findByCond({
+    const filteredData = await UserWorkspaceDevices.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
       skip: (page - 1) * limit,
@@ -25,7 +25,7 @@ export class <%= className %>Service {
    * findById
    */
   public async findById(id: number) {
-    return <%= className %>.findOne({
+    return UserWorkspaceDevices.findOne({
       where: {
         id,
       },
@@ -35,22 +35,22 @@ export class <%= className %>Service {
   /**
    * create
    */
-  public async create(item: <%= className %>) {
-    const results = <%= className %>.insert(item);
+  public async create(item: UserWorkspaceDevices) {
+    const results = UserWorkspaceDevices.insert(item);
     return results;
   }
 
   /**
    * update
    */
-  public async update(id: number, item: <%= className %>) {
-    return <%= className %>.update(id, item);
+  public async update(id: number, item: UserWorkspaceDevices) {
+    return UserWorkspaceDevices.update(id, item);
   }
 
   /**
    * delete
    */
   public async delete(id: number) {
-    return <%= className %>.delete(id);
+    return UserWorkspaceDevices.delete(id);
   }
 }

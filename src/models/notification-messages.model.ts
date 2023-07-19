@@ -1,14 +1,32 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-@Entity('<%=name%>')
-export class <%=className%> extends BaseEntity {
+@Entity('notification_messages')
+export class NotificationMessages extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-<% for (let i = 0; i < props.length; i++) {%>
-  @Column({ name: '<%= props[i].columnName %>' })
-  <%= props[i].name %>: <%= props[i].type %>;
-<%}%>
+
+  @Column({ name: 'title' })
+  title: string;
+
+  @Column({ name: 'body' })
+  body: string;
+
+  @Column({ name: 'description' })
+  description: string;
+
+  @Column({ name: 'metadata' })
+  metadata: string;
+
+  @Column({ name: 'firebase_push_type' })
+  firebasePushType: string;
+
+  @Column({ name: 'date' })
+  date: Date;
+
+  @Column({ name: 'workspace_id' })
+  workspaceId: string;
+
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
   @Expose({ name: 'created_at' })
@@ -25,14 +43,14 @@ export class <%=className%> extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('<%=name%>');
+    const queryBuider = this.createQueryBuilder('notification_messages');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`<%=name%>.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.where(`notification_messages.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`<%=name%>.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.andWhere(`notification_messages.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

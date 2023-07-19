@@ -25,7 +25,9 @@ const cleanAndBuild = async () => new Promise((resolve, reject) => {
   });
 })
 const typeMapping = {
+  uuid: 'string',
   integer: 'number',
+  number: 'number',
   int: 'number',
   double: 'number',
   decimal: 'number',
@@ -35,6 +37,8 @@ const typeMapping = {
   datetime: 'Date',
   date: 'Date',
   time: 'Date',
+  timestamp: 'Date',
+  boolean: 'boolean'
 };
 const excludeColumns = [
   'id',
@@ -51,16 +55,18 @@ const excludeColumns = [
   'updatedBy',
   'deletedBy',
 ];
+const toCamelCased = s => s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+const toFileName = s => s.replaceAll('_', '-');
 const createModel = async (name, props) => {
   console.log('create model...', name, props);
-  const params = props.split(',').map(item => ({ name: item.split(':')[0], type: item.split(':')[1] }));
+  const params = props.split(',').map(item => ({ columnName: item.split(':')[0], name: toCamelCased(item.split(':')[0]), type: item.split(':')[1] }));
   const fileContent = fs.readFileSync(path.join(__dirname, 'tmp/model.ejs'), 'utf8');
   const content = ejs.render(fileContent, {
     name,
-    className: capitalizeFirstLetter(name),
+    className: capitalizeFirstLetter(toCamelCased(name)),
     props: params,
   });
-  fs.writeFileSync(path.join(__dirname, `../src/models/${name}.model.ts`), content);
+  fs.writeFileSync(path.join(__dirname, `../src/models/${toFileName(name)}.model.ts`), content);
 };
 const createService = async (name, props) => {
   console.log('create service...', name, props);
@@ -68,9 +74,10 @@ const createService = async (name, props) => {
   const fileContent = fs.readFileSync(path.join(__dirname, 'tmp/service.ejs'), 'utf8');
   const content = ejs.render(fileContent, {
     name,
-    className: capitalizeFirstLetter(name),
+    fileName: toFileName(name),
+    className: capitalizeFirstLetter(toCamelCased(name)),
   });
-  fs.writeFileSync(path.join(__dirname, `../src/services/${name}.service.ts`), content);
+  fs.writeFileSync(path.join(__dirname, `../src/services/${toFileName(name)}.service.ts`), content);
 };
 const createController = async (name, props) => {
   console.log('create controller...', name, props);
@@ -78,9 +85,10 @@ const createController = async (name, props) => {
   const fileContent = fs.readFileSync(path.join(__dirname, 'tmp/controller.ejs'), 'utf8');
   const content = ejs.render(fileContent, {
     name,
-    className: capitalizeFirstLetter(name),
+    fileName: toFileName(name),
+    className: capitalizeFirstLetter(toCamelCased(name)),
   });
-  fs.writeFileSync(path.join(__dirname, `../src/controllers/${name}.controller.ts`), content);
+  fs.writeFileSync(path.join(__dirname, `../src/controllers/${toFileName(name)}.controller.ts`), content);
 };
 const createFactory = async (name, props) => {
   console.log('create factory...', name, props);

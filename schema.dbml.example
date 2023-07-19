@@ -1,0 +1,21 @@
+Table users {
+    id integer [primary key]
+    username varchar
+    role varchar
+    createdAt timestamp
+}
+
+Table posts {
+    id integer [primary key]
+    title varchar
+    body text [note: 'Content of the post']
+    userId integer
+    createdAt timestamp
+}
+
+Table courses {
+    id integer [primary key]
+    title varchar
+    desc text
+    createdAt timestamp
+}
