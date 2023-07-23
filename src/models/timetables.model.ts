@@ -7,19 +7,19 @@ export class Timetables extends BaseEntity {
   id: number;
 
   @Column({ name: 'lesson_id' })
-  lessonId: string;
+  lessonId: number;
 
   @Column({ name: 'classroom_id' })
-  classroomId: string;
+  classroomId: number;
 
   @Column({ name: 'date' })
   date: Date;
 
   @Column({ name: 'shift_id' })
-  shiftId: string;
+  shiftId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

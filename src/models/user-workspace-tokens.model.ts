@@ -7,10 +7,10 @@ export class UserWorkspaceTokens extends BaseEntity {
   id: number;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'hash_access_token' })
   hashAccessToken: string;

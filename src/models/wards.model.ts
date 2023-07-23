@@ -13,13 +13,13 @@ export class Wards extends BaseEntity {
   code: string;
 
   @Column({ name: 'country_id' })
-  countryId: string;
+  countryId: number;
 
   @Column({ name: 'district_id' })
-  districtId: string;
+  districtId: number;
 
   @Column({ name: 'city_id' })
-  cityId: string;
+  cityId: number;
 
   @Column({ name: 'description' })
   description: string;

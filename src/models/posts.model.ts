@@ -10,13 +10,13 @@ export class Posts extends BaseEntity {
   content: string;
 
   @Column({ name: 'class_id' })
-  classId: string;
+  classId: number;
 
   @Column({ name: 'allow_comment' })
   allowComment: boolean;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

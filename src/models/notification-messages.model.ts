@@ -25,7 +25,7 @@ export class NotificationMessages extends BaseEntity {
   date: Date;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

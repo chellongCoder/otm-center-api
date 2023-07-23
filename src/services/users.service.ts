@@ -1,12 +1,12 @@
-import { Cities } from '@/models/cities.model';
+import { Users } from '@/models/users.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
 @Service()
-export class CitiesService {
+export class UsersService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
-    const filteredData = await Cities.findByCond({
+    const filteredData = await Users.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
       skip: (page - 1) * limit,
@@ -25,7 +25,7 @@ export class CitiesService {
    * findById
    */
   public async findById(id: number) {
-    return Cities.findOne({
+    return Users.findOne({
       where: {
         id,
       },
@@ -35,22 +35,22 @@ export class CitiesService {
   /**
    * create
    */
-  public async create(item: Cities) {
-    const results = Cities.insert(item);
+  public async create(item: Users) {
+    const results = Users.insert(item);
     return results;
   }
 
   /**
    * update
    */
-  public async update(id: number, item: Cities) {
-    return Cities.update(id, item);
+  public async update(id: number, item: Users) {
+    return Users.update(id, item);
   }
 
   /**
    * delete
    */
   public async delete(id: number) {
-    return Cities.delete(id);
+    return Users.delete(id);
   }
 }

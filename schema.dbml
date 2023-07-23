@@ -1,15 +1,22 @@
 Table workspaces {
-  id uuid
+  id integer [primary key]
   code varchar
   name timestamp
   name_slug varchar
-  parent_id  uuid
+  parent_id  integer
   hierarchy_level integer
   is_active boolean
 }
+Table users {
+  id integer [primary key]
+  workspace_id integer
+  phone_number varchar
+  is_active boolean
+}
 Table user_workspaces {
-  id uuid [primary key]
-  workspace_id uuid
+  id integer [primary key]
+  workspace_id integer
+  user_id integer
   username varchar
   fullname varchar
   email varchar
@@ -17,7 +24,6 @@ Table user_workspaces {
   lang varchar
   is_owner varchar
   is_active varchar
-  verify_status varchar
   phone_number varchar
   avatar varchar
   address varchar
@@ -25,63 +31,63 @@ Table user_workspaces {
   zalo varchar
   skype varchar
   class_name_leaning varchar
-  city_id uuid
-  country_id uuid
-  district_id uuid
-  ward_id uuid
+  city_id integer
+  country_id integer
+  district_id integer
+  ward_id integer
   birthplace varchar
   attach_image_url varchar
   referral_source varchar
-  presenter_id uuid
+  presenter_id integer
   school_name varchar
   note varchar
   facebook varchar
   user_type varchar
 }
 Table user_workspace_tokens {
-  id uuid
-  user_workspace_id uuid
-  workspace_id uuid
+  id integer [primary key]
+  user_workspace_id integer
+  workspace_id integer
   hash_access_token varchar
   hash_refresh_token varchar
   status varchar
   is_active boolean
 }
 Table user_workspace_devices {
-  id uuid 
+  id integer [primary key] 
   device_name varchar
-  device_id uuid
+  device_id integer
   fcm_push_token varchar
   device_platform varchar
   is_emulator boolean
-  user_workspace_id uuid
-  workspace_id uuid
+  user_workspace_id integer
+  workspace_id integer
   is_active boolean
 }
 Table user_workspace_notifications{
-  id uuid
+  id integer [primary key]
   title varchar
   platform varchar
   status varchar
   firebase_push_type varchar
   date timestamp
   push_type varchar
-  notification_message_id uuid
-  receiver_user_workspace_id uuid
-  workspace_id uuid
+  notification_message_id integer
+  receiver_user_workspace_id integer
+  workspace_id integer
 }
 Table notification_messages {
-  id uuid
+  id integer [primary key]
   title varchar
   body varchar
   description varchar
   metadata text
   firebase_push_type varchar
   date timestamp
-  workspace_id uuid
+  workspace_id integer
 }
 Table courses {
-  id uuid
+  id integer [primary key]
   name varchar
   number_of_lesson integer
   payment_method varchar
@@ -90,222 +96,222 @@ Table courses {
   price integer
   subject varchar
   unit integer
-  workspace_id uuid
+  workspace_id integer
 }
 Table curriculums {
-  id uuid
+  id integer [primary key]
   name varchar
   content varchar
-  course_id uuid
-  workspace_id uuid
+  course_id integer
+  workspace_id integer
 }
 Table lectures {
-  id uuid
-  lesson_id uuid
+  id integer [primary key]
+  lesson_id integer
   name varchar
   content varchar
   exercise varchar
   equipment varchar
   is_use_name boolean
-  lecture_file_id uuid
-  curriculum_id uuid
-  workspace_id uuid
+  lecture_file_id integer
+  curriculum_id integer
+  workspace_id integer
 }
 Table files {
-  id uuid
+  id integer [primary key]
   url varchar
-  lecture_id uuid
-  post_id uuid
-  workspace_id uuid
+  lecture_id integer
+  post_id integer
+  workspace_id integer
 }
 Table lessons {
-  id uuid
+  id integer [primary key]
   name varchar
   content text [note: 'Nội dung bài học']
   exercise text [note: 'Bài tập về nhà']
-  curriculum_id uuid
-  workspace_id uuid
+  curriculum_id integer
+  workspace_id integer
 }
 Table skills {
-  id uuid
+  id integer [primary key]
   name varchar
   rate_by varchar
   maximum_score integer
   status  varchar
-  course_id uuid
-  workspace_id uuid
+  course_id integer
+  workspace_id integer
 }
 Table characters_of_skill{
-  id uuid
-  skill_id uuid
+  id integer [primary key]
+  skill_id integer
   name varchar
   value integer
-  workspace_id uuid
+  workspace_id integer
 }
 Table assignments {
-  id uuid
+  id integer [primary key]
   test_schedule_type  varchar
   test_schedule_value integer
   status varchar
-  course_id uuid
-  workspace_id uuid
+  course_id integer
+  workspace_id integer
 }
 Table assignment_skills {
-  id uuid
-  assignment_id uuid
-  skill_id uuid
-  workspace_id uuid
+  id integer [primary key]
+  assignment_id integer
+  skill_id integer
+  workspace_id integer
 }
 Table documents {
-  id uuid
+  id integer [primary key]
   name varchar
   url varchar
-  course_id uuid
-  workspace_id uuid
+  course_id integer
+  workspace_id integer
 }
 Table classes {
-  id uuid
+  id integer [primary key]
   name varchar
-  course_id uuid
+  course_id integer
   from_time timestamp
   to_time timestamp
   attended_number integer  [note: 'Đã học']
   session_number integer [note: 'Số buổi']
   code varchar
   status varchar
-  workspace_id uuid
+  workspace_id integer
 }
 Table user_workspace_courses {
-  id uuid
-  course_id uuid
-  user_workspace_id uuid
-  workspace_id uuid
+  id integer [primary key]
+  course_id integer
+  user_workspace_id integer
+  workspace_id integer
 }
 Table posts {
-  id uuid
+  id integer [primary key]
   content varchar
-  class_id uuid
+  class_id integer
   allow_comment boolean
-  workspace_id uuid
+  workspace_id integer
 }
 Table classrooms {
-  id uuid
+  id integer [primary key]
   name  varchar
   code varchar
   seat_number integer
   status varchar
-  workspace_id uuid
+  workspace_id integer
 }
 Table permissions {
-  id uuid
+  id integer [primary key]
   key varchar
-  workspace_id uuid
+  workspace_id integer
   is_active boolean
   is_all_permissions boolean
-  group_permission_id uuid
+  group_permission_id integer
 }
 Table cities{
-  id uuid
+  id integer [primary key]
   name varchar
   code varchar
-  country_id uuid
+  country_id integer
   description varchar
   is_active boolean
 }
 Table countries{
-  id uuid
+  id integer [primary key]
   name varchar
   code varchar
   description varchar
   is_active boolean
 }
 Table wards{
-  id uuid
+  id integer [primary key]
   name varchar
   code varchar
-  country_id uuid
-  district_id uuid
-  city_id uuid
+  country_id integer
+  district_id integer
+  city_id integer
   description varchar
   is_active boolean
 }
 Table districts {
-  id uuid
+  id integer [primary key]
   name varchar
   code varchar
-  country_id uuid
-  city_id uuid
+  country_id integer
+  city_id integer
   description varchar
   is_active boolean
 }
 Table group_permissions{
-  id uuid
+  id integer [primary key]
   name varchar
   description varchar
-  workspace_id uuid
+  workspace_id integer
   scope_key varchar
   is_super_admin boolean
   is_active boolean
 }
 Table scope_permissions {
-  id uuid
-  organization_id uuid
-  group_permission_id uuid
-  workspace_id uuid
+  id integer [primary key]
+  organization_id integer
+  group_permission_id integer
+  workspace_id integer
   is_active boolean
 }
 Table organizations {
-  id uuid
+  id integer [primary key]
   name varchar
   code varchar
-  workspace_id uuid
+  workspace_id integer
   is_active boolean
 }
 Table video_files {
-  id uuid
+  id integer [primary key]
   url varchar
-  post_id uuid
-  workspace_id uuid
+  post_id integer
+  workspace_id integer
 }
 Table image_files {
-  id uuid
+  id integer [primary key]
   url varchar
-  post_id uuid
-  workspace_id uuid
+  post_id integer
+  workspace_id integer
 }
 Table shift_weekdays{
-  id uuid
-  shift_id uuid
+  id integer [primary key]
+  shift_id integer
   weekday number
-  workspace_id uuid
+  workspace_id integer
 }
 Table shifts {
-  id uuid
+  id integer [primary key]
   from_time timestamp
   to_time timestamp
   is_everyday boolean
-  workspace_id uuid
+  workspace_id integer
 }
 Table timetables {
-  id uuid
-  lesson_id uuid
-  classroom_id uuid
+  id integer [primary key]
+  lesson_id integer
+  classroom_id integer
   date timestamp
-  shift_id uuid
-  workspace_id uuid
+  shift_id integer
+  workspace_id integer
 }
 Table user_workspace_timetables{
-  id uuid
-  user_workspace_id uuid
-  timetable_id uuid
+  id integer [primary key]
+  user_workspace_id integer
+  timetable_id integer
   title varchar 
   note varchar
   from_time timestamp
   to_time timestamp
-  workspace_id uuid
+  workspace_id integer
 }
 Table events {
-  id uuid
+  id integer [primary key]
   name varchar
   image varchar
   description varchar
@@ -318,14 +324,14 @@ Table events {
   is_important boolean
   schedule_send timestamp
   scope_send varchar
-  workspace_id uuid
+  workspace_id integer
 }
 Table appliance_absents {
-  id uuid
-  user_workspace_id uuid
+  id integer [primary key]
+  user_workspace_id integer
   from_time timestamp
   to_time timestamp
   note varchar
-  workspace_id uuid
-  class_id uuid
+  workspace_id integer
+  class_id integer
 }

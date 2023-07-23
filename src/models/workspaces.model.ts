@@ -16,7 +16,7 @@ export class Workspaces extends BaseEntity {
   nameSlug: string;
 
   @Column({ name: 'parent_id' })
-  parentId: string;
+  parentId: number;
 
   @Column({ name: 'hierarchy_level' })
   hierarchyLevel: number;

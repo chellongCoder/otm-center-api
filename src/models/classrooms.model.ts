@@ -19,7 +19,7 @@ export class Classrooms extends BaseEntity {
   status: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

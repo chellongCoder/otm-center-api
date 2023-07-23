@@ -13,7 +13,7 @@ export class Organizations extends BaseEntity {
   code: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'is_active' })
   isActive: boolean;

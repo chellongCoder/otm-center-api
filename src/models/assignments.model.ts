@@ -16,10 +16,10 @@ export class Assignments extends BaseEntity {
   status: string;
 
   @Column({ name: 'course_id' })
-  courseId: string;
+  courseId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

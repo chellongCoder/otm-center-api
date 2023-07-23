@@ -16,10 +16,10 @@ export class Lessons extends BaseEntity {
   exercise: string;
 
   @Column({ name: 'curriculum_id' })
-  curriculumId: string;
+  curriculumId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

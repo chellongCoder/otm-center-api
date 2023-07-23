@@ -31,7 +31,7 @@ export class Courses extends BaseEntity {
   unit: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

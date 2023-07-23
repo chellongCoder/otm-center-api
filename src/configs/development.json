@@ -4,13 +4,13 @@
     "host": "localhost",
     "database": "otmdb",
     "user": "postgres",
-    "password": "123321!",
+    "password": "",
     "port": 5432,
     "synchronize": true,
     "logging": false
   },
   "log": {
-    "format": "dev",
+    "format": "tiny",
     "dir": "../logs"
   },
   "cors": {

@@ -10,7 +10,7 @@ export class Classes extends BaseEntity {
   name: string;
 
   @Column({ name: 'course_id' })
-  courseId: string;
+  courseId: number;
 
   @Column({ name: 'from_time' })
   fromTime: Date;
@@ -31,7 +31,7 @@ export class Classes extends BaseEntity {
   status: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

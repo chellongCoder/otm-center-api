@@ -1,19 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-@Entity('scope_permissions')
-export class ScopePermissions extends BaseEntity {
+@Entity('users')
+export class Users extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'organization_id' })
-  organizationId: number;
-
-  @Column({ name: 'group_permission_id' })
-  groupPermissionId: number;
-
   @Column({ name: 'workspace_id' })
   workspaceId: number;
+
+  @Column({ name: 'phone_number' })
+  phoneNumber: string;
 
   @Column({ name: 'is_active' })
   isActive: boolean;
@@ -34,14 +31,14 @@ export class ScopePermissions extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('scope_permissions');
+    const queryBuider = this.createQueryBuilder('users');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`scope_permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.where(`users.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`scope_permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.andWhere(`users.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

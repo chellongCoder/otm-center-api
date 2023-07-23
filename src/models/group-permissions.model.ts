@@ -13,7 +13,7 @@ export class GroupPermissions extends BaseEntity {
   description: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'scope_key' })
   scopeKey: string;

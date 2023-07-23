@@ -7,7 +7,10 @@ export class UserWorkspaces extends BaseEntity {
   id: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
+
+  @Column({ name: 'user_id' })
+  userId: number;
 
   @Column({ name: 'username' })
   username: string;
@@ -29,9 +32,6 @@ export class UserWorkspaces extends BaseEntity {
 
   @Column({ name: 'is_active' })
   isActive: string;
-
-  @Column({ name: 'verify_status' })
-  verifyStatus: string;
 
   @Column({ name: 'phone_number' })
   phoneNumber: string;
@@ -55,16 +55,16 @@ export class UserWorkspaces extends BaseEntity {
   classNameLeaning: string;
 
   @Column({ name: 'city_id' })
-  cityId: string;
+  cityId: number;
 
   @Column({ name: 'country_id' })
-  countryId: string;
+  countryId: number;
 
   @Column({ name: 'district_id' })
-  districtId: string;
+  districtId: number;
 
   @Column({ name: 'ward_id' })
-  wardId: string;
+  wardId: number;
 
   @Column({ name: 'birthplace' })
   birthplace: string;
@@ -76,7 +76,7 @@ export class UserWorkspaces extends BaseEntity {
   referralSource: string;
 
   @Column({ name: 'presenter_id' })
-  presenterId: string;
+  presenterId: number;
 
   @Column({ name: 'school_name' })
   schoolName: string;
