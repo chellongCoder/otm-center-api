@@ -1,7 +1,9 @@
 import { LoginSmsResponse } from '@/configs/interfaces/auth/loginSms';
+import { VerifyOtpResponse } from '@/configs/interfaces/auth/verifyOtp';
 import { PhoneLoginDto } from '@/dtos/phoneLogin.dto';
+import { VerifyOtpDto } from '@/dtos/phoneVerifyOtp';
 import { AuthService } from '@/services/auth.service';
-import { Body, Controller, Post } from 'routing-controllers';
+import { Body, Controller, Post, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -19,5 +21,12 @@ export class AuthController {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  @Post('/login/sms/verify')
+  @OpenAPI({ summary: 'Verify OTP code' })
+  @ResponseSchema(VerifyOtpResponse)
+  async verify(@Body() body: VerifyOtpDto, @Res() res: any) {
+    return this.authService.verifyOtp(res, body.phone, body.code);
   }
 }
