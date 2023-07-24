@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
 import { Service } from 'typedi';
-import { generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
+import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
 import { RefreshToken } from '@/models/refresh-tokens.model';
 import { logger } from '@/utils/logger';
 import { RecoveryCodes } from '@/models/recovery-codes.model';
@@ -11,8 +11,14 @@ import { UpdateNewPasswordDto } from '@/dtos/updatePass.dto';
 import { ForgotDto } from '@/dtos/forgot.dto';
 import e from 'express';
 import { HttpException } from '@/exceptions/http-exception';
+import { twilioService } from '@/utils/twilio';
+import { HttpMessages } from '@/exceptions/http-messages.constant';
 @Service()
 export class AuthService {
+  twilioService: any;
+  constructor() {
+    this.twilioService = twilioService;
+  }
   /**
    * login
    */
@@ -167,5 +173,23 @@ export class AuthService {
       };
     }
     return null;
+  }
+
+  /**
+   * login with SMS
+   */
+  public async loginWithSMS(phone: string) {
+    logger.info(`<${phone}> START LOGIN`);
+    const phoneNumber = fixPhoneVN(phone);
+    return this.twilioService.verifications
+      .create({ to: phoneNumber, channel: 'sms' })
+      .then(() => {
+        logger.info(`>>> Sent OTP to ${phoneNumber}`);
+        return { success: true, message: HttpMessages._OK };
+      })
+      .catch((error: any) => {
+        logger.error(error);
+        return { success: false, message: HttpMessages._BAD_REQUEST };
+      });
   }
 }
