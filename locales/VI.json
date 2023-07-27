@@ -1,0 +1,19 @@
+{
+	"WORKSPACE_NAME_IS_NOT_ALLOWED": "Tên trung tâm không hợp lệ",
+	"VALIDATE_FAILED": "Validate thất bại",
+	"PERMISSION_DENIED": "Truy cập không hợp lệ",
+	"DATA_NOT_FOUND": "Không tìm thấy dữ liệu",
+	"DATA_IS_EXIST": "Dữ liệu đã tồn tại",
+	"WORKSPACE_NOT_FOUND": "Không tìm thấy trung tâm",
+	"WORKSPACE_IS_EXIST": "Trung tâm đã tồn tại",
+	"USER_NOT_FOUND": "Không tìm thấy user",
+	"USER_IS_EXIST": "User đã tồn tại",
+	"OWNER_WORKSPACE_NOT_FOUND": "Không tìm thấy owner",
+	"CONFIG_NOT_FOUND": "Thiếu config",
+	"SESSION_EXPIRED": "Phiên đăng nhập đã hết hạn",
+	"USER_NOT_ACTIVED": "User đã bị xoá hoặc không tồn tại",
+	"USER_WORKSPACE_NOT_FOUND": "User không thuộc trung tâm này",
+	"ORGANIZATION_NOT_FOUND": "Không tìm thấy bộ phận này",
+	"OTP_INVALID": "Mã OTP không hợp lệ",
+	"ERROR_OCCURRED_TRY_AGAIN": "Có lỗi xảy ra, vui lòng thử lại sau"
+}

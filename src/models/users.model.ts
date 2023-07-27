@@ -9,10 +9,10 @@ export class Users extends BaseEntity {
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
-  @Column({ name: 'phone_number' })
+  @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

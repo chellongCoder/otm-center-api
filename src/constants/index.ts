@@ -9,3 +9,13 @@ export class Constant {
   public static FORGOT_PASSWORD_URL_ERR = 'http://localhost/login';
   public static ACTIVE_ACCOUNT_REDIRECT_URL = 'http://localhost/active';
 }
+export enum STATUS_VERIFICATION_TWILLO {
+  APPROVED = 'approved',
+  PENDING = 'pending',
+  CANCELED = 'canceled',
+}
+
+export enum LANGUAGES {
+  VI = 'VI',
+  EN = 'EN',
+}

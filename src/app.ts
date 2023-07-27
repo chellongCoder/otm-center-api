@@ -18,6 +18,8 @@ import session from 'express-session';
 import '@/utils/passport';
 import { DbConnection } from '@/database/dbConnection';
 import errorMiddleware from '@/middlewares/error.middleware';
+import * as i18n from 'i18n';
+import { LANGUAGES } from './constants';
 
 export default class App {
   public app: express.Application;
@@ -31,11 +33,11 @@ export default class App {
     this.connectToDatabase();
 
     this.initializeMiddlewares();
-
     this.initializeRoutes();
     this.initializeSwagger();
     this.initializePassport();
     this.initializeErrorHandling();
+    this.initI18n();
   }
 
   public getServer() {
@@ -121,6 +123,13 @@ export default class App {
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
   }
+
+  private initI18n = () => {
+    i18n.configure({
+      locales: [LANGUAGES.EN, LANGUAGES.VI],
+      directory: path.join(__dirname, '..', 'locales'),
+    });
+  };
 
   public listen() {
     this.app.listen(this.port, () => {

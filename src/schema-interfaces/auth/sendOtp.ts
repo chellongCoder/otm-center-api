@@ -1,6 +1,6 @@
 import { IsString, IsBoolean } from 'class-validator';
 
-export class LoginSmsResponse {
+export class SendOTPResponse {
   @IsBoolean()
   success: boolean;
 

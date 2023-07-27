@@ -1,20 +1,21 @@
 Table workspaces {
-  id integer [primary key]
+  id integer [pk]
   code varchar
-  name timestamp
+  host varchar [not null, unique]
+  name varchar
   name_slug varchar
   parent_id  integer
   hierarchy_level integer
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table users {
-  id integer [primary key]
+  id integer [pk]
   workspace_id integer
   phone_number varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table user_workspaces {
-  id integer [primary key]
+  id integer [pk]
   workspace_id integer
   user_id integer
   username varchar
@@ -22,8 +23,8 @@ Table user_workspaces {
   email varchar
   sex varchar
   lang varchar
-  is_owner varchar
-  is_active varchar
+  is_owner boolean
+  is_active boolean [default: true]
   phone_number varchar
   avatar varchar
   address varchar
@@ -45,16 +46,16 @@ Table user_workspaces {
   user_type varchar
 }
 Table user_workspace_tokens {
-  id integer [primary key]
+  id integer [pk]
   user_workspace_id integer
   workspace_id integer
-  hash_access_token varchar
-  hash_refresh_token varchar
+  access_token varchar
+  refresh_token varchar
   status varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table user_workspace_devices {
-  id integer [primary key] 
+  id integer [pk] 
   device_name varchar
   device_id integer
   fcm_push_token varchar
@@ -62,10 +63,10 @@ Table user_workspace_devices {
   is_emulator boolean
   user_workspace_id integer
   workspace_id integer
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table user_workspace_notifications{
-  id integer [primary key]
+  id integer [pk]
   title varchar
   platform varchar
   status varchar
@@ -77,7 +78,7 @@ Table user_workspace_notifications{
   workspace_id integer
 }
 Table notification_messages {
-  id integer [primary key]
+  id integer [pk]
   title varchar
   body varchar
   description varchar
@@ -87,7 +88,7 @@ Table notification_messages {
   workspace_id integer
 }
 Table courses {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   number_of_lesson integer
   payment_method varchar
@@ -99,14 +100,14 @@ Table courses {
   workspace_id integer
 }
 Table curriculums {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   content varchar
   course_id integer
   workspace_id integer
 }
 Table lectures {
-  id integer [primary key]
+  id integer [pk]
   lesson_id integer
   name varchar
   content varchar
@@ -118,14 +119,14 @@ Table lectures {
   workspace_id integer
 }
 Table files {
-  id integer [primary key]
+  id integer [pk]
   url varchar
   lecture_id integer
   post_id integer
   workspace_id integer
 }
 Table lessons {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   content text [note: 'Nội dung bài học']
   exercise text [note: 'Bài tập về nhà']
@@ -133,7 +134,7 @@ Table lessons {
   workspace_id integer
 }
 Table skills {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   rate_by varchar
   maximum_score integer
@@ -142,14 +143,14 @@ Table skills {
   workspace_id integer
 }
 Table characters_of_skill{
-  id integer [primary key]
+  id integer [pk]
   skill_id integer
   name varchar
   value integer
   workspace_id integer
 }
 Table assignments {
-  id integer [primary key]
+  id integer [pk]
   test_schedule_type  varchar
   test_schedule_value integer
   status varchar
@@ -157,20 +158,20 @@ Table assignments {
   workspace_id integer
 }
 Table assignment_skills {
-  id integer [primary key]
+  id integer [pk]
   assignment_id integer
   skill_id integer
   workspace_id integer
 }
 Table documents {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   url varchar
   course_id integer
   workspace_id integer
 }
 Table classes {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   course_id integer
   from_time timestamp
@@ -182,20 +183,20 @@ Table classes {
   workspace_id integer
 }
 Table user_workspace_courses {
-  id integer [primary key]
+  id integer [pk]
   course_id integer
   user_workspace_id integer
   workspace_id integer
 }
 Table posts {
-  id integer [primary key]
+  id integer [pk]
   content varchar
   class_id integer
   allow_comment boolean
   workspace_id integer
 }
 Table classrooms {
-  id integer [primary key]
+  id integer [pk]
   name  varchar
   code varchar
   seat_number integer
@@ -203,97 +204,97 @@ Table classrooms {
   workspace_id integer
 }
 Table permissions {
-  id integer [primary key]
+  id integer [pk]
   key varchar
   workspace_id integer
-  is_active boolean
+  is_active boolean [default: true]
   is_all_permissions boolean
   group_permission_id integer
 }
 Table cities{
-  id integer [primary key]
+  id integer [pk]
   name varchar
   code varchar
   country_id integer
   description varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table countries{
-  id integer [primary key]
+  id integer [pk]
   name varchar
   code varchar
   description varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table wards{
-  id integer [primary key]
+  id integer [pk]
   name varchar
   code varchar
   country_id integer
   district_id integer
   city_id integer
   description varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table districts {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   code varchar
   country_id integer
   city_id integer
   description varchar
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table group_permissions{
-  id integer [primary key]
+  id integer [pk]
   name varchar
   description varchar
   workspace_id integer
   scope_key varchar
   is_super_admin boolean
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table scope_permissions {
-  id integer [primary key]
+  id integer [pk]
   organization_id integer
   group_permission_id integer
   workspace_id integer
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table organizations {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   code varchar
   workspace_id integer
-  is_active boolean
+  is_active boolean [default: true]
 }
 Table video_files {
-  id integer [primary key]
+  id integer [pk]
   url varchar
   post_id integer
   workspace_id integer
 }
 Table image_files {
-  id integer [primary key]
+  id integer [pk]
   url varchar
   post_id integer
   workspace_id integer
 }
 Table shift_weekdays{
-  id integer [primary key]
+  id integer [pk]
   shift_id integer
   weekday number
   workspace_id integer
 }
 Table shifts {
-  id integer [primary key]
+  id integer [pk]
   from_time timestamp
   to_time timestamp
   is_everyday boolean
   workspace_id integer
 }
 Table timetables {
-  id integer [primary key]
+  id integer [pk]
   lesson_id integer
   classroom_id integer
   date timestamp
@@ -301,7 +302,7 @@ Table timetables {
   workspace_id integer
 }
 Table user_workspace_timetables{
-  id integer [primary key]
+  id integer [pk]
   user_workspace_id integer
   timetable_id integer
   title varchar 
@@ -311,7 +312,7 @@ Table user_workspace_timetables{
   workspace_id integer
 }
 Table events {
-  id integer [primary key]
+  id integer [pk]
   name varchar
   image varchar
   description varchar
@@ -327,7 +328,7 @@ Table events {
   workspace_id integer
 }
 Table appliance_absents {
-  id integer [primary key]
+  id integer [pk]
   user_workspace_id integer
   from_time timestamp
   to_time timestamp

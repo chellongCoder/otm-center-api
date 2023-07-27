@@ -12,82 +12,82 @@ export class UserWorkspaces extends BaseEntity {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @Column({ name: 'username' })
+  @Column({ name: 'username', nullable: true })
   username: string;
 
-  @Column({ name: 'fullname' })
+  @Column({ name: 'fullname', nullable: true })
   fullname: string;
 
-  @Column({ name: 'email' })
+  @Column({ name: 'email', nullable: true })
   email: string;
 
-  @Column({ name: 'sex' })
+  @Column({ name: 'sex', nullable: true })
   sex: string;
 
-  @Column({ name: 'lang' })
+  @Column({ name: 'lang', nullable: true })
   lang: string;
 
-  @Column({ name: 'is_owner' })
-  isOwner: string;
+  @Column({ name: 'is_owner', nullable: true })
+  isOwner: boolean;
 
-  @Column({ name: 'is_active' })
-  isActive: string;
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 
   @Column({ name: 'phone_number' })
   phoneNumber: string;
 
-  @Column({ name: 'avatar' })
+  @Column({ name: 'avatar', nullable: true })
   avatar: string;
 
-  @Column({ name: 'address' })
+  @Column({ name: 'address', nullable: true })
   address: string;
 
-  @Column({ name: 'status' })
+  @Column({ name: 'status', nullable: true })
   status: string;
 
-  @Column({ name: 'zalo' })
+  @Column({ name: 'zalo', nullable: true })
   zalo: string;
 
-  @Column({ name: 'skype' })
+  @Column({ name: 'skype', nullable: true })
   skype: string;
 
-  @Column({ name: 'class_name_leaning' })
+  @Column({ name: 'class_name_leaning', nullable: true })
   classNameLeaning: string;
 
-  @Column({ name: 'city_id' })
+  @Column({ name: 'city_id', nullable: true })
   cityId: number;
 
-  @Column({ name: 'country_id' })
+  @Column({ name: 'country_id', nullable: true })
   countryId: number;
 
-  @Column({ name: 'district_id' })
+  @Column({ name: 'district_id', nullable: true })
   districtId: number;
 
-  @Column({ name: 'ward_id' })
+  @Column({ name: 'ward_id', nullable: true })
   wardId: number;
 
-  @Column({ name: 'birthplace' })
+  @Column({ name: 'birthplace', nullable: true })
   birthplace: string;
 
-  @Column({ name: 'attach_image_url' })
+  @Column({ name: 'attach_image_url', nullable: true })
   attachImageUrl: string;
 
-  @Column({ name: 'referral_source' })
+  @Column({ name: 'referral_source', nullable: true })
   referralSource: string;
 
-  @Column({ name: 'presenter_id' })
+  @Column({ name: 'presenter_id', nullable: true })
   presenterId: number;
 
-  @Column({ name: 'school_name' })
+  @Column({ name: 'school_name', nullable: true })
   schoolName: string;
 
-  @Column({ name: 'note' })
+  @Column({ name: 'note', nullable: true })
   note: string;
 
-  @Column({ name: 'facebook' })
+  @Column({ name: 'facebook', nullable: true })
   facebook: string;
 
-  @Column({ name: 'user_type' })
+  @Column({ name: 'user_type', nullable: true })
   userType: string;
 
   @CreateDateColumn({ name: 'created_at' })

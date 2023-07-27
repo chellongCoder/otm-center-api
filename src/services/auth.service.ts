@@ -1,3 +1,5 @@
+import { UserWorkspaceTokens } from '@/models/user-workspace-tokens.model';
+import { Users } from '@/models/users.model';
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
 import { Service } from 'typedi';
@@ -14,6 +16,11 @@ import { HttpException } from '@/exceptions/http-exception';
 import { twilioService } from '@/utils/twilio';
 import { HttpMessages } from '@/exceptions/http-messages.constant';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { LoginDto } from '@/dtos/login.dto';
+import { LANGUAGES, STATUS_VERIFICATION_TWILLO } from '@/constants';
+import { TwilloVerificationResponse } from '@/interfaces/twillo-verification-response.interface';
+import { Workspaces } from '@/models/workspaces.model';
+import * as i18n from 'i18n';
 @Service()
 export class AuthService {
   twilioService: any;
@@ -23,7 +30,7 @@ export class AuthService {
   /**
    * login
    */
-  public async login(email: string, password: string) {
+  public async login_old(email: string, password: string) {
     const account = await Account.findByEmail(email);
     if (account) {
       const match = await bcrypt.compare(password, account.password);
@@ -63,27 +70,32 @@ export class AuthService {
   /**
    * login with passport
    */
-  public async jwt({ id, name, email, phone, role, accountType, profileImageUrl }: any) {
+  public async jwt({ userWorkspaceId, phoneNumber, workspaceId }: { userWorkspaceId: number; phoneNumber: string; workspaceId: number }) {
     const accessToken = generateAccessToken({
-      id,
-      email: email || null,
-      name: name || null,
-      profileImageUrl: profileImageUrl || null,
-      phone: phone || null,
+      userWorkspaceId,
+      phoneNumber,
+      workspaceId,
     });
     // find refreshToken and remove
-    const currToken = await RefreshToken.findByAccount(id);
+    const currToken = await UserWorkspaceTokens.findOne({
+      where: {
+        workspaceId,
+        userWorkspaceId,
+      },
+    });
     if (currToken) {
       await currToken.softRemove();
     }
     const refreshToken = generateRandToken();
-    const rt: RefreshToken = new RefreshToken();
-    rt.token = refreshToken;
+    const rt: UserWorkspaceTokens = new UserWorkspaceTokens();
+    rt.refreshToken = refreshToken;
+    rt.accessToken = accessToken;
+    rt.userWorkspaceId = userWorkspaceId;
+    rt.workspaceId = workspaceId;
     await rt.save();
     return {
       refreshToken,
       accessToken,
-      // account,
     };
   }
 
@@ -181,13 +193,11 @@ export class AuthService {
   /**
    * login with SMS
    */
-  public async loginWithSMS(phone: string) {
-    logger.info(`<${phone}> START LOGIN`);
-    const phoneNumber = fixPhoneVN(phone);
+  public async sendOTP(phoneNumber: string) {
+    const phoneNumberVn = fixPhoneVN(phoneNumber);
     return this.twilioService.verifications
-      .create({ to: phoneNumber, channel: 'sms' })
+      .create({ to: phoneNumberVn, channel: 'sms' })
       .then(() => {
-        logger.info(`>>> Sent OTP to ${phoneNumber}`);
         return { success: true, message: HttpMessages._OK };
       })
       .catch((error: any) => {
@@ -195,34 +205,96 @@ export class AuthService {
         return { success: false, message: HttpMessages._BAD_REQUEST };
       });
   }
-
-  public async verifyOtp(res: Response, phone: string, code: string) {
-    const phoneNumber = fixPhoneVN(phone);
+  public async login(res: Response, body: LoginDto) {
+    const phoneNumber = fixPhoneVN(body.phoneNumber);
     return this.twilioService.verificationChecks
-      .create({ to: phoneNumber, code: code })
-      .then(async (verification_check: any) => {
-        if (verification_check.status == 'approved') {
-          const account = await UserWorkspaces.findOne({ where: { phoneNumber } });
-          if (account) {
-            const payload = await this.jwt({ id: account.id, email: account.email });
-            return { success: true, data: payload };
-          }
-
-          const newAccount = new UserWorkspaces();
-          newAccount.phoneNumber = phone;
-          const accountAdded: UserWorkspaces = await newAccount.save();
-
-          const payload = await this.jwt(accountAdded);
-          if (payload) {
-            return { success: true, data: payload };
-          }
+      .create({ to: phoneNumber, code: body.code })
+      .then(async (verification_check: TwilloVerificationResponse) => {
+        switch (verification_check.status) {
+          case STATUS_VERIFICATION_TWILLO.APPROVED:
+            const userData = await Users.findOne({ where: { phoneNumber } });
+            const workspaceData = await Workspaces.findOne({ where: { host: body.host } });
+            if (!workspaceData) {
+              return new HttpException(
+                404,
+                i18n.__({
+                  phrase: 'WORKSPACE_NOT_FOUND',
+                  locale: LANGUAGES.VI,
+                }),
+              );
+            }
+            if (!userData) {
+              return new HttpException(
+                404,
+                i18n.__({
+                  phrase: 'USER_NOT_FOUND',
+                  locale: LANGUAGES.VI,
+                }),
+              );
+            }
+            const userWorkspaceData = await UserWorkspaces.findOne({ where: { workspaceId: workspaceData.id, userId: userData.id } });
+            if (!userWorkspaceData) {
+              return new HttpException(
+                404,
+                i18n.__({
+                  phrase: 'USER_WORKSPACE_NOT_FOUND',
+                  locale: LANGUAGES.VI,
+                }),
+              );
+            }
+            const payload = await this.jwt({
+              userWorkspaceId: userWorkspaceData.id,
+              phoneNumber: userData.phoneNumber,
+              workspaceId: workspaceData.id,
+            });
+            return {
+              success: true,
+              data: {
+                accessToken: payload.accessToken,
+                refreshToken: payload.refreshToken,
+                userWorkspaces: {
+                  id: userWorkspaceData.id,
+                  fullname: userWorkspaceData.fullname,
+                },
+                users: {
+                  phoneNumber: userData.phoneNumber,
+                  id: userData.id,
+                },
+              },
+            };
+            break;
+          case STATUS_VERIFICATION_TWILLO.CANCELED:
+          case STATUS_VERIFICATION_TWILLO.PENDING:
+            res.status(403).json({
+              success: false,
+              message: i18n.__({
+                phrase: 'OTP_INVALID',
+                locale: LANGUAGES.VI,
+              }),
+            });
+            break;
+          default:
+            res.status(403).json({
+              success: false,
+              message: i18n.__({
+                phrase: 'ERROR_OCCURRED_TRY_AGAIN',
+                locale: LANGUAGES.VI,
+              }),
+            });
+            return res;
+            break;
         }
-        res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
-        return res;
       })
       .catch((err: any) => {
         if (err) {
-          res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
+          console.log('chh_log ---> login ---> err:', err);
+          res.status(404).json({
+            success: false,
+            message: i18n.__({
+              phrase: 'ERROR_OCCURRED_TRY_AGAIN',
+              locale: LANGUAGES.VI,
+            }),
+          });
           return res;
         }
       });

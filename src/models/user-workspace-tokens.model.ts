@@ -12,16 +12,16 @@ export class UserWorkspaceTokens extends BaseEntity {
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
-  @Column({ name: 'hash_access_token' })
-  hashAccessToken: string;
+  @Column({ name: 'access_token' })
+  accessToken: string;
 
-  @Column({ name: 'hash_refresh_token' })
-  hashRefreshToken: string;
+  @Column({ name: 'refresh_token' })
+  refreshToken: string;
 
-  @Column({ name: 'status' })
+  @Column({ name: 'status', nullable: true })
   status: string;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

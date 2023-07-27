@@ -6,22 +6,25 @@ export class Workspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'code' })
+  @Column({ name: 'code', nullable: true })
   code: string;
 
-  @Column({ name: 'name' })
-  name: Date;
+  @Column({ name: 'host', unique: true })
+  host: string;
 
-  @Column({ name: 'name_slug' })
+  @Column({ name: 'name' })
+  name: string;
+
+  @Column({ name: 'name_slug', nullable: true })
   nameSlug: string;
 
-  @Column({ name: 'parent_id' })
+  @Column({ name: 'parent_id', nullable: true })
   parentId: number;
 
   @Column({ name: 'hierarchy_level' })
   hierarchyLevel: number;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
