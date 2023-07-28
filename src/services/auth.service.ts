@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
 import { Service } from 'typedi';
-import { generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
+import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
 import { RefreshToken } from '@/models/refresh-tokens.model';
 import { logger } from '@/utils/logger';
 import { RecoveryCodes } from '@/models/recovery-codes.model';
@@ -9,10 +9,17 @@ import config from 'config';
 import { SendGridClient } from '@/utils/sendgrid';
 import { UpdateNewPasswordDto } from '@/dtos/updatePass.dto';
 import { ForgotDto } from '@/dtos/forgot.dto';
-import e from 'express';
+import e, { Response } from 'express';
 import { HttpException } from '@/exceptions/http-exception';
+import { twilioService } from '@/utils/twilio';
+import { HttpMessages } from '@/exceptions/http-messages.constant';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
 @Service()
 export class AuthService {
+  twilioService: any;
+  constructor() {
+    this.twilioService = twilioService;
+  }
   /**
    * login
    */
@@ -56,10 +63,13 @@ export class AuthService {
   /**
    * login with passport
    */
-  public async jwt(id: number, email: string) {
-    const accessToken = await generateAccessToken({
+  public async jwt({ id, name, email, phone, role, accountType, profileImageUrl }: any) {
+    const accessToken = generateAccessToken({
       id,
-      email,
+      email: email || null,
+      name: name || null,
+      profileImageUrl: profileImageUrl || null,
+      phone: phone || null,
     });
     // find refreshToken and remove
     const currToken = await RefreshToken.findByAccount(id);
@@ -69,7 +79,6 @@ export class AuthService {
     const refreshToken = generateRandToken();
     const rt: RefreshToken = new RefreshToken();
     rt.token = refreshToken;
-    // rt.account = account;
     await rt.save();
     return {
       refreshToken,
@@ -167,5 +176,55 @@ export class AuthService {
       };
     }
     return null;
+  }
+
+  /**
+   * login with SMS
+   */
+  public async loginWithSMS(phone: string) {
+    logger.info(`<${phone}> START LOGIN`);
+    const phoneNumber = fixPhoneVN(phone);
+    return this.twilioService.verifications
+      .create({ to: phoneNumber, channel: 'sms' })
+      .then(() => {
+        logger.info(`>>> Sent OTP to ${phoneNumber}`);
+        return { success: true, message: HttpMessages._OK };
+      })
+      .catch((error: any) => {
+        logger.error(error);
+        return { success: false, message: HttpMessages._BAD_REQUEST };
+      });
+  }
+
+  public async verifyOtp(res: Response, phone: string, code: string) {
+    const phoneNumber = fixPhoneVN(phone);
+    return this.twilioService.verificationChecks
+      .create({ to: phoneNumber, code: code })
+      .then(async (verification_check: any) => {
+        if (verification_check.status == 'approved') {
+          const account = await UserWorkspaces.findOne({ where: { phoneNumber } });
+          if (account) {
+            const payload = await this.jwt({ id: account.id, email: account.email });
+            return { success: true, data: payload };
+          }
+
+          const newAccount = new UserWorkspaces();
+          newAccount.phoneNumber = phone;
+          const accountAdded: UserWorkspaces = await newAccount.save();
+
+          const payload = await this.jwt(accountAdded);
+          if (payload) {
+            return { success: true, data: payload };
+          }
+        }
+        res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
+        return res;
+      })
+      .catch((err: any) => {
+        if (err) {
+          res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
+          return res;
+        }
+      });
   }
 }
