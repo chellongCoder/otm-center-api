@@ -37,6 +37,7 @@ export class UsersService {
    */
   public async create(item: Users) {
     const results = Users.insert(item);
+    console.log('chh_log ---> create ---> results:', results);
     return results;
   }
 

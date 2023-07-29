@@ -16,9 +16,7 @@ export class AuthController {
   @OpenAPI({ summary: 'Send OTP to phone number' })
   @ResponseSchema(SendOTPResponse)
   async sendOTP(@Body() body: SendOTPDto, @Res() res: any) {
-    console.log('chh_log ---> sendOTP ---> body:', body);
     const data = await this.authService.sendOTP(body.phoneNumber);
-    console.log('chh_log ---> sendOTP ---> data:', data);
     return successResponse({ res, data, status_code: 200 });
   }
 

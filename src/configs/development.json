@@ -1,10 +1,10 @@
 {
   "env": "development",
   "dbConfig": {
-    "host": "localhost",
+    "host": "postgres.2soft.top",
     "database": "otmdb",
     "user": "postgres",
-    "password": "",
+    "password": "uu8D]HV,bm-7}DzLu@j$",
     "port": 5432,
     "synchronize": true,
     "logging": false
