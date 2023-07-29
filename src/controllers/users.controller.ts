@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Users } from '@/models/users.model';
 import { UsersService } from '@/services/users.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -38,6 +38,7 @@ export class UsersController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update users' })
   async update() {
     try {
