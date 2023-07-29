@@ -6,7 +6,7 @@
 	"DATA_IS_EXIST": "Dữ liệu đã tồn tại",
 	"WORKSPACE_NOT_FOUND": "Không tìm thấy trung tâm",
 	"WORKSPACE_IS_EXIST": "Trung tâm đã tồn tại",
-	"USER_NOT_FOUND": "Không tìm thấy user",
+	"USER_NOT_FOUND": "Không tìm thấy số điện thoại, liên hệ quản trị viên để tạo tài khoản",
 	"USER_IS_EXIST": "User đã tồn tại",
 	"OWNER_WORKSPACE_NOT_FOUND": "Không tìm thấy owner",
 	"CONFIG_NOT_FOUND": "Thiếu config",

@@ -198,6 +198,10 @@ export class AuthService {
    */
   public async sendOTP(phoneNumber: string) {
     const phoneNumberVn = fixPhoneVN(phoneNumber);
+    const userData = await Users.findOne({ where: { phoneNumberVn } });
+    if (!userData) {
+      throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
+    }
     return this.twilioService.verifications
       .create({ to: phoneNumberVn, channel: 'sms' })
       .then(() => {
@@ -212,11 +216,11 @@ export class AuthService {
     const phoneNumber = fixPhoneVN(body.phoneNumber);
     const userData = await Users.findOne({ where: { phoneNumber } });
     const workspaceData = await Workspaces.findOne({ where: { host: body.host } });
-    if (!workspaceData) {
-      throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
-    }
     if (!userData) {
       throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
+    }
+    if (!workspaceData) {
+      throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
     }
     const userWorkspaceData = await UserWorkspaces.findOne({ where: { workspaceId: workspaceData.id, userId: userData.id } });
     if (!userWorkspaceData) {
