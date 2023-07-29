@@ -1,3 +1,4 @@
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Users } from '@/models/users.model';
 import { UsersService } from '@/services/users.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
@@ -20,7 +21,8 @@ export class UsersController {
     try {
       return this.service.findAll(page, limit, order, search);
     } catch (error) {
-      return { error };
+      console.log('chh_log ---> error:', error);
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.UNKNOWN);
     }
   }
 

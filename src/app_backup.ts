@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
-import { useExpressServer, getMetadataArgsStorage, useContainer } from 'routing-controllers';
+import { createExpressServer, useExpressServer, getMetadataArgsStorage, useContainer } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import hpp from 'hpp';
@@ -17,9 +17,10 @@ import passport from 'passport';
 import session from 'express-session';
 import '@/utils/passport';
 import { DbConnection } from '@/database/dbConnection';
-import errorMiddleware from '@/middlewares/error.middleware';
 import * as i18n from 'i18n';
 import { LANGUAGES } from './constants';
+import authMiddleware from './middlewares/auth.middleware';
+// import { ErrorMiddleware } from './middlewares/error.middleware';
 
 export default class App {
   public app: express.Application;
@@ -27,16 +28,35 @@ export default class App {
   public env: string;
 
   constructor() {
-    this.app = express();
+    this.app = createExpressServer({
+      routePrefix: '/api',
+      cors: {
+        origin: config.get('cors.origin'),
+        credentials: config.get('cors.credentials'),
+      },
+      middlewares: [path.join(__dirname + '/middlewares/*{.ts,.js}')],
+      controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
+      interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
+      defaultErrorHandler: false,
+    });
+    useContainer(Container);
+
     this.port = process.env.PORT || 4000;
     this.env = process.env.NODE_ENV || 'development';
     this.connectToDatabase();
 
     this.initializeMiddlewares();
-    this.initializeRoutes();
     this.initializeSwagger();
     this.initializePassport();
-    this.initializeErrorHandling();
+
+    // useExpressServer(this.app, {
+    //   routePrefix: '/api',
+    //   controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
+    //   interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
+    //   defaultErrorHandler: false,
+    // });
+    // this.initializeErrorHandling();
+    // this.initializeAuthMiddleware();
     this.initI18n();
   }
 
@@ -105,23 +125,27 @@ export default class App {
     await DbConnection.createConnection();
   }
 
-  private initializeRoutes() {
-    useContainer(Container);
-    useExpressServer(this.app, {
-      // cors: {
-      //   origin: config.get('cors.origin'),
-      //   credentials: config.get('cors.credentials'),
-      // },
-      routePrefix: '/api',
-      middlewares: [path.join(__dirname + '/middlewares/*{.ts,.js}')],
-      controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
-      interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
-      defaultErrorHandler: false,
-    });
-  }
+  // private initializeRoutes() {
+  //   useContainer(Container);
+  //   useExpressServer(this.app, {
+  //     cors: {
+  //       origin: config.get('cors.origin'),
+  //       credentials: config.get('cors.credentials'),
+  //     },
+  //     routePrefix: '/api',
+  //     middlewares: [path.join(__dirname + '/middlewares/*{.ts,.js}')],
+  //     controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
+  //     interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
+  //     defaultErrorHandler: false,
+  //   });
+  // }
 
-  private initializeErrorHandling() {
-    this.app.use(errorMiddleware);
+  // private initializeErrorHandling() {
+  //   this.app.use(errorMiddleware);
+  // }
+
+  private initializeAuthMiddleware() {
+    this.app.use(authMiddleware);
   }
 
   private initI18n = () => {

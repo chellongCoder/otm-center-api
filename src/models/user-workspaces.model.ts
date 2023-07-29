@@ -1,6 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum UserWorkspaceTypes {
+  PARENT = 'PARENT',
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  STAFF = 'STAFF',
+}
 @Entity('user_workspaces')
 export class UserWorkspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -87,8 +93,8 @@ export class UserWorkspaces extends BaseEntity {
   @Column({ name: 'facebook', nullable: true })
   facebook: string;
 
-  @Column({ name: 'user_type', nullable: true })
-  userType: string;
+  @Column({ name: 'user_workspace_type' })
+  userWorkspaceType: UserWorkspaceTypes;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

@@ -29,5 +29,10 @@
     "accountSID": "ACf4eeb503e9d4efd5570cf96435f62a7f",
     "authToken": "e904e4964d881ae6ce2a3548dae90afe",
     "verifySid": "VA2987083a7995d5031e067b897877a9e2"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6380,
+    "ttl": 1
   }
 }

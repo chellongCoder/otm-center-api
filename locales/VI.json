@@ -15,5 +15,10 @@
 	"USER_WORKSPACE_NOT_FOUND": "User không thuộc trung tâm này",
 	"ORGANIZATION_NOT_FOUND": "Không tìm thấy bộ phận này",
 	"OTP_INVALID": "Mã OTP không hợp lệ",
-	"ERROR_OCCURRED_TRY_AGAIN": "Có lỗi xảy ra, vui lòng thử lại sau"
+	"ERROR_OCCURRED_TRY_AGAIN": "Có lỗi xảy ra, vui lòng thử lại sau",
+	"TOKEN_INVALID": "Token không hợp lệ",
+	"UNKNOWN": "Có lỗi xảy ra, vui lòng thử lại sau",
+	"INVALID_OTP": "Mã OTP không chính xác",
+	"ACCOUNT_NOT_ACTIVE": "ACCOUNT_NOT_ACTIVE",
+	"OPT_EXPIRED": "OTP đã hết hạn"
 }
