@@ -23,6 +23,14 @@ export class UserWorkspaceClassesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/list')
+  @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
+  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
+    const data = await this.service.findByFilter(userWorkspaceId, status);
+    console.log('chh_log ---> findByFilter ---> data:', data);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Get('/:id')
   @OpenAPI({ summary: 'Get user_workspace_classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {

@@ -39,6 +39,7 @@ export default class App {
     this.initializePassport();
     this.initializeErrorHandling();
     this.initI18n();
+    this.app.disable('etag');
   }
 
   public getServer() {
