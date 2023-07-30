@@ -1,3 +1,4 @@
+import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { UserWorkspacesService } from '@/services/user-workspaces.service';
@@ -39,23 +40,15 @@ export class UserWorkspacesController {
 
   @Put('/:id')
   @OpenAPI({ summary: 'Update user_workspaces' })
-  async update() {
-    try {
-    } catch (error) {
-      return { error };
-    }
+  async update(@Param('id') id: number, @Body({ required: true }) body: UpdateUserWorkspaceDto, @Res() res: any) {
+    const data = await this.service.update(id, body);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Delete('/:id')
   @OpenAPI({ summary: 'Delete user_workspaces' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
-    return successResponse({ res, data, status_code: 200 });
-  }
-  @Get('/list')
-  @OpenAPI({ summary: 'Get user_workspaces by id' })
-  async getUsers(@Param('id') id: number, @Res() res: any) {
-    const data = await this.service.findById(id);
     return successResponse({ res, data, status_code: 200 });
   }
 }

@@ -1,6 +1,8 @@
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 
 @Service()
 export class UserWorkspacesService {
@@ -44,7 +46,11 @@ export class UserWorkspacesService {
   /**
    * update
    */
-  public async update(id: number, item: UserWorkspaces) {
+  public async update(id: number, item: UpdateUserWorkspaceDto) {
+    const userWorkspaceData = await UserWorkspaces.findOne({ where: { id } });
+    if (!userWorkspaceData) {
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
+    }
     return UserWorkspaces.update(id, item);
   }
 

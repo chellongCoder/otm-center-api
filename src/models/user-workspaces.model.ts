@@ -27,6 +27,10 @@ export enum StatusUserWorkspaces {
   ACTIVE = 'ACTIVE',
   BLOCK = 'BLOCK',
 }
+export enum Languages {
+  VI = 'VI',
+  EN = 'EN',
+}
 @Entity('user_workspaces')
 @Index(['workspaceId', 'userId', 'username'], { unique: true })
 export class UserWorkspaces extends BaseEntity {
@@ -58,7 +62,7 @@ export class UserWorkspaces extends BaseEntity {
   sex: SexTypes;
 
   @Column({ name: 'lang', nullable: true })
-  lang: string;
+  lang: Languages;
 
   @Column({ name: 'is_owner', default: false })
   isOwner: boolean;
