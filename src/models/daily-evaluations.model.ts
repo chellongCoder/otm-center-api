@@ -1,43 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-export enum PaymentMethodTypes {
-  BY_COURSE = 'BY_COURSE',
-  BY_SESSION = 'BY_SESSION',
-  BY_MONTH = 'BY_MONTH',
-}
-export enum UnitCourseType {
-  ALL = 'ALL',
-  SPECIAL = 'SPECIAL',
-}
-@Entity('courses')
-export class Courses extends BaseEntity {
+@Entity('daily_evaluations')
+export class DailyEvaluations extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'name' })
   name: string;
-
-  @Column({ name: 'number_of_lesson' })
-  numberOfLesson: number;
-
-  @Column({ name: 'payment_method' })
-  paymentMethod: PaymentMethodTypes;
-
-  @Column({ name: 'code' })
-  code: string;
-
-  @Column({ name: 'hours_of_lesson' })
-  hoursOfLesson: number;
-
-  @Column({ name: 'price' })
-  price: number;
-
-  @Column({ name: 'subject' })
-  subject: string;
-
-  @Column({ name: 'unit' })
-  unit: UnitCourseType;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
@@ -58,14 +28,14 @@ export class Courses extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('courses');
+    const queryBuider = this.createQueryBuilder('daily_evaluations');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.where(`daily_evaluations.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuider.andWhere(`daily_evaluations.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

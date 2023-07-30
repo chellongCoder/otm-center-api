@@ -99,7 +99,7 @@ Table courses {
   hours_of_lesson integer
   price integer
   subject varchar
-  unit integer
+  unit varchar
   workspace_id integer
 }
 Table curriculums {
@@ -341,7 +341,24 @@ Table appliance_absents {
 }
 
 Table course_unit_workspaces {
+  id integer [pk]
   course_id integer
   unit_workspace_id integer
   workspace_id integer
+}
+Table daily_evaluations {
+  id integer [pk]
+  name varchar
+  workspace_id integer
+}
+Table user_workspace_classes {
+  id integer [pk]
+  user_workspace_id integer
+  course_id integer
+  class_id integer
+  workspace_id integer
+  from_date date
+  session_number integer
+  note varchar
+  class_schedule varchar
 }

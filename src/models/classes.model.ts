@@ -1,6 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum StatusClasses {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
 @Entity('classes')
 export class Classes extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -15,23 +19,41 @@ export class Classes extends BaseEntity {
   @Column({ name: 'from_time' })
   fromTime: Date;
 
-  @Column({ name: 'to_time' })
+  @Column({ name: 'to_time', nullable: true })
   toTime: Date;
 
-  @Column({ name: 'attended_number' })
+  @Column({ name: 'attended_number', nullable: true }) // số buổi Đã học
   attendedNumber: number;
 
-  @Column({ name: 'session_number' })
+  @Column({ name: 'session_number' }) // số buổi
   sessionNumber: number;
+
+  @Column({ name: 'session_of_vietnamese_teacher', nullable: true }) //Số buổi giáo viên Việt Nam
+  sessionOfVietnameseTeacher: number;
+
+  @Column({ name: 'session_of_foreign_teacher', nullable: true }) //Số buổi giáo viên nước ngoài
+  sessionOfForeignTeacher: number;
+
+  @Column({ name: 'maximum_student', nullable: true }) //Số HV tối đa
+  maximumStudent: number;
+
+  @Column({ name: 'maximum_student_session', nullable: true }) //Số HV tối đa mỗi buổi
+  maximumStudentSession: number;
 
   @Column({ name: 'code' })
   code: string;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column({ name: 'note', nullable: true })
+  note: string;
+
+  @Column({ name: 'status', nullable: true, default: StatusClasses.ACTIVE })
+  status: StatusClasses;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
+
+  @Column({ name: 'daily_evaluation_id' })
+  dailyEvaluationId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
