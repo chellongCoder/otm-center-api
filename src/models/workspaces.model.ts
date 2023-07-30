@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { UserWorkspaces } from './user-workspaces.model';
 
 @Entity('workspaces')
 export class Workspaces extends BaseEntity {
@@ -14,6 +15,9 @@ export class Workspaces extends BaseEntity {
 
   @Column({ name: 'name' })
   name: string;
+
+  @Column({ name: 'phone_number', nullable: true })
+  phoneNumber: string;
 
   @Column({ name: 'name_slug', nullable: true })
   nameSlug: string;
@@ -41,6 +45,9 @@ export class Workspaces extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @OneToMany(type => UserWorkspaces, userWorkspace => userWorkspace.workspaces)
+  public userWorkspaces: UserWorkspaces[];
 
   static findByCond(query: any) {
     const queryBuider = this.createQueryBuilder('workspaces');

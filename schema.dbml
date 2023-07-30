@@ -3,6 +3,7 @@ Table workspaces {
   code varchar
   host varchar [not null, unique]
   name varchar
+  phone_number varchar
   name_slug varchar
   parent_id  integer
   hierarchy_level integer
@@ -19,8 +20,10 @@ Table user_workspaces {
   workspace_id integer
   user_id integer
   username varchar
+  nickname varchar
   fullname varchar
   email varchar
+  birthday varchar
   sex varchar
   lang varchar
   is_owner boolean

@@ -29,6 +29,7 @@ export class UserWorkspacesService {
       where: {
         id,
       },
+      relations: ['workspaces'],
     });
   }
 

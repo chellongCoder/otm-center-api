@@ -1,5 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Workspaces } from './workspaces.model';
 
 export enum UserWorkspaceTypes {
   PARENT = 'PARENT',
@@ -7,7 +19,16 @@ export enum UserWorkspaceTypes {
   TEACHER = 'TEACHER',
   STAFF = 'STAFF',
 }
+export enum SexTypes {
+  MAN = 'MAN',
+  WOMAN = 'WOMAN',
+}
+export enum StatusUserWorkspaces {
+  ACTIVE = 'ACTIVE',
+  BLOCK = 'BLOCK',
+}
 @Entity('user_workspaces')
+@Index(['workspaceId', 'userId', 'username'], { unique: true })
 export class UserWorkspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,19 +42,25 @@ export class UserWorkspaces extends BaseEntity {
   @Column({ name: 'username' })
   username: string;
 
+  @Column({ name: 'nickname', nullable: true })
+  nickname: string;
+
   @Column({ name: 'fullname', nullable: true })
   fullname: string;
 
   @Column({ name: 'email', nullable: true })
   email: string;
 
+  @Column({ type: 'date', nullable: true })
+  birthday: Date;
+
   @Column({ name: 'sex', nullable: true })
-  sex: string;
+  sex: SexTypes;
 
   @Column({ name: 'lang', nullable: true })
   lang: string;
 
-  @Column({ name: 'is_owner', nullable: true })
+  @Column({ name: 'is_owner', default: false })
   isOwner: boolean;
 
   @Column({ name: 'is_active', default: true })
@@ -49,7 +76,7 @@ export class UserWorkspaces extends BaseEntity {
   address: string;
 
   @Column({ name: 'status', nullable: true })
-  status: string;
+  status: StatusUserWorkspaces;
 
   @Column({ name: 'zalo', nullable: true })
   zalo: string;
@@ -79,7 +106,7 @@ export class UserWorkspaces extends BaseEntity {
   attachImageUrl: string;
 
   @Column({ name: 'referral_source', nullable: true })
-  referralSource: string;
+  referralSource: UserWorkspaceTypes;
 
   @Column({ name: 'presenter_id', nullable: true })
   presenterId: number;
@@ -110,6 +137,10 @@ export class UserWorkspaces extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(type => Workspaces, workspaces => workspaces.userWorkspaces)
+  @JoinColumn({ name: 'workspace_id' })
+  public workspaces: Workspaces;
 
   static findByCond(query: any) {
     const queryBuider = this.createQueryBuilder('user_workspaces');
