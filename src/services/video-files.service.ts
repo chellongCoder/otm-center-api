@@ -36,7 +36,7 @@ export class VideoFilesService {
    * create
    */
   public async create(item: VideoFiles) {
-    const results = VideoFiles.insert(item);
+    const results = await VideoFiles.insert(item);
     return results;
   }
 

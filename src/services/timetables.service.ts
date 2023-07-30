@@ -36,7 +36,7 @@ export class TimetablesService {
    * create
    */
   public async create(item: Timetables) {
-    const results = Timetables.insert(item);
+    const results = await Timetables.insert(item);
     return results;
   }
 

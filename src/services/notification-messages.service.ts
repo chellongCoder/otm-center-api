@@ -36,7 +36,7 @@ export class NotificationMessagesService {
    * create
    */
   public async create(item: NotificationMessages) {
-    const results = NotificationMessages.insert(item);
+    const results = await NotificationMessages.insert(item);
     return results;
   }
 

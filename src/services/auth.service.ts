@@ -198,7 +198,7 @@ export class AuthService {
    */
   public async sendOTP(phoneNumber: string) {
     const phoneNumberVn = fixPhoneVN(phoneNumber);
-    const userData = await Users.findOne({ where: { phoneNumberVn } });
+    const userData = await Users.findOne({ where: { phoneNumber: phoneNumberVn } });
     if (!userData) {
       throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
     }
@@ -270,15 +270,15 @@ export class AuthService {
 
     const workspaceHost = '';
     const userId = '';
-    // try {
-    //   const tokenData = jwtHelper.staffToken.verifyAccessToken(token);
+    try {
+      const tokenData = this.verifyAccessToken(token);
 
-    //   const { workspace_id, staff_id } = tokenData;
-    //   workspaceHost = workspace_id;
-    //   userId = staff_id;
-    // } catch (e) {
-    //   throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
-    // }
+      const { workspace_id, user_workspace_id } = tokenData;
+      workspaceHost = workspace_id;
+      userId = staff_id;
+    } catch (e) {
+      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
+    }
 
     // if (!userId) {
     //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);

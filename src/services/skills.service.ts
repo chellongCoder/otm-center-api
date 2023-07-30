@@ -36,7 +36,7 @@ export class SkillsService {
    * create
    */
   public async create(item: Skills) {
-    const results = Skills.insert(item);
+    const results = await Skills.insert(item);
     return results;
   }
 

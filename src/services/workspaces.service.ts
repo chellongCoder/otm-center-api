@@ -36,7 +36,7 @@ export class WorkspacesService {
    * create
    */
   public async create(item: Workspaces) {
-    const results = Workspaces.insert(item);
+    const results = await Workspaces.insert(item);
     return results;
   }
 

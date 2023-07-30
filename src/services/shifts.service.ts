@@ -36,7 +36,7 @@ export class ShiftsService {
    * create
    */
   public async create(item: Shifts) {
-    const results = Shifts.insert(item);
+    const results = await Shifts.insert(item);
     return results;
   }
 

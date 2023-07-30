@@ -36,7 +36,7 @@ export class GroupPermissionsService {
    * create
    */
   public async create(item: GroupPermissions) {
-    const results = GroupPermissions.insert(item);
+    const results = await GroupPermissions.insert(item);
     return results;
   }
 

@@ -36,7 +36,7 @@ export class ShiftWeekdaysService {
    * create
    */
   public async create(item: ShiftWeekdays) {
-    const results = ShiftWeekdays.insert(item);
+    const results = await ShiftWeekdays.insert(item);
     return results;
   }
 

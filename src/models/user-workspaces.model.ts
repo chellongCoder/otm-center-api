@@ -18,7 +18,7 @@ export class UserWorkspaces extends BaseEntity {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @Column({ name: 'username', nullable: true })
+  @Column({ name: 'username' })
   username: string;
 
   @Column({ name: 'fullname', nullable: true })

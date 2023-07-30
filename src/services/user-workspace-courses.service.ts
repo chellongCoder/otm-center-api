@@ -36,7 +36,7 @@ export class UserWorkspaceCoursesService {
    * create
    */
   public async create(item: UserWorkspaceCourses) {
-    const results = UserWorkspaceCourses.insert(item);
+    const results = await UserWorkspaceCourses.insert(item);
     return results;
   }
 
