@@ -20,8 +20,8 @@ export enum UserWorkspaceTypes {
   STAFF = 'STAFF',
 }
 export enum SexTypes {
-  MAN = 'MAN',
-  WOMAN = 'WOMAN',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
 }
 export enum StatusUserWorkspaces {
   ACTIVE = 'ACTIVE',

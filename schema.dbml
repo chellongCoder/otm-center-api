@@ -339,3 +339,9 @@ Table appliance_absents {
   workspace_id integer
   class_id integer
 }
+
+Table course_unit_workspaces {
+  course_id integer
+  unit_workspace_id integer
+  workspace_id integer
+}

@@ -26,7 +26,7 @@ export class UpdateUserWorkspaceDto {
 
   @IsString()
   @IsOptional()
-  @JSONSchema({ description: 'Sex type is MAN or WOMAN', example: 'MAN' })
+  @JSONSchema({ description: 'Sex type is MALE or FEMALE', example: 'MALE' })
   sex: SexTypes;
 
   @IsString()

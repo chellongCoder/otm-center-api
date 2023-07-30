@@ -4,10 +4,12 @@ import { Workspaces } from '@/models/workspaces.model';
 import { IsObject } from 'class-validator';
 
 export class LoginResponse {
-  @IsObject
+  @IsObject()
   users: Users;
-  @IsObject
+
+  @IsObject()
   userWorkspaces: UserWorkspacesToken;
-  @IsObject
+
+  @IsObject()
   workspaces: Workspaces;
 }
