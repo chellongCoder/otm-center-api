@@ -23,6 +23,8 @@ import { Workspaces } from '@/models/workspaces.model';
 import * as i18n from 'i18n';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { CACHE_PREFIX } from '@/caches/constants';
+import { UserWorkspaceAccess } from '@/interfaces/user-workspace-access';
+import { UserWorkspacesToken } from '@/interfaces/user-workspace-token';
 @Service()
 export class AuthService {
   twilioService: any;
@@ -73,10 +75,21 @@ export class AuthService {
   /**
    * login with passport
    */
-  public async jwt({ userWorkspaceId, phoneNumber, workspaceId }: { userWorkspaceId: number; phoneNumber: string; workspaceId: number }) {
+  public async generateJwt({
+    userWorkspaceId,
+    phoneNumber,
+    username,
+    workspaceId,
+  }: {
+    userWorkspaceId: number;
+    phoneNumber: string;
+    username: string;
+    workspaceId: number;
+  }): UserWorkspaceAccess {
     const accessToken = generateAccessToken({
       userWorkspaceId,
       phoneNumber,
+      username,
       workspaceId,
     });
     // find refreshToken and remove
@@ -97,6 +110,7 @@ export class AuthService {
     rt.workspaceId = workspaceId;
     await rt.save();
     return {
+      userWorkspaceId,
       refreshToken,
       accessToken,
     };
@@ -215,15 +229,15 @@ export class AuthService {
   public async login(body: LoginDto) {
     const phoneNumber = fixPhoneVN(body.phoneNumber);
     const userData = await Users.findOne({ where: { phoneNumber } });
-    const workspaceData = await Workspaces.findOne({ where: { host: body.host } });
     if (!userData) {
       throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
     }
+    const workspaceData = await Workspaces.findOne({ where: { host: body.host } });
     if (!workspaceData) {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
     }
-    const userWorkspaceData = await UserWorkspaces.findOne({ where: { workspaceId: workspaceData.id, userId: userData.id } });
-    if (!userWorkspaceData) {
+    const userWorkspaceData: UserWorkspaces[] = await UserWorkspaces.find({ where: { workspaceId: workspaceData.id, userId: userData.id } });
+    if (!userWorkspaceData || !userWorkspaceData.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
 
@@ -237,22 +251,29 @@ export class AuthService {
       });
     switch (statusVerify) {
       case STATUS_VERIFICATION_TWILLO.APPROVED:
-        const payload = await this.jwt({
-          userWorkspaceId: userWorkspaceData.id,
-          phoneNumber: userData.phoneNumber,
-          workspaceId: workspaceData.id,
-        });
-        return {
-          accessToken: payload.accessToken,
-          refreshToken: payload.refreshToken,
-          userWorkspaces: {
-            id: userWorkspaceData.id,
-            fullname: userWorkspaceData.fullname,
-          },
-          users: {
+        const accessPromise: any[] = [];
+        for (const userWorkspaceItem of userWorkspaceData) {
+          const payloadPromise = await this.generateJwt({
+            userWorkspaceId: userWorkspaceItem.id,
             phoneNumber: userData.phoneNumber,
-            id: userData.id,
-          },
+            username: userWorkspaceItem.username,
+            workspaceId: workspaceData.id,
+          });
+          accessPromise.push(payloadPromise);
+        }
+        const userWorkspaceAccesses: UserWorkspaceAccess[] = await Promise.all(accessPromise);
+        const accessUserWorkspaces: UserWorkspacesToken[] = [];
+        for (const userWorkspaceItem of userWorkspaceData) {
+          const accessUserWorkspaceItem = userWorkspaceAccesses.find(el => el.userWorkspaceId === userWorkspaceItem.id);
+          accessUserWorkspaces.push({
+            ...accessUserWorkspaceItem,
+            ...userWorkspaceItem,
+          });
+        }
+        return {
+          users: userData,
+          userWorkspaces: accessUserWorkspaces,
+          workspaces: workspaceData,
         };
         break;
       case STATUS_VERIFICATION_TWILLO.PENDING:

@@ -52,4 +52,10 @@ export class UserWorkspacesController {
     const data = await this.service.delete(id);
     return successResponse({ res, data, status_code: 200 });
   }
+  @Get('/list')
+  @OpenAPI({ summary: 'Get user_workspaces by id' })
+  async getUsers(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
 }
