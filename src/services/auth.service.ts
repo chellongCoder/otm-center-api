@@ -1,6 +1,8 @@
+import { UserWorkspaceTokens } from '@/models/user-workspace-tokens.model';
+import { Users } from '@/models/users.model';
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
 import { RefreshToken } from '@/models/refresh-tokens.model';
 import { logger } from '@/utils/logger';
@@ -14,16 +16,26 @@ import { HttpException } from '@/exceptions/http-exception';
 import { twilioService } from '@/utils/twilio';
 import { HttpMessages } from '@/exceptions/http-messages.constant';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { LoginDto } from '@/dtos/login.dto';
+import { LANGUAGES, STATUS_VERIFICATION_TWILLO } from '@/constants';
+import { TwilloVerificationResponse } from '@/interfaces/twillo-verification-response.interface';
+import { Workspaces } from '@/models/workspaces.model';
+import * as i18n from 'i18n';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { CACHE_PREFIX } from '@/caches/constants';
+import { UserWorkspaceAccess } from '@/interfaces/user-workspace-access';
+import { UserWorkspacesToken } from '@/interfaces/user-workspace-token';
 @Service()
 export class AuthService {
   twilioService: any;
+  cache: any;
   constructor() {
     this.twilioService = twilioService;
   }
   /**
    * login
    */
-  public async login(email: string, password: string) {
+  public async login_old(email: string, password: string) {
     const account = await Account.findByEmail(email);
     if (account) {
       const match = await bcrypt.compare(password, account.password);
@@ -63,27 +75,44 @@ export class AuthService {
   /**
    * login with passport
    */
-  public async jwt({ id, name, email, phone, role, accountType, profileImageUrl }: any) {
+  public async generateJwt({
+    userWorkspaceId,
+    phoneNumber,
+    username,
+    workspaceId,
+  }: {
+    userWorkspaceId: number;
+    phoneNumber: string;
+    username: string;
+    workspaceId: number;
+  }): UserWorkspaceAccess {
     const accessToken = generateAccessToken({
-      id,
-      email: email || null,
-      name: name || null,
-      profileImageUrl: profileImageUrl || null,
-      phone: phone || null,
+      userWorkspaceId,
+      phoneNumber,
+      username,
+      workspaceId,
     });
     // find refreshToken and remove
-    const currToken = await RefreshToken.findByAccount(id);
+    const currToken = await UserWorkspaceTokens.findOne({
+      where: {
+        workspaceId,
+        userWorkspaceId,
+      },
+    });
     if (currToken) {
       await currToken.softRemove();
     }
     const refreshToken = generateRandToken();
-    const rt: RefreshToken = new RefreshToken();
-    rt.token = refreshToken;
+    const rt: UserWorkspaceTokens = new UserWorkspaceTokens();
+    rt.refreshToken = refreshToken;
+    rt.accessToken = accessToken;
+    rt.userWorkspaceId = userWorkspaceId;
+    rt.workspaceId = workspaceId;
     await rt.save();
     return {
+      userWorkspaceId,
       refreshToken,
       accessToken,
-      // account,
     };
   }
 
@@ -181,50 +210,147 @@ export class AuthService {
   /**
    * login with SMS
    */
-  public async loginWithSMS(phone: string) {
-    logger.info(`<${phone}> START LOGIN`);
-    const phoneNumber = fixPhoneVN(phone);
+  public async sendOTP(phoneNumber: string) {
+    const phoneNumberVn = fixPhoneVN(phoneNumber);
+    const userData = await Users.findOne({ where: { phoneNumber: phoneNumberVn } });
+    if (!userData) {
+      throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
+    }
     return this.twilioService.verifications
-      .create({ to: phoneNumber, channel: 'sms' })
+      .create({ to: phoneNumberVn, channel: 'sms' })
       .then(() => {
-        logger.info(`>>> Sent OTP to ${phoneNumber}`);
-        return { success: true, message: HttpMessages._OK };
+        return true;
       })
       .catch((error: any) => {
-        logger.error(error);
-        return { success: false, message: HttpMessages._BAD_REQUEST };
+        console.log('chh_log ---> sendOTP ---> error:', error);
+        throw new Exception(ExceptionName.UNKNOWN, ExceptionCode.UNKNOWN);
       });
   }
+  public async login(body: LoginDto) {
+    const phoneNumber = fixPhoneVN(body.phoneNumber);
+    const userData = await Users.findOne({ where: { phoneNumber } });
+    if (!userData) {
+      throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND);
+    }
+    const workspaceData = await Workspaces.findOne({ where: { host: body.host } });
+    if (!workspaceData) {
+      throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
+    }
+    const userWorkspaceData: UserWorkspaces[] = await UserWorkspaces.find({ where: { workspaceId: workspaceData.id, userId: userData.id } });
+    if (!userWorkspaceData || !userWorkspaceData.length) {
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
+    }
 
-  public async verifyOtp(res: Response, phone: string, code: string) {
-    const phoneNumber = fixPhoneVN(phone);
-    return this.twilioService.verificationChecks
-      .create({ to: phoneNumber, code: code })
-      .then(async (verification_check: any) => {
-        if (verification_check.status == 'approved') {
-          const account = await UserWorkspaces.findOne({ where: { phoneNumber } });
-          if (account) {
-            const payload = await this.jwt({ id: account.id, email: account.email });
-            return { success: true, data: payload };
-          }
-
-          const newAccount = new UserWorkspaces();
-          newAccount.phoneNumber = phone;
-          const accountAdded: UserWorkspaces = await newAccount.save();
-
-          const payload = await this.jwt(accountAdded);
-          if (payload) {
-            return { success: true, data: payload };
-          }
-        }
-        res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
-        return res;
+    const statusVerify = await this.twilioService.verificationChecks
+      .create({ to: phoneNumber, code: body.code })
+      .then((verification_check: TwilloVerificationResponse) => {
+        return verification_check.status;
       })
-      .catch((err: any) => {
-        if (err) {
-          res.status(404).json({ success: false, message: HttpMessages._INVALID_OR_EXPIRED_OTP });
-          return res;
-        }
+      .catch(() => {
+        throw new Exception(ExceptionName.OPT_EXPIRED, ExceptionCode.OPT_EXPIRED);
       });
+    switch (statusVerify) {
+      case STATUS_VERIFICATION_TWILLO.APPROVED:
+        const accessPromise: any[] = [];
+        for (const userWorkspaceItem of userWorkspaceData) {
+          const payloadPromise = await this.generateJwt({
+            userWorkspaceId: userWorkspaceItem.id,
+            phoneNumber: userData.phoneNumber,
+            username: userWorkspaceItem.username,
+            workspaceId: workspaceData.id,
+          });
+          accessPromise.push(payloadPromise);
+        }
+        const userWorkspaceAccesses: UserWorkspaceAccess[] = await Promise.all(accessPromise);
+        const accessUserWorkspaces: UserWorkspacesToken[] = [];
+        for (const userWorkspaceItem of userWorkspaceData) {
+          const accessUserWorkspaceItem = userWorkspaceAccesses.find(el => el.userWorkspaceId === userWorkspaceItem.id);
+          accessUserWorkspaces.push({
+            ...accessUserWorkspaceItem,
+            ...userWorkspaceItem,
+          });
+        }
+        return {
+          users: userData,
+          userWorkspaces: accessUserWorkspaces,
+          workspaces: workspaceData,
+        };
+        break;
+      case STATUS_VERIFICATION_TWILLO.PENDING:
+        throw new Exception(ExceptionName.INVALID_OTP, ExceptionCode.INVALID_OTP);
+      case STATUS_VERIFICATION_TWILLO.CANCELED:
+      default:
+        throw new Exception(ExceptionName.OPT_EXPIRED, ExceptionCode.OPT_EXPIRED);
+        break;
+    }
+  }
+  public async checkUserWorkspaceToken({ token, workspace_host }: { token: string; workspace_host: string }) {
+    if (!token) {
+      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.TOKEN_INVALID, 401);
+    }
+
+    const workspaceHost = '';
+    const userId = '';
+    try {
+      const tokenData = this.verifyAccessToken(token);
+
+      const { workspace_id, user_workspace_id } = tokenData;
+      workspaceHost = workspace_id;
+      userId = staff_id;
+    } catch (e) {
+      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
+    }
+
+    // if (!userId) {
+    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    // }
+
+    // if (workspaceHost !== workspace_host) {
+    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    // }
+
+    // const workspaceData = await workspacesRepository.findByHost({
+    //   host: workspace_host,
+    //   is_active: true,
+    // });
+
+    // if (!workspaceData) {
+    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    // }
+
+    // const userData = await usersRepository.findOneByFilter({
+    //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
+    //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
+    // }); //coithegioicoi
+    // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
+    // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
+
+    // if (!userData) {
+    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    // }
+
+    // let userWorkspaceData: userWorkspaces | null = null;
+    // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
+    // const cacheData = await caches.getCaches(cacheKey);
+    // if (cacheData) {
+    //   userWorkspaceData = cacheData;
+    // } else {
+    //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
+    //     filter: {
+    //       user_id: userData.id,
+    //       workspace_id: workspaceData.id,
+    //     },
+    //   });
+    //   await caches.setCache(cacheKey, userWorkspaceData);
+    // }
+
+    // if (!userWorkspaceData) {
+    //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
+    // }
+
+    return {
+      user_data: null, //userData,
+      workspace_data: null, //workspaceData,
+    };
   }
 }

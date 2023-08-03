@@ -36,7 +36,7 @@ export class CurriculumsService {
    * create
    */
   public async create(item: Curriculums) {
-    const results = Curriculums.insert(item);
+    const results = await Curriculums.insert(item);
     return results;
   }
 

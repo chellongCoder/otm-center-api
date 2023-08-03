@@ -36,7 +36,7 @@ export class UserWorkspaceDevicesService {
    * create
    */
   public async create(item: UserWorkspaceDevices) {
-    const results = UserWorkspaceDevices.insert(item);
+    const results = await UserWorkspaceDevices.insert(item);
     return results;
   }
 

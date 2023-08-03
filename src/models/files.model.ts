@@ -10,13 +10,13 @@ export class Files extends BaseEntity {
   url: string;
 
   @Column({ name: 'lecture_id' })
-  lectureId: string;
+  lectureId: number;
 
   @Column({ name: 'post_id' })
-  postId: string;
+  postId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

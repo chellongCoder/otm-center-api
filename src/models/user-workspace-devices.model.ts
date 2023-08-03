@@ -10,7 +10,7 @@ export class UserWorkspaceDevices extends BaseEntity {
   deviceName: string;
 
   @Column({ name: 'device_id' })
-  deviceId: string;
+  deviceId: number;
 
   @Column({ name: 'fcm_push_token' })
   fcmPushToken: string;
@@ -22,10 +22,10 @@ export class UserWorkspaceDevices extends BaseEntity {
   isEmulator: boolean;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'is_active' })
   isActive: boolean;

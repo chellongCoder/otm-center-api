@@ -7,7 +7,7 @@ export class CharactersOfSkill extends BaseEntity {
   id: number;
 
   @Column({ name: 'skill_id' })
-  skillId: string;
+  skillId: number;
 
   @Column({ name: 'name' })
   name: string;
@@ -16,7 +16,7 @@ export class CharactersOfSkill extends BaseEntity {
   value: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

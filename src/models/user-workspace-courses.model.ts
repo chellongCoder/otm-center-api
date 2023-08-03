@@ -7,13 +7,13 @@ export class UserWorkspaceCourses extends BaseEntity {
   id: number;
 
   @Column({ name: 'course_id' })
-  courseId: string;
+  courseId: number;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

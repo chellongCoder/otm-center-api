@@ -1,27 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { UserWorkspaces } from './user-workspaces.model';
 
 @Entity('workspaces')
 export class Workspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'code' })
+  @Column({ name: 'code', nullable: true })
   code: string;
 
-  @Column({ name: 'name' })
-  name: Date;
+  @Column({ name: 'host', unique: true })
+  host: string;
 
-  @Column({ name: 'name_slug' })
+  @Column({ name: 'name' })
+  name: string;
+
+  @Column({ name: 'phone_number', nullable: true })
+  phoneNumber: string;
+
+  @Column({ name: 'name_slug', nullable: true })
   nameSlug: string;
 
-  @Column({ name: 'parent_id' })
-  parentId: string;
+  @Column({ name: 'parent_id', nullable: true })
+  parentId: number;
 
   @Column({ name: 'hierarchy_level' })
   hierarchyLevel: number;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -38,6 +45,9 @@ export class Workspaces extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @OneToMany(type => UserWorkspaces, userWorkspace => userWorkspace.workspaces)
+  public userWorkspaces: UserWorkspaces[];
 
   static findByCond(query: any) {
     const queryBuider = this.createQueryBuilder('workspaces');

@@ -36,7 +36,7 @@ export class CountriesService {
    * create
    */
   public async create(item: Countries) {
-    const results = Countries.insert(item);
+    const results = await Countries.insert(item);
     return results;
   }
 

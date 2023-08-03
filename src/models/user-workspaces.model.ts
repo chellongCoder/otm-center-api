@@ -1,94 +1,131 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Workspaces } from './workspaces.model';
 
+export enum UserWorkspaceTypes {
+  PARENT = 'PARENT',
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  STAFF = 'STAFF',
+}
+export enum SexTypes {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
+export enum StatusUserWorkspaces {
+  ACTIVE = 'ACTIVE',
+  BLOCK = 'BLOCK',
+}
+export enum Languages {
+  VI = 'VI',
+  EN = 'EN',
+}
 @Entity('user_workspaces')
+@Index(['workspaceId', 'userId', 'username'], { unique: true })
 export class UserWorkspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
+
+  @Column({ name: 'user_id' })
+  userId: number;
 
   @Column({ name: 'username' })
   username: string;
 
-  @Column({ name: 'fullname' })
+  @Column({ name: 'nickname', nullable: true })
+  nickname: string;
+
+  @Column({ name: 'fullname', nullable: true })
   fullname: string;
 
-  @Column({ name: 'email' })
+  @Column({ name: 'email', nullable: true })
   email: string;
 
-  @Column({ name: 'sex' })
-  sex: string;
+  @Column({ type: 'date', nullable: true })
+  birthday: Date;
 
-  @Column({ name: 'lang' })
-  lang: string;
+  @Column({ name: 'sex', nullable: true })
+  sex: SexTypes;
 
-  @Column({ name: 'is_owner' })
-  isOwner: string;
+  @Column({ name: 'lang', nullable: true })
+  lang: Languages;
 
-  @Column({ name: 'is_active' })
-  isActive: string;
+  @Column({ name: 'is_owner', default: false })
+  isOwner: boolean;
 
-  @Column({ name: 'verify_status' })
-  verifyStatus: string;
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 
   @Column({ name: 'phone_number' })
   phoneNumber: string;
 
-  @Column({ name: 'avatar' })
+  @Column({ name: 'avatar', nullable: true })
   avatar: string;
 
-  @Column({ name: 'address' })
+  @Column({ name: 'address', nullable: true })
   address: string;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column({ name: 'status', nullable: true })
+  status: StatusUserWorkspaces;
 
-  @Column({ name: 'zalo' })
+  @Column({ name: 'zalo', nullable: true })
   zalo: string;
 
-  @Column({ name: 'skype' })
+  @Column({ name: 'skype', nullable: true })
   skype: string;
 
-  @Column({ name: 'class_name_leaning' })
+  @Column({ name: 'class_name_leaning', nullable: true })
   classNameLeaning: string;
 
-  @Column({ name: 'city_id' })
-  cityId: string;
+  @Column({ name: 'city_id', nullable: true })
+  cityId: number;
 
-  @Column({ name: 'country_id' })
-  countryId: string;
+  @Column({ name: 'country_id', nullable: true })
+  countryId: number;
 
-  @Column({ name: 'district_id' })
-  districtId: string;
+  @Column({ name: 'district_id', nullable: true })
+  districtId: number;
 
-  @Column({ name: 'ward_id' })
-  wardId: string;
+  @Column({ name: 'ward_id', nullable: true })
+  wardId: number;
 
-  @Column({ name: 'birthplace' })
+  @Column({ name: 'birthplace', nullable: true })
   birthplace: string;
 
-  @Column({ name: 'attach_image_url' })
+  @Column({ name: 'attach_image_url', nullable: true })
   attachImageUrl: string;
 
-  @Column({ name: 'referral_source' })
-  referralSource: string;
+  @Column({ name: 'referral_source', nullable: true })
+  referralSource: UserWorkspaceTypes;
 
-  @Column({ name: 'presenter_id' })
-  presenterId: string;
+  @Column({ name: 'presenter_id', nullable: true })
+  presenterId: number;
 
-  @Column({ name: 'school_name' })
+  @Column({ name: 'school_name', nullable: true })
   schoolName: string;
 
-  @Column({ name: 'note' })
+  @Column({ name: 'note', nullable: true })
   note: string;
 
-  @Column({ name: 'facebook' })
+  @Column({ name: 'facebook', nullable: true })
   facebook: string;
 
-  @Column({ name: 'user_type' })
-  userType: string;
+  @Column({ name: 'user_workspace_type' })
+  userWorkspaceType: UserWorkspaceTypes;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -104,6 +141,10 @@ export class UserWorkspaces extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(type => Workspaces, workspaces => workspaces.userWorkspaces)
+  @JoinColumn({ name: 'workspace_id' })
+  public workspaces: Workspaces;
 
   static findByCond(query: any) {
     const queryBuider = this.createQueryBuilder('user_workspaces');

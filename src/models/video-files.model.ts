@@ -10,10 +10,10 @@ export class VideoFiles extends BaseEntity {
   url: string;
 
   @Column({ name: 'post_id' })
-  postId: string;
+  postId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

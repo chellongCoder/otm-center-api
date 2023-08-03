@@ -7,13 +7,13 @@ export class ScopePermissions extends BaseEntity {
   id: number;
 
   @Column({ name: 'organization_id' })
-  organizationId: string;
+  organizationId: number;
 
   @Column({ name: 'group_permission_id' })
-  groupPermissionId: string;
+  groupPermissionId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'is_active' })
   isActive: boolean;

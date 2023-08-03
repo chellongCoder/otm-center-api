@@ -7,7 +7,7 @@ export class ApplianceAbsents extends BaseEntity {
   id: number;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'from_time' })
   fromTime: Date;
@@ -19,10 +19,10 @@ export class ApplianceAbsents extends BaseEntity {
   note: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'class_id' })
-  classId: string;
+  classId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

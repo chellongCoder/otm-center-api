@@ -36,7 +36,7 @@ export class UserWorkspaceNotificationsService {
    * create
    */
   public async create(item: UserWorkspaceNotifications) {
-    const results = UserWorkspaceNotifications.insert(item);
+    const results = await UserWorkspaceNotifications.insert(item);
     return results;
   }
 

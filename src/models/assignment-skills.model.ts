@@ -7,13 +7,13 @@ export class AssignmentSkills extends BaseEntity {
   id: number;
 
   @Column({ name: 'assignment_id' })
-  assignmentId: string;
+  assignmentId: number;
 
   @Column({ name: 'skill_id' })
-  skillId: string;
+  skillId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

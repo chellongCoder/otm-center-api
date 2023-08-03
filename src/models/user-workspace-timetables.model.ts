@@ -7,10 +7,10 @@ export class UserWorkspaceTimetables extends BaseEntity {
   id: number;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'timetable_id' })
-  timetableId: string;
+  timetableId: number;
 
   @Column({ name: 'title' })
   title: string;
@@ -25,7 +25,7 @@ export class UserWorkspaceTimetables extends BaseEntity {
   toTime: Date;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

@@ -1,0 +1,22 @@
+{
+  "WORKSPACE_NAME_IS_NOT_ALLOWED": "Invalid center name",
+  "VALIDATE_FAILED": "Validate failed",
+  "PERMISSION_DENIED": "Invalid Access",
+  "DATA_NOT_FOUND": "No data found",
+  "DATA_IS_EXIST": "Data already exists",
+  "WORKSPACE_NOT_FOUND": "Center not found",
+  "WORKSPACE_IS_EXIST": "The Center already exists",
+  "USER_NOT_FOUND": "User not found",
+  "USER_IS_EXIST": "User already exists",
+  "OWNER_WORKSPACE_NOT_FOUND": "Owner not found",
+  "CONFIG_NOT_FOUND": "Missing config",
+  "SESSION_EXPIRED": "Login session has expired",
+  "USER_NOT_ACTIVED": "User has been deleted or does not exist",
+  "USER_WORKSPACE_NOT_FOUND": "User is not in this center",
+  "ORGANIZATION_NOT_FOUND": "This part could not be found",
+	"OTP_INVALID": "Mã OTP không hợp lệ",
+	"ERROR_OCCURRED_TRY_AGAIN": "An error occurred, please try again later",
+  "TOKEN_INVALID": "Token không hợp lệ",
+	"UNKNOWN": "Có lỗi xảy ra, vui lòng thử lại sau",
+	"INVALID_OTP": "Mã OTP không chính xác"
+}

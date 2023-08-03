@@ -7,7 +7,7 @@ export class Lectures extends BaseEntity {
   id: number;
 
   @Column({ name: 'lesson_id' })
-  lessonId: string;
+  lessonId: number;
 
   @Column({ name: 'name' })
   name: string;
@@ -25,13 +25,13 @@ export class Lectures extends BaseEntity {
   isUseName: boolean;
 
   @Column({ name: 'lecture_file_id' })
-  lectureFileId: string;
+  lectureFileId: number;
 
   @Column({ name: 'curriculum_id' })
-  curriculumId: string;
+  curriculumId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

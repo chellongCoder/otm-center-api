@@ -70,7 +70,7 @@ export const templateToString = (templateUrl: string, params: any): string => {
 export const fixPhoneVN = (phone: string) => {
   let phoneNumber = '';
   if (phone[0] === '0') {
-    phoneNumber = '+66' + phone.substring(1);
+    phoneNumber = '+84' + phone.substring(1);
   }
   return phoneNumber;
 };

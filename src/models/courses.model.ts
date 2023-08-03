@@ -1,6 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum PaymentMethodTypes {
+  BY_COURSE = 'BY_COURSE',
+  BY_SESSION = 'BY_SESSION',
+  BY_MONTH = 'BY_MONTH',
+}
+export enum UnitCourseType {
+  ALL = 'ALL',
+  SPECIAL = 'SPECIAL',
+}
 @Entity('courses')
 export class Courses extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -13,7 +22,7 @@ export class Courses extends BaseEntity {
   numberOfLesson: number;
 
   @Column({ name: 'payment_method' })
-  paymentMethod: string;
+  paymentMethod: PaymentMethodTypes;
 
   @Column({ name: 'code' })
   code: string;
@@ -28,10 +37,10 @@ export class Courses extends BaseEntity {
   subject: string;
 
   @Column({ name: 'unit' })
-  unit: number;
+  unit: UnitCourseType;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

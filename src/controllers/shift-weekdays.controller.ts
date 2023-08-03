@@ -1,6 +1,7 @@
+import { successResponse } from '@/helpers/response.helper';
 import { ShiftWeekdays } from '@/models/shift-weekdays.model';
 import { ShiftWeekdaysService } from '@/services/shift-weekdays.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -16,32 +17,24 @@ export class ShiftWeekdaysController {
     @QueryParam('limit') limit: number,
     @QueryParam('order') order: string,
     @QueryParam('search') search: string,
+    @Res() res: any,
   ) {
-    try {
-      return this.service.findAll(page, limit, order, search);
-    } catch (error) {
-      return { error };
-    }
+    const data = await this.service.findAll(page, limit, order, search);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Get('/:id')
   @OpenAPI({ summary: 'Get shift_weekdays by id' })
-  async findById(@Param('id') id: number) {
-    try {
-      return this.service.findById(id);
-    } catch (error) {
-      return { error };
-    }
+  async findById(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Post('/')
   @OpenAPI({ summary: 'Create shift_weekdays' })
-  async create(@Body({ required: true }) body: ShiftWeekdays) {
-    try {
-      return this.service.create(body);
-    } catch (error) {
-      return { error };
-    }
+  async create(@Body({ required: true }) body: ShiftWeekdays, @Res() res: any) {
+    const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
   }
 
   @Put('/:id')
@@ -55,11 +48,8 @@ export class ShiftWeekdaysController {
 
   @Delete('/:id')
   @OpenAPI({ summary: 'Delete shift_weekdays' })
-  async delete(@Param('id') id: number) {
-    try {
-      return this.service.delete(id);
-    } catch (error) {
-      return { error };
-    }
+  async delete(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.delete(id);
+    return successResponse({ res, data, status_code: 200 });
   }
 }

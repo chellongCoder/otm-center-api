@@ -36,7 +36,7 @@ export class PermissionsService {
    * create
    */
   public async create(item: Permissions) {
-    const results = Permissions.insert(item);
+    const results = await Permissions.insert(item);
     return results;
   }
 

@@ -36,7 +36,7 @@ export class UserWorkspaceTokensService {
    * create
    */
   public async create(item: UserWorkspaceTokens) {
-    const results = UserWorkspaceTokens.insert(item);
+    const results = await UserWorkspaceTokens.insert(item);
     return results;
   }
 

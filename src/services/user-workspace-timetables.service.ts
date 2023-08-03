@@ -36,7 +36,7 @@ export class UserWorkspaceTimetablesService {
    * create
    */
   public async create(item: UserWorkspaceTimetables) {
-    const results = UserWorkspaceTimetables.insert(item);
+    const results = await UserWorkspaceTimetables.insert(item);
     return results;
   }
 

@@ -25,13 +25,13 @@ export class UserWorkspaceNotifications extends BaseEntity {
   pushType: string;
 
   @Column({ name: 'notification_message_id' })
-  notificationMessageId: string;
+  notificationMessageId: number;
 
   @Column({ name: 'receiver_user_workspace_id' })
-  receiverUserWorkspaceId: string;
+  receiverUserWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

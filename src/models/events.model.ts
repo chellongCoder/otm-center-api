@@ -43,7 +43,7 @@ export class Events extends BaseEntity {
   scopeSend: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

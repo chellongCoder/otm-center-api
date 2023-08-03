@@ -7,13 +7,13 @@ export class ShiftWeekdays extends BaseEntity {
   id: number;
 
   @Column({ name: 'shift_id' })
-  shiftId: string;
+  shiftId: number;
 
   @Column({ name: 'weekday' })
   weekday: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()

@@ -13,7 +13,7 @@ export class Cities extends BaseEntity {
   code: string;
 
   @Column({ name: 'country_id' })
-  countryId: string;
+  countryId: number;
 
   @Column({ name: 'description' })
   description: string;
