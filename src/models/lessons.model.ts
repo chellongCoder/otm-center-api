@@ -1,22 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Courses } from './courses.model';
 
+/**
+ * Bài học - được tạo tự động khi khoá học được tạo
+ */
 @Entity('lessons')
 export class Lessons extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'name' })
+  @Column({ name: 'name', nullable: true })
   name: string;
 
-  @Column({ name: 'content' })
+  @Column({ name: 'content', nullable: true })
   content: string;
 
-  @Column({ name: 'exercise' })
+  @Column({ name: 'exercise', nullable: true })
   exercise: string;
 
-  @Column({ name: 'curriculum_id' })
-  curriculumId: number;
+  @Column({ name: 'course_id' })
+  courseId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
@@ -35,6 +49,10 @@ export class Lessons extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Courses, (course: Courses) => course.lessons)
+  @JoinColumn({ name: 'course_id' })
+  course: Courses;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('lessons');

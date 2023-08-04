@@ -102,13 +102,6 @@ Table courses {
   unit varchar
   workspace_id integer
 }
-Table curriculums {
-  id integer [pk]
-  name varchar
-  content varchar
-  course_id integer
-  workspace_id integer
-}
 Table lectures {
   id integer [pk]
   lesson_id integer
@@ -118,7 +111,7 @@ Table lectures {
   equipment varchar
   is_use_name boolean
   lecture_file_id integer
-  curriculum_id integer
+  course_id integer
   workspace_id integer
 }
 Table files {
@@ -133,7 +126,7 @@ Table lessons {
   name varchar
   content text [note: 'Nội dung bài học']
   exercise text [note: 'Bài tập về nhà']
-  curriculum_id integer
+  course_id integer
   workspace_id integer
 }
 Table skills {

@@ -71,7 +71,7 @@ export class Classes extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => UserWorkspaceClasses, item => item.classes)
+  @OneToMany(() => UserWorkspaceClasses, item => item.class)
   public userWorkspaceClasses: UserWorkspaceClasses[];
 
   static findByCond(query: any) {

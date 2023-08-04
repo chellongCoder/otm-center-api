@@ -76,15 +76,15 @@ export class UserWorkspaceClasses extends BaseEntity {
 
   @ManyToOne(() => Classes, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'class_id' })
-  classes: Classes;
+  class: Classes;
 
   @ManyToOne(() => Workspaces, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'workspace_id' })
-  workspaces: Workspaces;
+  workspace: Workspaces;
 
   @ManyToOne(() => Courses, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'course_id' })
-  courses: Courses;
+  course: Courses;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_classes');

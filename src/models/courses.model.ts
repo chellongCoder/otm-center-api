@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceClasses } from './user-workspace-classes.model';
+import { Lessons } from './lessons.model';
+import { Lectures } from './lectures.model';
 
 export enum PaymentMethodTypes {
   BY_COURSE = 'BY_COURSE',
@@ -58,8 +60,22 @@ export class Courses extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => UserWorkspaceClasses, item => item.classes)
+  @OneToMany(() => UserWorkspaceClasses, item => item.course)
   public userWorkspaceClasses: UserWorkspaceClasses[];
+
+  @OneToMany(() => Lessons, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  public lessons: Lessons[];
+
+  @OneToMany(() => Lectures, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  public lectures: Lectures[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('courses');
