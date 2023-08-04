@@ -27,6 +27,7 @@ export class ClassesController {
   @OpenAPI({ summary: 'Get classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
+    console.log('chh_log ---> findById ---> data:', data);
     return successResponse({ res, data, status_code: 200 });
   }
 

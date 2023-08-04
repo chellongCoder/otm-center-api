@@ -1,6 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Courses } from './courses.model';
 
+/**
+ * Bài giảng - được tạo tự động khi khoá học được tạo
+ */
 @Entity('lectures')
 export class Lectures extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -9,26 +23,26 @@ export class Lectures extends BaseEntity {
   @Column({ name: 'lesson_id' })
   lessonId: number;
 
-  @Column({ name: 'name' })
+  @Column({ name: 'name', nullable: true })
   name: string;
 
-  @Column({ name: 'content' })
+  @Column({ name: 'content', nullable: true })
   content: string;
 
-  @Column({ name: 'exercise' })
+  @Column({ name: 'exercise', nullable: true })
   exercise: string;
 
-  @Column({ name: 'equipment' })
+  @Column({ name: 'equipment', nullable: true })
   equipment: string;
 
-  @Column({ name: 'is_use_name' })
+  @Column({ name: 'is_use_name', default: false }) //Sử dụng tên của bài học
   isUseName: boolean;
 
-  @Column({ name: 'lecture_file_id' })
+  @Column({ name: 'lecture_file_id', nullable: true })
   lectureFileId: number;
 
-  @Column({ name: 'curriculum_id' })
-  curriculumId: number;
+  @Column({ name: 'course_id' })
+  courseId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
@@ -47,6 +61,10 @@ export class Lectures extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Courses, (course: Courses) => course.lectures)
+  @JoinColumn({ name: 'course_id' })
+  course: Courses;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('lectures');

@@ -6,16 +6,16 @@ export class Countries extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'name' })
+  @Column({ name: 'name', nullable: true })
   name: string;
 
   @Column({ name: 'code' })
   code: string;
 
-  @Column({ name: 'description' })
+  @Column({ name: 'description', nullable: true })
   description: string;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

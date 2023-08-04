@@ -17,7 +17,7 @@ interface IResponseError {
   exception_code: ExceptionCode;
 }
 
-export const successResponse = ({ req, res, data, status_code, message }: IResponse) => {
+export const successResponse = ({ res, data, status_code, message }: IResponse) => {
   const statusCode = status_code || 204;
   return res.status(statusCode).send({
     success: true,
@@ -26,7 +26,7 @@ export const successResponse = ({ req, res, data, status_code, message }: IRespo
   });
 };
 
-export const errorResponse = ({ req, res, status_code, message, exception_code }: IResponseError) => {
+export const errorResponse = ({ res, status_code, message, exception_code }: IResponseError) => {
   const statusCode = status_code || 500;
   return res.status(statusCode).send({
     success: false,

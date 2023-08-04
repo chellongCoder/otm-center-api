@@ -2,9 +2,6 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { NextFunction, Request as ExpressRequest, Response } from 'express';
 
 import { Action } from 'routing-controllers';
-import { Connection } from 'typeorm';
-import { HttpException } from '@/exceptions/http-exception';
-import { logger } from '@utils/logger';
 import { LANGUAGES } from '@/constants';
 import { Users } from '@/models/users.model';
 import { Workspaces } from '@/models/workspaces.model';
@@ -45,17 +42,18 @@ export interface MobileContext {
   // hook_context: IHookContext;
 }
 export function authMiddleware(): (action: Action, roles: any[]) => Promise<boolean> | boolean {
-  return async function innerAuthorizationChecker(action: Action, roles: string[]): Promise<boolean> {
+  return async function innerAuthorizationChecker(action: Action): Promise<boolean> {
     const { request, response, context, next }: { request: Request; response: Response; context?: any; next: NextFunction } = action;
+    console.log('chh_log ---> innerAuthorizationChecker ---> response:', response);
     const authService = Container.get(AuthService);
 
     const workspaceHost = request.headers['x-workspace-host'];
 
     const ip = request.headers['x-forwarded-for'];
-    const deviceId = request.headers['x-device-id'] ? request.headers['x-device-id'].trim() : '';
+    // const deviceId = request.headers['x-device-id'] ? request.headers['x-device-id'].trim() : '';
     const host = workspaceHost ? workspaceHost : request.headers.host;
-    const requestURL = request.originalUrl;
-    const requestMethod = request.method;
+    // const requestURL = request.originalUrl;
+    // const requestMethod = request.method;
     /**
      * * Default accept language
      */
@@ -74,6 +72,7 @@ export function authMiddleware(): (action: Action, roles: any[]) => Promise<bool
       is_super_admin: false,
       hook_context: {},
     };
+    console.log('chh_log ---> innerAuthorizationChecker ---> mobileContext:', mobileContext);
 
     if (!accessToken) {
       throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
