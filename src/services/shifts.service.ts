@@ -1,6 +1,10 @@
 import { Shifts } from '@/models/shifts.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { CreateShiftDto } from '@/dtos/create-shift.dto';
+import _ from 'lodash';
+import { ShiftWeekdays } from '@/models/shift-weekdays.model';
 
 @Service()
 export class ShiftsService {
@@ -35,9 +39,27 @@ export class ShiftsService {
   /**
    * create
    */
-  public async create(item: Shifts) {
-    const results = await Shifts.insert(item);
-    return results;
+  public async create(item: CreateShiftDto) {
+    if (item.fromTime >= item.toTime) {
+      throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+    }
+    if (!item.isEveryday && !item.weekdays?.length) {
+      throw new Exception(ExceptionName.SHIFT_WEEKDAY_REQUIRE, ExceptionCode.SHIFT_WEEKDAY_REQUIRE);
+    }
+    const shift = await Shifts.insert(item);
+    if (item.weekdays && item.weekdays.length && !item.isEveryday) {
+      const weekdays = _.uniq(item.weekdays);
+      const bulkCreateShiftWeekdays: ShiftWeekdays[] = [];
+      for (const weekday of weekdays) {
+        const shiftWeekday = new ShiftWeekdays();
+        shiftWeekday.shiftId = shift.identifiers[0]?.id;
+        shiftWeekday.weekday = weekday;
+        shiftWeekday.workspaceId = item.workspaceId;
+        bulkCreateShiftWeekdays.push(shiftWeekday);
+      }
+      await ShiftWeekdays.insert(bulkCreateShiftWeekdays);
+    }
+    return shift;
   }
 
   /**

@@ -1,3 +1,4 @@
+import { CreateShiftDto } from '@/dtos/create-shift.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Shifts } from '@/models/shifts.model';
 import { ShiftsService } from '@/services/shifts.service';
@@ -32,7 +33,7 @@ export class ShiftsController {
 
   @Post('/')
   @OpenAPI({ summary: 'Create shifts' })
-  async create(@Body({ required: true }) body: Shifts, @Res() res: any) {
+  async create(@Body({ required: true }) body: CreateShiftDto, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });
   }

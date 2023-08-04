@@ -6,10 +6,10 @@ export class Shifts extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'from_time' })
+  @Column('time', { name: 'from_time' })
   fromTime: Date;
 
-  @Column({ name: 'to_time' })
+  @Column('time', { name: 'to_time' })
   toTime: Date;
 
   @Column({ name: 'is_everyday' })
@@ -17,6 +17,9 @@ export class Shifts extends BaseEntity {
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
+
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
