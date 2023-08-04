@@ -1,4 +1,4 @@
-import { UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
@@ -29,6 +29,18 @@ export class UserWorkspaceClassesService {
       where: {
         id,
       },
+    });
+  }
+  /**
+   * findByFilter
+   */
+  public async findByFilter(userWorkspaceId: number, status: UserWorkspaceClassTypes) {
+    return UserWorkspaceClasses.find({
+      where: {
+        userWorkspaceId,
+        status,
+      },
+      relations: ['classes', 'workspaces', 'courses'],
     });
   }
 

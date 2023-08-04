@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaces } from './user-workspaces.model';
+import { UserWorkspaceClasses } from './user-workspace-classes.model';
 
 @Entity('workspaces')
 export class Workspaces extends BaseEntity {
@@ -46,21 +47,24 @@ export class Workspaces extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(type => UserWorkspaces, userWorkspace => userWorkspace.workspaces)
+  @OneToMany(() => UserWorkspaces, item => item.workspaces)
   public userWorkspaces: UserWorkspaces[];
 
+  @OneToMany(() => UserWorkspaceClasses, item => item.workspaces)
+  public userWorkspaceClasses: UserWorkspaceClasses[];
+
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('workspaces');
+    const queryBuilder = this.createQueryBuilder('workspaces');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }
