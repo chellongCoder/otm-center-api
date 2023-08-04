@@ -1,5 +1,5 @@
 import { successResponse } from '@/helpers/response.helper';
-import { UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -25,7 +25,7 @@ export class UserWorkspaceClassesController {
 
   @Get('/list')
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
-  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
+  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: UserWorkspaceClassTypes, @Res() res: any) {
     const data = await this.service.findByFilter(userWorkspaceId, status);
     console.log('chh_log ---> findByFilter ---> data:', data);
     return successResponse({ res, data, status_code: 200 });
