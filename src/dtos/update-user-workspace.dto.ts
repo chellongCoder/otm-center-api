@@ -1,7 +1,7 @@
 import { UserWorkspaceTypes } from './../models/user-workspaces.model';
 import { LANGUAGES } from '@/constants';
 import { SexTypes, StatusUserWorkspaces } from '@/models/user-workspaces.model';
-import { IsBoolean, IsDate, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 export class UpdateUserWorkspaceDto {
   @IsString()
@@ -14,7 +14,7 @@ export class UpdateUserWorkspaceDto {
   @JSONSchema({ description: 'nickname update', example: 'Huythuhai' })
   nickname: string;
 
-  @IsDate()
+  @IsISO8601()
   @IsOptional()
   @JSONSchema({ description: 'birthday update', example: '2000-10-16' })
   birthday: Date;

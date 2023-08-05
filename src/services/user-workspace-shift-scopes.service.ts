@@ -2,6 +2,10 @@ import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.m
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom.dto';
+import { Shifts } from '@/models/shifts.model';
+import { CreateUserWorkspaceShiftScopeDto } from '@/dtos/create-user-workspace-shift-scope.dto';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { Courses } from '@/models/courses.model';
 
 @Service()
 export class UserWorkspaceShiftScopesService {
@@ -39,6 +43,37 @@ export class UserWorkspaceShiftScopesService {
   public async create(item: UserWorkspaceShiftScopes) {
     const results = await UserWorkspaceShiftScopes.insert(item);
     return results;
+  }
+
+  /**
+   * create with business rule
+   */
+  public async createValidate(item: CreateUserWorkspaceShiftScopeDto) {
+    const shiftData = await Shifts.findOne({
+      where: {
+        id: item.shiftId,
+        workspaceId: item.workspaceId,
+      },
+      relations: ['shiftWeekdays'],
+    });
+    if (!shiftData?.id) {
+      throw new Exception(ExceptionName.SHIFT_NOT_FOUND, ExceptionCode.SHIFT_NOT_FOUND);
+    }
+    const courseData = await Courses.findOne({
+      where: {
+        id: item.courseId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!courseData?.id) {
+      throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+    }
+    console.log('chh_log ---> createValidate ---> shiftData:', shiftData);
+    console.log('chh_log ---> createValidate ---> shiftData:', shiftData?.shiftWeekdays);
+    console.log('chh_log ---> createValidate ---> item:', item);
+    // const results = await UserWorkspaceShiftScopes.insert(item);
+    // return results;
+    return true;
   }
 
   /**

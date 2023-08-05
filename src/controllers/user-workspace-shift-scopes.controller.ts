@@ -1,4 +1,5 @@
 import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom.dto';
+import { CreateUserWorkspaceShiftScopeDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { UserWorkspaceShiftScopesService } from '@/services/user-workspace-shift-scopes.service';
@@ -32,17 +33,26 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create user_workspace_shift_scopes' })
+  @OpenAPI({ summary: 'Create 1 user_workspace_shift_scopes' })
   async create(@Body({ required: true }) body: UserWorkspaceShiftScopes, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });
   }
 
+  @Post('/create')
+  @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business' })
+  async createValidate(@Body({ required: true }) body: CreateUserWorkspaceShiftScopeDto, @Res() res: any) {
+    const data = await this.service.createValidate(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
   @Post('/check_shift_classroom')
   @OpenAPI({ summary: 'Check shift classroom validate' })
-  async create(@Body({ required: true }) body: CheckShiftClassroomDto, @Res() res: any) {
-    const data = await this.service.checkShiftClassrooms(body);
-    return successResponse({ res, data, status_code: 201 });
+  async checkShiftClassroom(@Body({ required: true }) body: CheckShiftClassroomDto, @Res() res: any) {
+    console.log('chh_log ---> create ---> body:', body);
+    console.log('chh_log ---> create ---> res:', res);
+    // const data = await this.service.checkShiftClassrooms(body);
+    // return successResponse({ res, data, status_code: 201 });
   }
 
   @Put('/:id')
