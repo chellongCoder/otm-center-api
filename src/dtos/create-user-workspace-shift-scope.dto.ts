@@ -1,9 +1,9 @@
 import { TitleShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, ArrayNotEmpty, IsArray, IsDate, IsISO8601, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ArrayMinSize, ArrayNotEmpty, IsArray, IsISO8601, IsIn, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
-class UserWorkspaceShiftScopesDto {
+export class UserWorkspaceShiftScopesDto {
   @IsNumber()
   @JSONSchema({ description: 'user_workspace_id', example: 1 })
   userWorkspaceId: number;
@@ -17,6 +17,7 @@ class UserWorkspaceShiftScopesDto {
   toTime: string;
 
   @IsString()
+  @IsIn([TitleShiftScopes.TEACHER, TitleShiftScopes.TUTORS], { each: true })
   @JSONSchema({ description: 'title is TEACHER or TUTORS', example: 'TEACHER' })
   title: TitleShiftScopes;
 
