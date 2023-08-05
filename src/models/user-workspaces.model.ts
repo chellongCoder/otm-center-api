@@ -144,7 +144,7 @@ export class UserWorkspaces extends BaseEntity {
 
   @ManyToOne(() => Workspaces, workspaces => workspaces.userWorkspaces)
   @JoinColumn({ name: 'workspace_id' })
-  public workspaces: Workspaces;
+  public workspace: Workspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspaces');

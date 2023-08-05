@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Usage
+ * Usage for 1 table
  * cli g model User
  * cli g controller User
  * cli g service User
