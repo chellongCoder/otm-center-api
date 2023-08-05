@@ -40,7 +40,7 @@ export class UserWorkspaceClassesService {
         userWorkspaceId,
         status,
       },
-      relations: ['classes', 'workspaces', 'courses'],
+      relations: ['class', 'workspace', 'course'],
     });
   }
 

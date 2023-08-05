@@ -355,3 +355,17 @@ Table user_workspace_classes {
   note varchar
   class_schedule varchar
 }
+Table user_workspace_shift_scopes {
+  id integer [pk]
+  user_workspace_id integer
+  course_id integer
+  shift_id integer
+  classroom_id integer
+  workspace_id integer
+  valid_date date
+  expires_date date
+  from_time date
+  to_time date
+  note varchar
+  is_active boolean [default: true]
+}
