@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { ShiftWeekdays } from './shift-weekdays.model';
 
 @Entity('shifts')
 export class Shifts extends BaseEntity {
@@ -35,6 +36,13 @@ export class Shifts extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @OneToMany(() => ShiftWeekdays, item => item.shift, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  public shiftWeekdays: ShiftWeekdays[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('shifts');

@@ -1,6 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum StatusClassrooms {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
 @Entity('classrooms')
 export class Classrooms extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -12,11 +16,14 @@ export class Classrooms extends BaseEntity {
   @Column({ name: 'code' })
   code: string;
 
-  @Column({ name: 'seat_number' })
+  @Column({ name: 'seat_number', nullable: true })
   seatNumber: number;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column({ name: 'description', nullable: true })
+  description: string;
+
+  @Column({ name: 'status', default: 'ACTIVE' })
+  status: StatusClassrooms;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
