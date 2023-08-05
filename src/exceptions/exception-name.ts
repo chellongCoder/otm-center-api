@@ -55,6 +55,7 @@ enum ERROR {
    * COURSE ERROR 1300 --> 1399
    */
   COURSE_NOT_FOUND = 'COURSE_NOT_FOUND',
+  CLASSROOM_NOT_FOUND = 'CLASSROOM_NOT_FOUND',
 
   /**
    * * Organization
