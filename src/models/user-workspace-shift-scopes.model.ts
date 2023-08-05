@@ -1,6 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum TitleShiftScopes {
+  TEACHER = 'TEACHER',
+  TUTORS = 'TUTORS',
+}
 @Entity('user_workspace_shift_scopes')
 export class UserWorkspaceShiftScopes extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -26,6 +30,9 @@ export class UserWorkspaceShiftScopes extends BaseEntity {
 
   @Column({ name: 'expires_date', nullable: true })
   expiresDate: Date;
+
+  @Column({ name: 'title' })
+  title: TitleShiftScopes;
 
   @Column('time', { name: 'from_time' })
   fromTime: Date;

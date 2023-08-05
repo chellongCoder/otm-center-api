@@ -11,5 +11,5 @@ export class CheckShiftClassroomDto {
 
   @IsNumber()
   @JSONSchema({ description: 'workspace_id', example: 1 })
-  workspaceId: string;
+  workspaceId: number;
 }

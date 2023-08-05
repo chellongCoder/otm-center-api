@@ -1,6 +1,5 @@
 import { CreateShiftDto } from '@/dtos/create-shift.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { Shifts } from '@/models/shifts.model';
 import { ShiftsService } from '@/services/shifts.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';

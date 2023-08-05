@@ -50,10 +50,15 @@ enum ERROR {
   CANNOT_INITIAL_WORKSPACE_DATA = 48,
 
   /**
-   * otm - 1200 -> 1300
+   * otm- SHIFT - 1200 -> 1299
    */
   SHIFT_TIME_INPUT_INVALID = 1200,
   SHIFT_WEEKDAY_REQUIRE = 1201,
+
+  /**
+   * COURSE ERROR 1300 --> 1399
+   */
+  COURSE_NOT_FOUND = 1300,
   /**
    * * Organization
    */

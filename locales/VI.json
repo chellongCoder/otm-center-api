@@ -22,5 +22,7 @@
 	"ACCOUNT_NOT_ACTIVE": "ACCOUNT_NOT_ACTIVE",
 	"OPT_EXPIRED": "OTP đã hết hạn",
 	"SHIFT_TIME_INPUT_INVALID": "Thời gian ca không hợp lệ",
-	"SHIFT_WEEKDAY_REQUIRE": "Thiếu thông tin ngày áp dụng trong tuần"
+	"SHIFT_WEEKDAY_REQUIRE": "Thiếu thông tin ngày áp dụng trong tuần",
+	"SHIFT_NOT_FOUND": "Không tìm thấy ca làm việc",
+	"COURSE_NOT_FOUND": "Không tìm thấy khoá học"
 }
