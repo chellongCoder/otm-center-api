@@ -3,6 +3,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceClasses } from './user-workspace-classes.model';
 import { Lessons } from './lessons.model';
 import { Lectures } from './lectures.model';
+import { Classes } from './classes.model';
 
 export enum PaymentMethodTypes {
   BY_COURSE = 'BY_COURSE',
@@ -76,6 +77,13 @@ export class Courses extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   public lectures: Lectures[];
+
+  @OneToMany(() => Classes, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  classes: Classes[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('courses');

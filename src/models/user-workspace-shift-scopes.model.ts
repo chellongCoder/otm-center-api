@@ -1,5 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Shifts } from './shifts.model';
 
 export enum TitleShiftScopes {
   TEACHER = 'TEACHER',
@@ -18,6 +29,9 @@ export class UserWorkspaceShiftScopes extends BaseEntity {
 
   @Column({ name: 'shift_id' })
   shiftId: number;
+
+  @Column({ name: 'class_id' })
+  classId: number;
 
   @Column({ name: 'classroom_id' })
   classroomId: number;
@@ -60,6 +74,10 @@ export class UserWorkspaceShiftScopes extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Shifts)
+  @JoinColumn({ name: 'shift_id' })
+  shift: Shifts;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_shift_scopes');

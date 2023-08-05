@@ -11,6 +11,7 @@ import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.model';
 import { In } from 'typeorm';
 import { Classrooms } from '@/models/classrooms.model';
+import { Classes } from '@/models/classes.model';
 
 @Service()
 export class UserWorkspaceShiftScopesService {
@@ -57,6 +58,15 @@ export class UserWorkspaceShiftScopesService {
     const workspaceData = await Workspaces.findOne({ where: { id: item.workspaceId } });
     if (!workspaceData) {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
+    }
+    const classData = await Classes.findOne({
+      where: {
+        id: item.classId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!classData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
     const classroomData = await Classrooms.findOne({
       where: {
@@ -107,6 +117,7 @@ export class UserWorkspaceShiftScopesService {
       userWorkspaceShiftScope.userWorkspaceId = userWorkspaceItem.userWorkspaceId;
       userWorkspaceShiftScope.courseId = courseData.id;
       userWorkspaceShiftScope.shiftId = shiftData.id;
+      userWorkspaceShiftScope.classId = classData.id;
       userWorkspaceShiftScope.classroomId = classroomData.id;
       userWorkspaceShiftScope.validDate = item.validDate;
       userWorkspaceShiftScope.expiresDate = item.expiresDate;

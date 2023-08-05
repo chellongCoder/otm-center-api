@@ -32,12 +32,12 @@ export class UserWorkspaceShiftScopesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
-  @Post('/')
-  @OpenAPI({ summary: 'Create 1 user_workspace_shift_scopes' })
-  async create(@Body({ required: true }) body: UserWorkspaceShiftScopes, @Res() res: any) {
-    const data = await this.service.create(body);
-    return successResponse({ res, data, status_code: 201 });
-  }
+  // @Post('/')
+  // @OpenAPI({ summary: 'Create 1 user_workspace_shift_scopes' })
+  // async create(@Body({ required: true }) body: UserWorkspaceShiftScopes, @Res() res: any) {
+  //   const data = await this.service.create(body);
+  //   return successResponse({ res, data, status_code: 201 });
+  // }
 
   @Post('/create')
   @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business' })

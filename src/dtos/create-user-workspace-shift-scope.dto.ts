@@ -40,6 +40,10 @@ export class CreateUserWorkspaceShiftScopeDto {
   classroomId: number;
 
   @IsNumber()
+  @JSONSchema({ description: 'class id', example: 2 })
+  classId: number;
+
+  @IsNumber()
   @JSONSchema({ description: 'workspace_id', example: 1 })
   workspaceId: number;
 

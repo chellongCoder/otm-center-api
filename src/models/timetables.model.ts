@@ -9,14 +9,17 @@ export class Timetables extends BaseEntity {
   @Column({ name: 'lesson_id' })
   lessonId: number;
 
-  @Column({ name: 'classroom_id' })
-  classroomId: number;
+  @Column({ name: 'lecture_id' })
+  lectureId: number;
+
+  @Column({ name: 'user_workspace_shift_scope_id' })
+  userWorkspaceShiftScopeId: number;
 
   @Column({ name: 'date' })
   date: Date;
 
-  @Column({ name: 'shift_id' })
-  shiftId: number;
+  @Column({ name: 'session_number_order' }) // số thứ tự buổi học
+  sessionNumberOrder: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
