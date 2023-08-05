@@ -1,5 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Shifts } from './shifts.model';
 
 @Entity('shift_weekdays')
 export class ShiftWeekdays extends BaseEntity {
@@ -29,6 +40,10 @@ export class ShiftWeekdays extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Shifts, (shift: Shifts) => shift.shiftWeekdays)
+  @JoinColumn({ name: 'shift_id' })
+  shift: Shifts;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('shift_weekdays');
