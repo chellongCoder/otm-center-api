@@ -9,9 +9,11 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Workspaces } from './workspaces.model';
+import { UserWorkspaceShiftScopes } from './user-workspace-shift-scopes.model';
 
 export enum UserWorkspaceTypes {
   PARENT = 'PARENT',
@@ -145,6 +147,9 @@ export class UserWorkspaces extends BaseEntity {
   @ManyToOne(() => Workspaces, workspaces => workspaces.userWorkspaces)
   @JoinColumn({ name: 'workspace_id' })
   public workspace: Workspaces;
+
+  @OneToMany(() => UserWorkspaceShiftScopes, item => item.userWorkspace)
+  public userWorkspaceShiftScopes: UserWorkspaceShiftScopes[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspaces');
