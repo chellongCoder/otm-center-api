@@ -7,13 +7,13 @@ export class AssignmentSkills extends BaseEntity {
   id: number;
 
   @Column({ name: 'assignment_id' })
-  assignmentId: string;
+  assignmentId: number;
 
   @Column({ name: 'skill_id' })
-  skillId: string;
+  skillId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -31,17 +31,17 @@ export class AssignmentSkills extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('assignment_skills');
+    const queryBuilder = this.createQueryBuilder('assignment_skills');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

@@ -1,12 +1,12 @@
-import { Curriculums } from '@/models/curriculums.model';
+import { CourseUnitWorkspaces } from '@/models/course-unit-workspaces.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
 @Service()
-export class CurriculumsService {
+export class CourseUnitWorkspacesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
-    const filteredData = await Curriculums.findByCond({
+    const filteredData = await CourseUnitWorkspaces.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
       skip: (page - 1) * limit,
@@ -25,7 +25,7 @@ export class CurriculumsService {
    * findById
    */
   public async findById(id: number) {
-    return Curriculums.findOne({
+    return CourseUnitWorkspaces.findOne({
       where: {
         id,
       },
@@ -35,22 +35,22 @@ export class CurriculumsService {
   /**
    * create
    */
-  public async create(item: Curriculums) {
-    const results = Curriculums.insert(item);
+  public async create(item: CourseUnitWorkspaces) {
+    const results = await CourseUnitWorkspaces.insert(item);
     return results;
   }
 
   /**
    * update
    */
-  public async update(id: number, item: Curriculums) {
-    return Curriculums.update(id, item);
+  public async update(id: number, item: CourseUnitWorkspaces) {
+    return CourseUnitWorkspaces.update(id, item);
   }
 
   /**
    * delete
    */
   public async delete(id: number) {
-    return Curriculums.delete(id);
+    return CourseUnitWorkspaces.delete(id);
   }
 }

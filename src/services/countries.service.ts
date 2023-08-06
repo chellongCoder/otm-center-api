@@ -36,7 +36,16 @@ export class CountriesService {
    * create
    */
   public async create(item: Countries) {
-    const results = Countries.insert(item);
+    const results = await Countries.insert(item);
+    console.log('chh_log ---> create ---> results:', results);
+    console.log('chh_log ---> create ---> results:', results?.length);
+    return results;
+  }
+  /**
+   * bulkCreate
+   */
+  public async bulkCreate(item: Countries[]) {
+    const results = await Countries.insert(item);
     return results;
   }
 

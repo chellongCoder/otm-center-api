@@ -1,19 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-@Entity('shift_weekdays')
-export class ShiftWeekdays extends BaseEntity {
+@Entity('course_unit_workspaces')
+export class CourseUnitWorkspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'shift_id' })
-  shiftId: string;
+  @Column({ name: 'course_id' })
+  courseId: number;
 
-  @Column({ name: 'weekday' })
-  weekday: number;
+  @Column({ name: 'unit_workspace_id' })
+  unitWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -31,17 +31,17 @@ export class ShiftWeekdays extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('shift_weekdays');
+    const queryBuilder = this.createQueryBuilder('course_unit_workspaces');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`shift_weekdays.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`course_unit_workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`shift_weekdays.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`course_unit_workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

@@ -36,7 +36,7 @@ export class WardsService {
    * create
    */
   public async create(item: Wards) {
-    const results = Wards.insert(item);
+    const results = await Wards.insert(item);
     return results;
   }
 

@@ -10,13 +10,13 @@ export class Files extends BaseEntity {
   url: string;
 
   @Column({ name: 'lecture_id' })
-  lectureId: string;
+  lectureId: number;
 
   @Column({ name: 'post_id' })
-  postId: string;
+  postId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -34,17 +34,17 @@ export class Files extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('files');
+    const queryBuilder = this.createQueryBuilder('files');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`files.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`files.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`files.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`files.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

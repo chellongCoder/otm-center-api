@@ -36,7 +36,7 @@ export class <%= className %>Service {
    * create
    */
   public async create(item: <%= className %>) {
-    const results = <%= className %>.insert(item);
+    const results = await <%= className %>.insert(item);
     return results;
   }
 

@@ -1,6 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { UserWorkspaceClasses } from './user-workspace-classes.model';
+import { Lessons } from './lessons.model';
+import { Lectures } from './lectures.model';
+import { Classes } from './classes.model';
 
+export enum PaymentMethodTypes {
+  BY_COURSE = 'BY_COURSE',
+  BY_SESSION = 'BY_SESSION',
+  BY_MONTH = 'BY_MONTH',
+}
+export enum UnitCourseType {
+  ALL = 'ALL',
+  SPECIAL = 'SPECIAL',
+}
 @Entity('courses')
 export class Courses extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -13,7 +26,7 @@ export class Courses extends BaseEntity {
   numberOfLesson: number;
 
   @Column({ name: 'payment_method' })
-  paymentMethod: string;
+  paymentMethod: PaymentMethodTypes;
 
   @Column({ name: 'code' })
   code: string;
@@ -28,10 +41,10 @@ export class Courses extends BaseEntity {
   subject: string;
 
   @Column({ name: 'unit' })
-  unit: number;
+  unit: UnitCourseType;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -48,18 +61,42 @@ export class Courses extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
+  @OneToMany(() => UserWorkspaceClasses, item => item.course)
+  public userWorkspaceClasses: UserWorkspaceClasses[];
+
+  @OneToMany(() => Lessons, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  public lessons: Lessons[];
+
+  @OneToMany(() => Lectures, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  public lectures: Lectures[];
+
+  @OneToMany(() => Classes, item => item.course, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  classes: Classes[];
+
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('courses');
+    const queryBuilder = this.createQueryBuilder('courses');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

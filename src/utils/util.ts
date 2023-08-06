@@ -4,6 +4,7 @@ import path from 'path';
 import { suid } from 'rand-token';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
+import moment from 'moment-timezone';
 const i = 'Notes app'; // Issuer
 const s = 'demo@hisoft.com.vn'; // Subject
 const a = 'http://hisoft.com.vn'; // Audience
@@ -70,7 +71,19 @@ export const templateToString = (templateUrl: string, params: any): string => {
 export const fixPhoneVN = (phone: string) => {
   let phoneNumber = '';
   if (phone[0] === '0') {
-    phoneNumber = '+66' + phone.substring(1);
+    phoneNumber = '+84' + phone.substring(1);
   }
   return phoneNumber;
+};
+export const calculateNextStepCycle = (dayOfWeek: number, startDate: string): string => {
+  // Convert the start date string to a moment object
+  const startDateMoment = moment(startDate, 'YYYY-MM-DD');
+
+  // Calculate the number of days between the start date and the desired day of the week for the next cycle
+  const daysUntilNextCycle = (dayOfWeek - startDateMoment.day() + 7) % 7;
+
+  // Add the appropriate number of days to the start date to get the schedule date for the next step cycle
+  const nextStepCycleDate = startDateMoment.add(daysUntilNextCycle, 'days').format('YYYY-MM-DD');
+
+  return nextStepCycleDate;
 };

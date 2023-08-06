@@ -13,10 +13,10 @@ export class Districts extends BaseEntity {
   code: string;
 
   @Column({ name: 'country_id' })
-  countryId: string;
+  countryId: number;
 
   @Column({ name: 'city_id' })
-  cityId: string;
+  cityId: number;
 
   @Column({ name: 'description' })
   description: string;
@@ -40,17 +40,17 @@ export class Districts extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('districts');
+    const queryBuilder = this.createQueryBuilder('districts');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`districts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`districts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`districts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`districts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

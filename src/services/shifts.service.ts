@@ -1,6 +1,9 @@
 import { Shifts } from '@/models/shifts.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { CreateShiftDto } from '@/dtos/create-shift.dto';
+import _ from 'lodash';
 
 @Service()
 export class ShiftsService {
@@ -35,9 +38,30 @@ export class ShiftsService {
   /**
    * create
    */
-  public async create(item: Shifts) {
-    const results = Shifts.insert(item);
-    return results;
+  public async create(item: CreateShiftDto) {
+    if (item.fromTime >= item.toTime) {
+      throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+    }
+    if (!item.isEveryday && !item.weekdays?.length) {
+      throw new Exception(ExceptionName.SHIFT_WEEKDAY_REQUIRE, ExceptionCode.SHIFT_WEEKDAY_REQUIRE);
+    }
+    let dayOfWeekLoop: number = [];
+    if (item.isEveryday) {
+      dayOfWeekLoop = [1, 2, 3, 4, 5, 6, 0];
+    } else {
+      dayOfWeekLoop = _.uniq(item.weekdays);
+    }
+    const bulkCreateShifts: Shifts[] = [];
+    for (const weekday of dayOfWeekLoop) {
+      const shiftCreate = new Shifts();
+      shiftCreate.fromTime = item.fromTime;
+      shiftCreate.toTime = item.toTime;
+      shiftCreate.weekday = weekday;
+      shiftCreate.workspaceId = item.workspaceId;
+
+      bulkCreateShifts.push(shiftCreate);
+    }
+    return await Shifts.insert(bulkCreateShifts);
   }
 
   /**

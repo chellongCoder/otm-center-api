@@ -36,7 +36,7 @@ export class FilesService {
    * create
    */
   public async create(item: Files) {
-    const results = Files.insert(item);
+    const results = await Files.insert(item);
     return results;
   }
 

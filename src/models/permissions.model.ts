@@ -10,7 +10,7 @@ export class Permissions extends BaseEntity {
   key: string;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'is_active' })
   isActive: boolean;
@@ -19,7 +19,7 @@ export class Permissions extends BaseEntity {
   isAllPermissions: boolean;
 
   @Column({ name: 'group_permission_id' })
-  groupPermissionId: string;
+  groupPermissionId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -37,17 +37,17 @@ export class Permissions extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('permissions');
+    const queryBuilder = this.createQueryBuilder('permissions');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`permissions.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

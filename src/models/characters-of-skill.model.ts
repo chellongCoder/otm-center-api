@@ -7,7 +7,7 @@ export class CharactersOfSkill extends BaseEntity {
   id: number;
 
   @Column({ name: 'skill_id' })
-  skillId: string;
+  skillId: number;
 
   @Column({ name: 'name' })
   name: string;
@@ -16,7 +16,7 @@ export class CharactersOfSkill extends BaseEntity {
   value: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -34,17 +34,17 @@ export class CharactersOfSkill extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('characters_of_skill');
+    const queryBuilder = this.createQueryBuilder('characters_of_skill');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`characters_of_skill.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`characters_of_skill.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`characters_of_skill.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`characters_of_skill.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

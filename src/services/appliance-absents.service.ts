@@ -36,7 +36,7 @@ export class ApplianceAbsentsService {
    * create
    */
   public async create(item: ApplianceAbsents) {
-    const results = ApplianceAbsents.insert(item);
+    const results = await ApplianceAbsents.insert(item);
     return results;
   }
 

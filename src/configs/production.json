@@ -1,12 +1,12 @@
 {
   "env": "production",
   "dbConfig": {
-    "host": "localhost",
+    "host": "125.212.235.135",
     "database": "otmdb",
     "user": "postgres",
     "password": "postgres",
-    "port": 25432,
-    "synchronize": true,
+    "port": 55431,
+    "synchronize": false,
     "logging": false
   },
   "log": {

@@ -1,6 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum StatusClassrooms {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
 @Entity('classrooms')
 export class Classrooms extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -12,14 +16,17 @@ export class Classrooms extends BaseEntity {
   @Column({ name: 'code' })
   code: string;
 
-  @Column({ name: 'seat_number' })
+  @Column({ name: 'seat_number', nullable: true })
   seatNumber: number;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column({ name: 'description', nullable: true })
+  description: string;
+
+  @Column({ name: 'status', default: 'ACTIVE' })
+  status: StatusClassrooms;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -37,17 +44,17 @@ export class Classrooms extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('classrooms');
+    const queryBuilder = this.createQueryBuilder('classrooms');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`classrooms.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`classrooms.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`classrooms.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`classrooms.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

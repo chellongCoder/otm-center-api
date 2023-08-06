@@ -25,13 +25,13 @@ export class UserWorkspaceNotifications extends BaseEntity {
   pushType: string;
 
   @Column({ name: 'notification_message_id' })
-  notificationMessageId: string;
+  notificationMessageId: number;
 
   @Column({ name: 'receiver_user_workspace_id' })
-  receiverUserWorkspaceId: string;
+  receiverUserWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -49,17 +49,17 @@ export class UserWorkspaceNotifications extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('user_workspace_notifications');
+    const queryBuilder = this.createQueryBuilder('user_workspace_notifications');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`user_workspace_notifications.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`user_workspace_notifications.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`user_workspace_notifications.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`user_workspace_notifications.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

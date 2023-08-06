@@ -1,8 +1,6 @@
 import { Cities } from '@/models/cities.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { Query } from 'typeorm/driver/Query';
-import { RawQuery } from '@/decorators/query.decorator';
 
 @Service()
 export class CitiesService {
@@ -38,7 +36,7 @@ export class CitiesService {
    * create
    */
   public async create(item: Cities) {
-    const results = Cities.insert(item);
+    const results = await Cities.insert(item);
     return results;
   }
 

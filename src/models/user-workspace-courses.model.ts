@@ -7,13 +7,13 @@ export class UserWorkspaceCourses extends BaseEntity {
   id: number;
 
   @Column({ name: 'course_id' })
-  courseId: string;
+  courseId: number;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -31,17 +31,17 @@ export class UserWorkspaceCourses extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('user_workspace_courses');
+    const queryBuilder = this.createQueryBuilder('user_workspace_courses');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`user_workspace_courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`user_workspace_courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`user_workspace_courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`user_workspace_courses.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

@@ -1,32 +1,30 @@
-import { LoginSmsResponse } from '@/configs/interfaces/auth/loginSms';
-import { VerifyOtpResponse } from '@/configs/interfaces/auth/verifyOtp';
-import { PhoneLoginDto } from '@/dtos/phoneLogin.dto';
-import { VerifyOtpDto } from '@/dtos/phoneVerifyOtp';
+import { SendOTPResponse } from '@/schema-interfaces/auth/sendOtp';
+import { LoginResponse } from '@/schema-interfaces/auth/login';
+import { SendOTPDto } from '@/dtos/phoneLogin.dto';
 import { AuthService } from '@/services/auth.service';
 import { Body, Controller, Post, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
-
+import { LoginDto } from '@/dtos/login.dto';
+import { successResponse } from '@/helpers/response.helper';
 @Service()
 @Controller('/auth')
 export class AuthController {
   constructor(public authService: AuthService) {}
 
-  @Post('/login/sms')
-  @OpenAPI({ summary: 'Login with phone SMS' })
-  @ResponseSchema(LoginSmsResponse)
-  loginWithSMS(@Body() body: PhoneLoginDto) {
-    try {
-      return this.authService.loginWithSMS(body.phone);
-    } catch (err) {
-      console.log(err);
-    }
+  @Post('/send-otp')
+  @OpenAPI({ summary: 'Send OTP to phone number' })
+  @ResponseSchema(SendOTPResponse)
+  async sendOTP(@Body() body: SendOTPDto, @Res() res: any) {
+    const data = await this.authService.sendOTP(body.phoneNumber);
+    return successResponse({ res, data, status_code: 200 });
   }
 
-  @Post('/login/sms/verify')
-  @OpenAPI({ summary: 'Verify OTP code' })
-  @ResponseSchema(VerifyOtpResponse)
-  async verify(@Body() body: VerifyOtpDto, @Res() res: any) {
-    return this.authService.verifyOtp(res, body.phone, body.code);
+  @Post('/login')
+  @OpenAPI({ summary: 'Login with OTP to workspace' })
+  @ResponseSchema(LoginResponse)
+  async login(@Body() body: LoginDto, @Res() res: any) {
+    const data = await this.authService.login(body);
+    return successResponse({ res, data, status_code: 200 });
   }
 }

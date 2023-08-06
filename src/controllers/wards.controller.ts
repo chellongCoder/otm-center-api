@@ -1,6 +1,7 @@
+import { successResponse } from '@/helpers/response.helper';
 import { Wards } from '@/models/wards.model';
 import { WardsService } from '@/services/wards.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -16,32 +17,24 @@ export class WardsController {
     @QueryParam('limit') limit: number,
     @QueryParam('order') order: string,
     @QueryParam('search') search: string,
+    @Res() res: any,
   ) {
-    try {
-      return this.service.findAll(page, limit, order, search);
-    } catch (error) {
-      return { error };
-    }
+    const data = await this.service.findAll(page, limit, order, search);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Get('/:id')
   @OpenAPI({ summary: 'Get wards by id' })
-  async findById(@Param('id') id: number) {
-    try {
-      return this.service.findById(id);
-    } catch (error) {
-      return { error };
-    }
+  async findById(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Post('/')
   @OpenAPI({ summary: 'Create wards' })
-  async create(@Body({ required: true }) body: Wards) {
-    try {
-      return this.service.create(body);
-    } catch (error) {
-      return { error };
-    }
+  async create(@Body({ required: true }) body: Wards, @Res() res: any) {
+    const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
   }
 
   @Put('/:id')
@@ -55,11 +48,8 @@ export class WardsController {
 
   @Delete('/:id')
   @OpenAPI({ summary: 'Delete wards' })
-  async delete(@Param('id') id: number) {
-    try {
-      return this.service.delete(id);
-    } catch (error) {
-      return { error };
-    }
+  async delete(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.delete(id);
+    return successResponse({ res, data, status_code: 200 });
   }
 }

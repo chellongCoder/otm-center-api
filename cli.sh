@@ -1,1 +1,1 @@
-node .bin/cli.js $1 $2 $3 $4
+node .bin/cli-special.js $1 $2 $3 $4

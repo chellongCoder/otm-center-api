@@ -36,7 +36,7 @@ export class ScopePermissionsService {
    * create
    */
   public async create(item: ScopePermissions) {
-    const results = ScopePermissions.insert(item);
+    const results = await ScopePermissions.insert(item);
     return results;
   }
 

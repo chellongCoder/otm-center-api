@@ -36,7 +36,7 @@ export class LecturesService {
    * create
    */
   public async create(item: Lectures) {
-    const results = Lectures.insert(item);
+    const results = await Lectures.insert(item);
     return results;
   }
 

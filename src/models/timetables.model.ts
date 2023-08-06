@@ -1,5 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Classes } from './classes.model';
+import { Shifts } from './shifts.model';
+import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
 
 @Entity('timetables')
 export class Timetables extends BaseEntity {
@@ -7,19 +20,40 @@ export class Timetables extends BaseEntity {
   id: number;
 
   @Column({ name: 'lesson_id' })
-  lessonId: string;
+  lessonId: number;
 
-  @Column({ name: 'classroom_id' })
-  classroomId: string;
+  @Column({ name: 'lecture_id' })
+  lectureId: number;
+
+  @Column({ name: 'shift_id' })
+  shiftId: number;
+
+  @Column({ name: 'class_id' })
+  classId: number;
+
+  @Column({ name: 'class_shifts_classroom_id' })
+  classShiftsClassroomId: number;
 
   @Column({ name: 'date' })
   date: Date;
 
-  @Column({ name: 'shift_id' })
-  shiftId: string;
+  @Column('time', { name: 'from_time' })
+  fromTime: Date;
+
+  @Column('time', { name: 'to_time' })
+  toTime: Date;
+
+  @Column({ name: 'valid_date' })
+  validDate: Date;
+
+  @Column({ name: 'expires_date', nullable: true })
+  expiresDate: Date;
+
+  @Column({ name: 'session_number_order' }) // số thứ tự buổi học
+  sessionNumberOrder: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -36,18 +70,30 @@ export class Timetables extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
+  @ManyToOne(() => Classes, item => item.timetables)
+  @JoinColumn({ name: 'class_id' })
+  class: Classes;
+
+  @ManyToOne(() => Shifts)
+  @JoinColumn({ name: 'shift_id' })
+  shift: Shifts;
+
+  @ManyToOne(() => ClassShiftsClassrooms)
+  @JoinColumn({ name: 'class_shifts_classroom_id' })
+  classShiftsClassroom: ClassShiftsClassrooms;
+
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('timetables');
+    const queryBuilder = this.createQueryBuilder('timetables');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`timetables.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`timetables.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`timetables.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`timetables.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

@@ -10,7 +10,7 @@ export class UserWorkspaceDevices extends BaseEntity {
   deviceName: string;
 
   @Column({ name: 'device_id' })
-  deviceId: string;
+  deviceId: number;
 
   @Column({ name: 'fcm_push_token' })
   fcmPushToken: string;
@@ -22,10 +22,10 @@ export class UserWorkspaceDevices extends BaseEntity {
   isEmulator: boolean;
 
   @Column({ name: 'user_workspace_id' })
-  userWorkspaceId: string;
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
-  workspaceId: string;
+  workspaceId: number;
 
   @Column({ name: 'is_active' })
   isActive: boolean;
@@ -46,17 +46,17 @@ export class UserWorkspaceDevices extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuider = this.createQueryBuilder('user_workspace_devices');
+    const queryBuilder = this.createQueryBuilder('user_workspace_devices');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuider.where(`user_workspace_devices.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`user_workspace_devices.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuider.andWhere(`user_workspace_devices.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`user_workspace_devices.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }
-    return queryBuider.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }

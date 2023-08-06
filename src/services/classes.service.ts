@@ -1,6 +1,7 @@
 import { Classes } from '@/models/classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Timetables } from '@/models/timetables.model';
 
 @Service()
 export class ClassesService {
@@ -29,6 +30,7 @@ export class ClassesService {
       where: {
         id,
       },
+      relations: ['course', 'workspace'],
     });
   }
 
@@ -36,7 +38,7 @@ export class ClassesService {
    * create
    */
   public async create(item: Classes) {
-    const results = Classes.insert(item);
+    const results = await Classes.insert(item);
     return results;
   }
 
@@ -52,5 +54,22 @@ export class ClassesService {
    */
   public async delete(id: number) {
     return Classes.delete(id);
+  }
+  public async getClassSchedule(id: number) {
+    return await Timetables.find({
+      where: {
+        classId: id,
+      },
+      relations: [
+        'class',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+      order: {
+        sessionNumberOrder: 'ASC',
+      },
+    });
   }
 }

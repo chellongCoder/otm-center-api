@@ -148,9 +148,9 @@ const capitalizeFirstLetter = string => {
             })
             .filter(item => item != null)
             .join(',');
-          createModel(tableName, fields);
+          // createModel(tableName, fields);
           createService(tableName);
-          createController(tableName);
+          // createController(tableName);
         });
       }
     }

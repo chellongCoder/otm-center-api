@@ -18,6 +18,9 @@ import session from 'express-session';
 import '@/utils/passport';
 import { DbConnection } from '@/database/dbConnection';
 import errorMiddleware from '@/middlewares/error.middleware';
+import * as i18n from 'i18n';
+import { LANGUAGES } from './constants';
+import { authMiddleware } from './auth/authorizationChecker';
 
 export default class App {
   public app: express.Application;
@@ -31,11 +34,12 @@ export default class App {
     this.connectToDatabase();
 
     this.initializeMiddlewares();
-
     this.initializeRoutes();
     this.initializeSwagger();
     this.initializePassport();
     this.initializeErrorHandling();
+    this.initI18n();
+    this.app.disable('etag');
   }
 
   public getServer() {
@@ -106,21 +110,29 @@ export default class App {
   private initializeRoutes() {
     useContainer(Container);
     useExpressServer(this.app, {
-      cors: {
-        origin: config.get('cors.origin'),
-        credentials: config.get('cors.credentials'),
-      },
+      // cors: {
+      //   origin: config.get('cors.origin'),
+      //   credentials: config.get('cors.credentials'),
+      // },
       routePrefix: '/api',
       middlewares: [path.join(__dirname + '/middlewares/*{.ts,.js}')],
       controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
       interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
       defaultErrorHandler: false,
+      authorizationChecker: authMiddleware(),
     });
   }
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
   }
+
+  private initI18n = () => {
+    i18n.configure({
+      locales: [LANGUAGES.EN, LANGUAGES.VI],
+      directory: path.join(__dirname, '..', 'locales'),
+    });
+  };
 
   public listen() {
     this.app.listen(this.port, () => {

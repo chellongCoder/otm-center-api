@@ -1,6 +1,8 @@
 import { Courses } from '@/models/courses.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Lessons } from '@/models/lessons.model';
+import { Lectures } from '@/models/lectures.model';
 
 @Service()
 export class CoursesService {
@@ -36,8 +38,26 @@ export class CoursesService {
    * create
    */
   public async create(item: Courses) {
-    const results = Courses.insert(item);
-    return results;
+    const course = await Courses.insert(item);
+    const numberOfLesson = item.numberOfLesson;
+    const bulkCreateLessons: Lessons[] = [];
+    const bulkCreateLectures: Lectures[] = [];
+    for (let index = 0; index < numberOfLesson; index++) {
+      const lesson = new Lessons();
+      lesson.courseId = course.identifiers[0]?.id;
+      lesson.workspaceId = item.workspaceId;
+      bulkCreateLessons.push(lesson);
+    }
+    const bulkCreateLessonInsert = await Lessons.insert(bulkCreateLessons);
+    for (let index = 0; index < numberOfLesson; index++) {
+      const lecture = new Lectures();
+      lecture.lessonId = bulkCreateLessonInsert.identifiers[index]?.id;
+      lecture.courseId = course.identifiers[0]?.id;
+      lecture.workspaceId = item.workspaceId;
+      bulkCreateLectures.push(lecture);
+    }
+    await Lectures.insert(bulkCreateLectures);
+    return course;
   }
 
   /**
