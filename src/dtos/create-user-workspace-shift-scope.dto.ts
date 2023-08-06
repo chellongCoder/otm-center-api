@@ -32,10 +32,6 @@ export class CreateClassScheduleDto {
   shiftId: number;
 
   @IsNumber()
-  @JSONSchema({ description: 'course id', example: 1 })
-  courseId: number;
-
-  @IsNumber()
   @JSONSchema({ description: 'classroom id', example: 2 })
   classroomId: number;
 

@@ -4,7 +4,6 @@ import { QueryParser } from '@/utils/query-parser';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { CreateShiftDto } from '@/dtos/create-shift.dto';
 import _ from 'lodash';
-import { ShiftWeekdays } from '@/models/shift-weekdays.model';
 
 @Service()
 export class ShiftsService {
@@ -46,20 +45,23 @@ export class ShiftsService {
     if (!item.isEveryday && !item.weekdays?.length) {
       throw new Exception(ExceptionName.SHIFT_WEEKDAY_REQUIRE, ExceptionCode.SHIFT_WEEKDAY_REQUIRE);
     }
-    const shift = await Shifts.insert(item);
-    if (item.weekdays && item.weekdays.length && !item.isEveryday) {
-      const weekdays = _.uniq(item.weekdays);
-      const bulkCreateShiftWeekdays: ShiftWeekdays[] = [];
-      for (const weekday of weekdays) {
-        const shiftWeekday = new ShiftWeekdays();
-        shiftWeekday.shiftId = shift.identifiers[0]?.id;
-        shiftWeekday.weekday = weekday;
-        shiftWeekday.workspaceId = item.workspaceId;
-        bulkCreateShiftWeekdays.push(shiftWeekday);
-      }
-      await ShiftWeekdays.insert(bulkCreateShiftWeekdays);
+    let dayOfWeekLoop: number = [];
+    if (item.isEveryday) {
+      dayOfWeekLoop = [1, 2, 3, 4, 5, 6, 0];
+    } else {
+      dayOfWeekLoop = _.uniq(item.weekdays);
     }
-    return shift;
+    const bulkCreateShifts: Shifts[] = [];
+    for (const weekday of dayOfWeekLoop) {
+      const shiftCreate = new Shifts();
+      shiftCreate.fromTime = item.fromTime;
+      shiftCreate.toTime = item.toTime;
+      shiftCreate.weekday = weekday;
+      shiftCreate.workspaceId = item.workspaceId;
+
+      bulkCreateShifts.push(shiftCreate);
+    }
+    return await Shifts.insert(bulkCreateShifts);
   }
 
   /**

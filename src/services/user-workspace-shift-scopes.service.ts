@@ -83,24 +83,24 @@ export class UserWorkspaceShiftScopesService {
         id: item.shiftId,
         workspaceId: item.workspaceId,
       },
-      relations: ['shiftWeekdays'],
     });
     if (!shiftData?.id) {
       throw new Exception(ExceptionName.SHIFT_NOT_FOUND, ExceptionCode.SHIFT_NOT_FOUND);
     }
-    const courseData = await Courses.findOne({
-      where: {
-        id: item.courseId,
-        workspaceId: item.workspaceId,
-      },
-    });
-    if (!courseData?.id) {
-      throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
-    }
+    // const courseData = await Courses.findOne({
+    //   where: {
+    //     id: item.courseId,
+    //     workspaceId: item.workspaceId,
+    //   },
+    // });
+    // if (!courseData?.id) {
+    //   throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+    // }
     if (!item.userWorkspaces.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
     const userWorkspaceData: UserWorkspaceShiftScopesDto[] = _.uniq(item.userWorkspaces, 'userWorkspaceId');
+    this.validateUserWorkspaceTimeShift({ shift: shiftData, userWorkspaceShiftScopes: userWorkspaceData });
     const userWorkspaceIds: number[] = userWorkspaceData.map(el => el.userWorkspaceId);
     const userWorkspaceCount = await UserWorkspaces.count({
       where: {
@@ -140,6 +140,25 @@ export class UserWorkspaceShiftScopesService {
       bulkCreateShiftScopes.push(userWorkspaceShiftScope);
     }
     return await UserWorkspaceShiftScopes.insert(bulkCreateShiftScopes);
+  }
+
+  public validateUserWorkspaceTimeShift({
+    shift,
+    userWorkspaceShiftScopes,
+  }: {
+    shift: Shifts;
+    userWorkspaceShiftScopes: UserWorkspaceShiftScopesDto[];
+  }) {
+    for (const userWorkspaceItem of userWorkspaceShiftScopes) {
+      if (userWorkspaceItem.fromTime < Number(`${shift.fromTime}`.replaceAll(':', ''))) {
+        console.log('chh_log ---> shift.fromTime:', shift.fromTime);
+        console.log('chh_log ---> userWorkspaceItem.fromTime:', userWorkspaceItem.fromTime);
+        throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+      }
+      if (userWorkspaceItem.toTime > shift.toTime) {
+        throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+      }
+    }
   }
 
   /**

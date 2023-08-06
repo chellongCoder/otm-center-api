@@ -69,7 +69,6 @@ export class ClassShiftsClassroomsService {
         id: item.shiftId,
         workspaceId: item.workspaceId,
       },
-      relations: ['shiftWeekdays'],
     });
     if (!shiftData?.id) {
       throw new Exception(ExceptionName.SHIFT_NOT_FOUND, ExceptionCode.SHIFT_NOT_FOUND);

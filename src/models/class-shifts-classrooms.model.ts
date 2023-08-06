@@ -1,7 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceShiftScopes } from './user-workspace-shift-scopes.model';
+import { Shifts } from './shifts.model';
 
+/**
+ * đăng ký lịch
+ */
 @Entity('class_shifts_classrooms')
 export class ClassShiftsClassrooms extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -46,6 +61,10 @@ export class ClassShiftsClassrooms extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   userWorkspaceShiftScopes: UserWorkspaceShiftScopes[];
+
+  @ManyToOne(() => Shifts)
+  @JoinColumn({ name: 'shift_id' })
+  shift: Shifts;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_shifts_classrooms');

@@ -18,6 +18,12 @@ export class Timetables extends BaseEntity {
   @Column({ name: 'date' })
   date: Date;
 
+  @Column('time', { name: 'from_time' })
+  fromTime: Date;
+
+  @Column('time', { name: 'to_time' })
+  toTime: Date;
+
   @Column({ name: 'session_number_order' }) // số thứ tự buổi học
   sessionNumberOrder: number;
 

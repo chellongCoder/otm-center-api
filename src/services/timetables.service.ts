@@ -7,6 +7,7 @@ import { Classes } from '@/models/classes.model';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Lessons } from '@/models/lessons.model';
+import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 
 @Service()
 export class TimetablesService {
@@ -70,19 +71,21 @@ export class TimetablesService {
       },
       relations: ['course'],
     });
+    console.log('chh_log ---> generate ---> classData:', classData);
     if (!classData?.id) {
       throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
     const numberOfLesson: number = classData.sessionNumber;
     console.log('chh_log ---> generate ---> numberOfLesson:', numberOfLesson);
     console.log('chh_log ---> generate ---> classData.fromTime:', classData.fromTime);
-    const userWorkspaceShiftScopesData = await UserWorkspaceShiftScopes.find({
+    const ClassShiftsClassroomData = await ClassShiftsClassrooms.find({
       where: {
         workspaceId: item.workspaceId,
         classId: classData.id,
       },
-      relations: ['shift.shiftWeekdays'],
+      relations: ['shift'],
     });
+    console.log('chh_log ---> generate ---> ClassShiftsClassroomData:', ClassShiftsClassroomData);
     // const lessonsData = await Lessons.find({
     //   where: {
     //     workspaceId: item.workspaceId,
@@ -95,17 +98,17 @@ export class TimetablesService {
         courseId: classData.courseId,
       },
     });
+    console.log('chh_log ---> generate ---> lecturesData:', lecturesData);
     if (lecturesData.length !== numberOfLesson) {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }
-    console.log('chh_log', userWorkspaceShiftScopesData[0].shift.shiftWeekdays);
+    console.log('chh_log', ClassShiftsClassroomData[0].shift);
     const bulkCreateTimetables: Timetables[] = [];
     for (let index = 0; index < numberOfLesson; index++) {
       /**
        * calculate Next Date shift Cycle
        */
       for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
-        const shiftWeekdaysData = userWorkspaceShiftScopeItem.shift.shiftWeekdays;
       }
       const timeTable = new Timetables();
       timeTable.workspaceId = item.workspaceId;
