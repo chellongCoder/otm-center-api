@@ -1,11 +1,11 @@
 {
   "env": "production",
   "dbConfig": {
-    "host": "postgres.2soft.top",
-    "database": "nexus_db_production",
+    "host": "localhost",
+    "database": "otmdb",
     "user": "postgres",
-    "password": "uu8D]HV,bm-7}DzLu@j$",
-    "port": 5432,
+    "password": "postgres",
+    "port": 25432,
     "synchronize": true,
     "logging": false
   },

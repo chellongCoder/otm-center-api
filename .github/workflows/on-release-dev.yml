@@ -1,0 +1,62 @@
+name: Deploy Dev server
+
+on:
+  push:
+    branches: [ "dev" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
+env:
+  PR_NUMBER: ${{ github.event.number }}
+  IMAGE_NAME: "hoangnm1001/otm-api"
+  
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2.1.0
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Create .env file
+      uses: ozaytsev86/create-env-file@v1
+      with:
+        ENV_DB_HOST: "125.212.235.135"
+        ENV_DB_PORT: 55431
+        ENV_DB_USER: "postgres"
+        ENV_DB_PASS: "postgres"
+        ENV_DB_DBNAME: "otmdb"
+        
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ env.IMAGE_NAME }}:latest
+        
+    - name: SSH to dev server to run container
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        envs: IMAGE_NAME,PR_NUMBER
+        script: |
+          docker pull $IMAGE_NAME:latest
+          docker stop otm-api
+          docker rm otm-api
+          docker run -d -p 4003:4000 --name otm-api $IMAGE_NAME:latest

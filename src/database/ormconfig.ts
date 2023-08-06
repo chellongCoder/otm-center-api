@@ -20,11 +20,11 @@ export default {
   // synchronize: false,
   // logging: false,
   // =======================
-  entities: [path.join(__dirname, '../../src/models/**/*{.ts,.js}')],
-  seeds: [path.join(__dirname, '../../src/database/seeds/**/*{.ts,.js}')],
-  factories: [path.join(__dirname, '../../src/database/factories/**/*{.ts,.js}')],
-  migrations: [path.join(__dirname, '../../src/database/migrations/**/*.ts')],
-  subscribers: [path.join(__dirname, '../../src/subscriber/**/*.ts')],
+  entities: [path.join(__dirname, '../models/**/*{.ts,.js}')],
+  seeds: [path.join(__dirname, '../database/seeds/**/*{.ts,.js}')],
+  factories: [path.join(__dirname, '../database/factories/**/*{.ts,.js}')],
+  migrations: [path.join(__dirname, '../database/migrations/**/*.ts')],
+  subscribers: [path.join(__dirname, '../subscriber/**/*.ts')],
   cli: {
     entitiesDir: 'src/models',
     migrationsDir: 'database/migrations',
