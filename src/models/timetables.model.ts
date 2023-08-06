@@ -12,7 +12,10 @@ export class Timetables extends BaseEntity {
   @Column({ name: 'lecture_id' })
   lectureId: number;
 
-  @Column({ name: 'user_workspace_shift_scope_id' })
+  @Column({ name: 'shift_id' })
+  shiftId: number;
+
+  @Column({ name: 'user_workspace_shift_scope_id', nullable: true })
   userWorkspaceShiftScopeId: number;
 
   @Column({ name: 'date' })
@@ -23,6 +26,12 @@ export class Timetables extends BaseEntity {
 
   @Column('time', { name: 'to_time' })
   toTime: Date;
+
+  @Column({ name: 'valid_date' })
+  validDate: Date;
+
+  @Column({ name: 'expires_date', nullable: true })
+  expiresDate: Date;
 
   @Column({ name: 'session_number_order' }) // số thứ tự buổi học
   sessionNumberOrder: number;

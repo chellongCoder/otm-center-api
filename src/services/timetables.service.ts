@@ -1,5 +1,6 @@
 import { Lectures } from '@/models/lectures.model';
 import { Timetables } from '@/models/timetables.model';
+import _ from 'lodash';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
@@ -8,6 +9,9 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Lessons } from '@/models/lessons.model';
 import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
+import { Shifts } from '@/models/shifts.model';
+import moment from 'moment-timezone';
+import { calculateNextStepCycle } from '@/utils/util';
 
 @Service()
 export class TimetablesService {
@@ -78,14 +82,23 @@ export class TimetablesService {
     const numberOfLesson: number = classData.sessionNumber;
     console.log('chh_log ---> generate ---> numberOfLesson:', numberOfLesson);
     console.log('chh_log ---> generate ---> classData.fromTime:', classData.fromTime);
-    const ClassShiftsClassroomData = await ClassShiftsClassrooms.find({
+    const ClassShiftsClassroomData: ClassShiftsClassrooms[] = await ClassShiftsClassrooms.find({
       where: {
         workspaceId: item.workspaceId,
         classId: classData.id,
       },
       relations: ['shift'],
     });
-    console.log('chh_log ---> generate ---> ClassShiftsClassroomData:', ClassShiftsClassroomData);
+    const shiftData: Shifts[] = _.sortBy(
+      ClassShiftsClassroomData.map((el: ClassShiftsClassrooms) => {
+        return {
+          ...el.shift,
+          classShiftsClassroomId: el.id,
+        };
+      }),
+      ['weekday', 'fromTime'],
+    );
+    console.log('chh_log ---> generate ---> shiftData:', shiftData);
     // const lessonsData = await Lessons.find({
     //   where: {
     //     workspaceId: item.workspaceId,
@@ -98,27 +111,61 @@ export class TimetablesService {
         courseId: classData.courseId,
       },
     });
-    console.log('chh_log ---> generate ---> lecturesData:', lecturesData);
     if (lecturesData.length !== numberOfLesson) {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }
-    console.log('chh_log', ClassShiftsClassroomData[0].shift);
+    const startDateClass = moment(classData.fromTime).format('YYYY-MM-DD');
+    const dayOfWeekStart = moment(classData.fromTime).weekday();
+    // let dateCurrentCheck = Number(startDateClass.replace('-', ''));
+    let dateCurrentCheck = startDateClass;
+    const lastIndexShift = shiftData.length - 1;
+    let indexOfFirstShiftApply = 0;
+    let indexCurrentCheck = 0;
+
     const bulkCreateTimetables: Timetables[] = [];
-    for (let index = 0; index < numberOfLesson; index++) {
-      /**
-       * calculate Next Date shift Cycle
-       */
-      for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
+    /**
+     * calculate first day shift
+     */
+    if (dayOfWeekStart === 0) {
+      const shiftApplyFirst = shiftData.filter(el => el.weekday === 0);
+      if (shiftApplyFirst.length >= 1) {
+        indexOfFirstShiftApply = shiftData.findIndex(el => el.id === shiftApplyFirst[0].id);
       }
+      // wip check điều kiện case thiếu
+      indexCurrentCheck = indexOfFirstShiftApply;
+    } else {
+      const shiftApplyFirst = shiftData.filter(el => el.weekday >= dayOfWeekStart);
+      indexOfFirstShiftApply = shiftData.findIndex(el => el.id === shiftApplyFirst[0].id);
+      indexCurrentCheck = indexOfFirstShiftApply;
+    }
+    for (let index = 0; index < numberOfLesson; index++) {
+      const shiftDataApply = shiftData[indexCurrentCheck];
+      dateCurrentCheck = calculateNextStepCycle(shiftDataApply.weekday, dateCurrentCheck);
+
       const timeTable = new Timetables();
       timeTable.workspaceId = item.workspaceId;
+      timeTable.shiftId = shiftDataApply.id;
       timeTable.sessionNumberOrder = index + 1;
       timeTable.lessonId = lecturesData[index].lessonId;
       timeTable.lectureId = lecturesData[index].id;
-      timeTable.date = null; //wip
+      // timeTable.userWorkspaceShiftScopeId = shiftDataApply.;
+      timeTable.validDate = moment().format('YYYY-MM-DD');
+      timeTable.fromTime = shiftDataApply.fromTime;
+      timeTable.toTime = shiftDataApply.toTime;
+      timeTable.date = dateCurrentCheck;
       bulkCreateTimetables.push(timeTable);
+      if (indexCurrentCheck === lastIndexShift) {
+        indexCurrentCheck = 0;
+      } else {
+        indexCurrentCheck++;
+      }
+
+      const shiftDataApplyNext = shiftData[indexCurrentCheck];
+      if (shiftDataApplyNext.weekday !== shiftDataApply.weekday) {
+        dateCurrentCheck = moment(dateCurrentCheck, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD');
+      }
     }
-    console.log('chh_log ---> generate ---> classData:', classData);
-    return classData;
+    console.log('chh_log ---> generate ---> bulkCreateTimetables:', bulkCreateTimetables);
+    return await Timetables.insert(bulkCreateTimetables);
   }
 }
