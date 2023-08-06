@@ -31,9 +31,13 @@ export class TimetablesController {
     @QueryParam('limit') limit: number,
     @QueryParam('order') order: string,
     @QueryParam('search') search: string,
+    @QueryParam('fromDate') fromDate: number,
+    @QueryParam('toDate') toDate: number,
+    @QueryParam('userWorkspaceId') userWorkspaceId: number,
+    @QueryParam('workspaceId') workspaceId: number,
     @Res() res: any,
   ) {
-    const data = await this.service.findAll(page, limit, order, search);
+    const data = await this.service.findAllByDate(page, limit, order, search, fromDate, toDate, userWorkspaceId, workspaceId);
     return successResponse({ res, data, status_code: 200 });
   }
 

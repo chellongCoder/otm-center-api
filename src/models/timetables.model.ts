@@ -1,5 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Classes } from './classes.model';
+import { Shifts } from './shifts.model';
+import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
 
 @Entity('timetables')
 export class Timetables extends BaseEntity {
@@ -15,8 +28,11 @@ export class Timetables extends BaseEntity {
   @Column({ name: 'shift_id' })
   shiftId: number;
 
-  @Column({ name: 'user_workspace_shift_scope_id', nullable: true })
-  userWorkspaceShiftScopeId: number;
+  @Column({ name: 'class_id' })
+  classId: number;
+
+  @Column({ name: 'class_shifts_classroom_id' })
+  classShiftsClassroomId: number;
 
   @Column({ name: 'date' })
   date: Date;
@@ -53,6 +69,18 @@ export class Timetables extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Classes, item => item.timetables)
+  @JoinColumn({ name: 'class_id' })
+  class: Classes;
+
+  @ManyToOne(() => Shifts)
+  @JoinColumn({ name: 'shift_id' })
+  shift: Shifts;
+
+  @ManyToOne(() => ClassShiftsClassrooms)
+  @JoinColumn({ name: 'class_shifts_classroom_id' })
+  classShiftsClassroom: ClassShiftsClassrooms;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('timetables');
