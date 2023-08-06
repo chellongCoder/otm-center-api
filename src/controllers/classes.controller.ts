@@ -31,6 +31,13 @@ export class ClassesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/:id/schedule')
+  @OpenAPI({ summary: 'Get lịch học' })
+  async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
+    const data = await this.service.getClassSchedule(id, userWorkspaceId);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Post('/')
   @OpenAPI({ summary: 'Create classes' })
   async create(@Body({ required: true }) body: Classes, @Res() res: any) {
