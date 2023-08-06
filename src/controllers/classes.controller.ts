@@ -33,8 +33,8 @@ export class ClassesController {
 
   @Get('/:id/schedule')
   @OpenAPI({ summary: 'Get lịch học' })
-  async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
-    const data = await this.service.getClassSchedule(id, userWorkspaceId);
+  async getClassSchedule(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.getClassSchedule(id);
     return successResponse({ res, data, status_code: 200 });
   }
 

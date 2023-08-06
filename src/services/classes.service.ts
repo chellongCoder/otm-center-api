@@ -55,10 +55,20 @@ export class ClassesService {
   public async delete(id: number) {
     return Classes.delete(id);
   }
-  public async getClassSchedule(id: number, userWorkspaceId: number) {
+  public async getClassSchedule(id: number) {
     return await Timetables.find({
       where: {
         classId: id,
+      },
+      relations: [
+        'class',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+      order: {
+        sessionNumberOrder: 'ASC',
       },
     });
   }

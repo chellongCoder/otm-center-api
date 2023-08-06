@@ -9,10 +9,12 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Courses } from '@/models/courses.model';
 import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.model';
-import { In } from 'typeorm';
+import { Between, In } from 'typeorm';
 import { Classrooms } from '@/models/classrooms.model';
 import { Classes } from '@/models/classes.model';
 import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
+import { Timetables } from '@/models/timetables.model';
+import moment from 'moment-timezone';
 
 @Service()
 export class UserWorkspaceShiftScopesService {
@@ -185,5 +187,44 @@ export class UserWorkspaceShiftScopesService {
    */
   public async delete(id: number) {
     return UserWorkspaceShiftScopes.delete(id);
+  }
+  public async getTeachingSchedule(
+    page = 1,
+    limit = 10,
+    order = 'id:asc',
+    search: string,
+    userWorkspaceId: number,
+    workspaceId: number,
+    fromDate: number,
+    toDate: number,
+  ) {
+    const userWorkspaceShiftScopesData = await UserWorkspaceShiftScopes.find({
+      where: {
+        userWorkspaceId,
+        workspaceId,
+      },
+    });
+    if (!userWorkspaceShiftScopesData.length) {
+      return null;
+    }
+    const classShiftsClassroomsIds = userWorkspaceShiftScopesData.map(el => el.classShiftsClassroomsId);
+    return await Timetables.find({
+      where: {
+        classShiftsClassroomId: In(classShiftsClassroomsIds),
+        workspaceId,
+        date: Between(moment(fromDate, 'YYYYMMDD').format('YYYYMMDD'), moment(toDate, 'YYYYMMDD').format('YYYYMMDD')),
+      },
+      relations: [
+        'class',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+      order: {
+        date: 'ASC',
+        fromTime: 'ASC',
+      },
+    });
   }
 }
