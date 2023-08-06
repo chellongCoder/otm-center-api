@@ -29,6 +29,7 @@ export class ClassesService {
       where: {
         id,
       },
+      relations: ['course', 'workspace'],
     });
   }
 
