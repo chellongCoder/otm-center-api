@@ -1,17 +1,18 @@
+import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { ShiftWeekdays } from '@/models/shift-weekdays.model';
-import { ShiftWeekdaysService } from '@/services/shift-weekdays.service';
+import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
+import { ClassShiftsClassroomsService } from '@/services/class-shifts-classrooms.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@Controller('/shift_weekdays')
-export class ShiftWeekdaysController {
-  constructor(public service: ShiftWeekdaysService) {}
+@Controller('/class_shifts_classrooms')
+export class ClassShiftsClassroomsController {
+  constructor(public service: ClassShiftsClassroomsService) {}
 
   @Get('/')
-  @OpenAPI({ summary: 'Get shift_weekdays list' })
+  @OpenAPI({ summary: 'Get class_shifts_classrooms list' })
   async findAll(
     @QueryParam('page') page: number,
     @QueryParam('limit') limit: number,
@@ -24,21 +25,28 @@ export class ShiftWeekdaysController {
   }
 
   @Get('/:id')
-  @OpenAPI({ summary: 'Get shift_weekdays by id' })
+  @OpenAPI({ summary: 'Get class_shifts_classrooms by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
     return successResponse({ res, data, status_code: 200 });
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create shift_weekdays' })
-  async create(@Body({ required: true }) body: ShiftWeekdays, @Res() res: any) {
+  @OpenAPI({ summary: 'Create class_shifts_classrooms' })
+  async create(@Body({ required: true }) body: ClassShiftsClassrooms, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });
   }
 
+  @Post('/check_shift_classroom')
+  @OpenAPI({ summary: 'check class_shifts_classrooms valid' })
+  async checkShiftClassroomValid(@Body({ required: true }) body: CheckShiftClassroomValidDto, @Res() res: any) {
+    const data = await this.service.checkShiftClassroomValid(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
   @Put('/:id')
-  @OpenAPI({ summary: 'Update shift_weekdays' })
+  @OpenAPI({ summary: 'Update class_shifts_classrooms' })
   async update() {
     try {
     } catch (error) {
@@ -47,7 +55,7 @@ export class ShiftWeekdaysController {
   }
 
   @Delete('/:id')
-  @OpenAPI({ summary: 'Delete shift_weekdays' })
+  @OpenAPI({ summary: 'Delete class_shifts_classrooms' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
     return successResponse({ res, data, status_code: 200 });

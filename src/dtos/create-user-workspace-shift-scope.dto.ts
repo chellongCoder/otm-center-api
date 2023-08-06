@@ -26,18 +26,18 @@ export class UserWorkspaceShiftScopesDto {
   @JSONSchema({ description: 'note', example: 'ghi chu day' })
   note: string;
 }
-export class CreateUserWorkspaceShiftScopeDto {
+export class CreateClassScheduleDto {
   @IsNumber()
   @JSONSchema({ description: 'shift id', example: 1 })
   shiftId: number;
 
   @IsNumber()
-  @JSONSchema({ description: 'course id', example: 1 })
-  courseId: number;
-
-  @IsNumber()
   @JSONSchema({ description: 'classroom id', example: 2 })
   classroomId: number;
+
+  @IsNumber()
+  @JSONSchema({ description: 'class id', example: 2 })
+  classId: number;
 
   @IsNumber()
   @JSONSchema({ description: 'workspace_id', example: 1 })

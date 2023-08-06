@@ -1,3 +1,4 @@
+import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Timetables } from '@/models/timetables.model';
 import { TimetablesService } from '@/services/timetables.service';
@@ -51,5 +52,12 @@ export class TimetablesController {
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
     return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Post('/generate')
+  @OpenAPI({ summary: 'Generate timetables from user_workspace_shift_scopes and classes' })
+  async generate(@Body({ required: true }) body: GenerateTimetableDto, @Res() res: any) {
+    const data = await this.service.generate(body);
+    return successResponse({ res, data, status_code: 201 });
   }
 }

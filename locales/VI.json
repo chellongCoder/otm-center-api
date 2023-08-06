@@ -25,5 +25,6 @@
 	"SHIFT_WEEKDAY_REQUIRE": "Thiếu thông tin ngày áp dụng trong tuần",
 	"SHIFT_NOT_FOUND": "Không tìm thấy ca làm việc",
 	"COURSE_NOT_FOUND": "Không tìm thấy khoá học",
-	"CLASSROOM_NOT_FOUND": "Không tìm thấy phòng học"
+	"CLASSROOM_NOT_FOUND": "Không tìm thấy phòng học",
+	"CLASS_NOT_FOUND": "Không tìm thấy lớp học"
 }

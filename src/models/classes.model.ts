@@ -1,6 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceClasses } from './user-workspace-classes.model';
+import { Courses } from './courses.model';
 
 export enum StatusClasses {
   ACTIVE = 'ACTIVE',
@@ -73,6 +85,10 @@ export class Classes extends BaseEntity {
 
   @OneToMany(() => UserWorkspaceClasses, item => item.class)
   public userWorkspaceClasses: UserWorkspaceClasses[];
+
+  @ManyToOne(() => Courses, (course: Courses) => course.classes)
+  @JoinColumn({ name: 'course_id' })
+  course: Courses;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('classes');

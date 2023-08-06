@@ -6,10 +6,6 @@ import { Lectures } from '@/models/lectures.model';
 
 @Service()
 export class CoursesService {
-  appDataSource: any;
-  constructor() {
-    this.appDataSource = DbConnection;
-  }
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
     const filteredData = await Courses.findByCond({
@@ -61,7 +57,7 @@ export class CoursesService {
       bulkCreateLectures.push(lecture);
     }
     await Lectures.insert(bulkCreateLectures);
-    return true;
+    return course;
   }
 
   /**

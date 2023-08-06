@@ -2,15 +2,17 @@ import _ from 'lodash';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom.dto';
+import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { Shifts } from '@/models/shifts.model';
-import { CreateUserWorkspaceShiftScopeDto, UserWorkspaceShiftScopesDto } from '@/dtos/create-user-workspace-shift-scope.dto';
+import { CreateClassScheduleDto, UserWorkspaceShiftScopesDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Courses } from '@/models/courses.model';
 import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.model';
 import { In } from 'typeorm';
 import { Classrooms } from '@/models/classrooms.model';
+import { Classes } from '@/models/classes.model';
+import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 
 @Service()
 export class UserWorkspaceShiftScopesService {
@@ -53,10 +55,19 @@ export class UserWorkspaceShiftScopesService {
   /**
    * create with business rule
    */
-  public async createValidate(item: CreateUserWorkspaceShiftScopeDto) {
+  public async createClassSchedule(item: CreateClassScheduleDto) {
     const workspaceData = await Workspaces.findOne({ where: { id: item.workspaceId } });
     if (!workspaceData) {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
+    }
+    const classData = await Classes.findOne({
+      where: {
+        id: item.classId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!classData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
     const classroomData = await Classrooms.findOne({
       where: {
@@ -72,24 +83,24 @@ export class UserWorkspaceShiftScopesService {
         id: item.shiftId,
         workspaceId: item.workspaceId,
       },
-      relations: ['shiftWeekdays'],
     });
     if (!shiftData?.id) {
       throw new Exception(ExceptionName.SHIFT_NOT_FOUND, ExceptionCode.SHIFT_NOT_FOUND);
     }
-    const courseData = await Courses.findOne({
-      where: {
-        id: item.courseId,
-        workspaceId: item.workspaceId,
-      },
-    });
-    if (!courseData?.id) {
-      throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
-    }
+    // const courseData = await Courses.findOne({
+    //   where: {
+    //     id: item.courseId,
+    //     workspaceId: item.workspaceId,
+    //   },
+    // });
+    // if (!courseData?.id) {
+    //   throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+    // }
     if (!item.userWorkspaces.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
     const userWorkspaceData: UserWorkspaceShiftScopesDto[] = _.uniq(item.userWorkspaces, 'userWorkspaceId');
+    this.validateUserWorkspaceTimeShift({ shift: shiftData, userWorkspaceShiftScopes: userWorkspaceData });
     const userWorkspaceIds: number[] = userWorkspaceData.map(el => el.userWorkspaceId);
     const userWorkspaceCount = await UserWorkspaces.count({
       where: {
@@ -100,24 +111,54 @@ export class UserWorkspaceShiftScopesService {
     if (userWorkspaceCount !== userWorkspaceIds.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_INVALID_TYPE);
     }
+    /**
+     * create schedule
+     */
+
+    const classShiftsClassroom = new ClassShiftsClassrooms();
+    classShiftsClassroom.shiftId = shiftData.id;
+    classShiftsClassroom.classroomId = classroomData.id;
+    classShiftsClassroom.classId = classData.id;
+    classShiftsClassroom.workspaceId = workspaceData.id;
+    classShiftsClassroom.validDate = item.validDate;
+    const classShiftsClassroomData = await ClassShiftsClassrooms.insert(classShiftsClassroom);
+    /**
+     * assign teacher
+     */
     const bulkCreateShiftScopes: UserWorkspaceShiftScopes[] = [];
     for (const userWorkspaceItem of userWorkspaceData) {
       const userWorkspaceShiftScope = new UserWorkspaceShiftScopes();
       userWorkspaceShiftScope.workspaceId = workspaceData.id;
       userWorkspaceShiftScope.userWorkspaceId = userWorkspaceItem.userWorkspaceId;
-      userWorkspaceShiftScope.courseId = courseData.id;
-      userWorkspaceShiftScope.shiftId = shiftData.id;
-      userWorkspaceShiftScope.classroomId = classroomData.id;
       userWorkspaceShiftScope.validDate = item.validDate;
-      userWorkspaceShiftScope.expiresDate = item.expiresDate;
       userWorkspaceShiftScope.title = userWorkspaceItem.title;
       userWorkspaceShiftScope.fromTime = userWorkspaceItem.fromTime;
       userWorkspaceShiftScope.toTime = userWorkspaceItem.toTime;
       userWorkspaceShiftScope.note = userWorkspaceItem.note;
+      userWorkspaceShiftScope.classShiftsClassroomsId = classShiftsClassroomData.identifiers[0]?.id;
 
       bulkCreateShiftScopes.push(userWorkspaceShiftScope);
     }
     return await UserWorkspaceShiftScopes.insert(bulkCreateShiftScopes);
+  }
+
+  public validateUserWorkspaceTimeShift({
+    shift,
+    userWorkspaceShiftScopes,
+  }: {
+    shift: Shifts;
+    userWorkspaceShiftScopes: UserWorkspaceShiftScopesDto[];
+  }) {
+    for (const userWorkspaceItem of userWorkspaceShiftScopes) {
+      if (userWorkspaceItem.fromTime < Number(`${shift.fromTime}`.replaceAll(':', ''))) {
+        console.log('chh_log ---> shift.fromTime:', shift.fromTime);
+        console.log('chh_log ---> userWorkspaceItem.fromTime:', userWorkspaceItem.fromTime);
+        throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+      }
+      if (userWorkspaceItem.toTime > shift.toTime) {
+        throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+      }
+    }
   }
 
   /**
