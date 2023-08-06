@@ -1,5 +1,5 @@
-import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom.dto';
-import { CreateUserWorkspaceShiftScopeDto } from '@/dtos/create-user-workspace-shift-scope.dto';
+import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom-valid.dto';
+import { CreateClassScheduleDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { UserWorkspaceShiftScopesService } from '@/services/user-workspace-shift-scopes.service';
@@ -39,10 +39,10 @@ export class UserWorkspaceShiftScopesController {
   //   return successResponse({ res, data, status_code: 201 });
   // }
 
-  @Post('/create')
+  @Post('/create_class_schedule')
   @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business' })
-  async createValidate(@Body({ required: true }) body: CreateUserWorkspaceShiftScopeDto, @Res() res: any) {
-    const data = await this.service.createValidate(body);
+  async createClassSchedule(@Body({ required: true }) body: CreateClassScheduleDto, @Res() res: any) {
+    const data = await this.service.createClassSchedule(body);
     return successResponse({ res, data, status_code: 201 });
   }
 

@@ -2,9 +2,9 @@ import _ from 'lodash';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom.dto';
+import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { Shifts } from '@/models/shifts.model';
-import { CreateUserWorkspaceShiftScopeDto, UserWorkspaceShiftScopesDto } from '@/dtos/create-user-workspace-shift-scope.dto';
+import { CreateClassScheduleDto, UserWorkspaceShiftScopesDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Courses } from '@/models/courses.model';
 import { Workspaces } from '@/models/workspaces.model';
@@ -12,6 +12,7 @@ import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.mod
 import { In } from 'typeorm';
 import { Classrooms } from '@/models/classrooms.model';
 import { Classes } from '@/models/classes.model';
+import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 
 @Service()
 export class UserWorkspaceShiftScopesService {
@@ -54,7 +55,7 @@ export class UserWorkspaceShiftScopesService {
   /**
    * create with business rule
    */
-  public async createValidate(item: CreateUserWorkspaceShiftScopeDto) {
+  public async createClassSchedule(item: CreateClassScheduleDto) {
     const workspaceData = await Workspaces.findOne({ where: { id: item.workspaceId } });
     if (!workspaceData) {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND);
@@ -110,21 +111,31 @@ export class UserWorkspaceShiftScopesService {
     if (userWorkspaceCount !== userWorkspaceIds.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_INVALID_TYPE);
     }
+    /**
+     * create schedule
+     */
+
+    const classShiftsClassroom = new ClassShiftsClassrooms();
+    classShiftsClassroom.shiftId = shiftData.id;
+    classShiftsClassroom.classroomId = classroomData.id;
+    classShiftsClassroom.classId = classData.id;
+    classShiftsClassroom.workspaceId = workspaceData.id;
+    classShiftsClassroom.validDate = item.validDate;
+    const classShiftsClassroomData = await ClassShiftsClassrooms.insert(classShiftsClassroom);
+    /**
+     * assign teacher
+     */
     const bulkCreateShiftScopes: UserWorkspaceShiftScopes[] = [];
     for (const userWorkspaceItem of userWorkspaceData) {
       const userWorkspaceShiftScope = new UserWorkspaceShiftScopes();
       userWorkspaceShiftScope.workspaceId = workspaceData.id;
       userWorkspaceShiftScope.userWorkspaceId = userWorkspaceItem.userWorkspaceId;
-      userWorkspaceShiftScope.courseId = courseData.id;
-      userWorkspaceShiftScope.shiftId = shiftData.id;
-      userWorkspaceShiftScope.classId = classData.id;
-      userWorkspaceShiftScope.classroomId = classroomData.id;
       userWorkspaceShiftScope.validDate = item.validDate;
-      userWorkspaceShiftScope.expiresDate = item.expiresDate;
       userWorkspaceShiftScope.title = userWorkspaceItem.title;
       userWorkspaceShiftScope.fromTime = userWorkspaceItem.fromTime;
       userWorkspaceShiftScope.toTime = userWorkspaceItem.toTime;
       userWorkspaceShiftScope.note = userWorkspaceItem.note;
+      userWorkspaceShiftScope.classShiftsClassroomsId = classShiftsClassroomData.identifiers[0]?.id;
 
       bulkCreateShiftScopes.push(userWorkspaceShiftScope);
     }

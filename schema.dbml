@@ -358,14 +358,18 @@ Table user_workspace_classes {
 Table user_workspace_shift_scopes {
   id integer [pk]
   user_workspace_id integer
-  course_id integer
-  shift_id integer
-  classroom_id integer
-  workspace_id integer
-  valid_date date
-  expires_date date
+  class_shifts_classroom_id integer
   from_time date
   to_time date
   note varchar
   is_active boolean [default: true]
+}
+Table class_shifts_classrooms {
+  id integer [pk]
+  shift_id integer
+  classroom_id integer
+  class_id integer
+  workspace_id integer
+  valid_date date
+  expires_date date
 }

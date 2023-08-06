@@ -26,7 +26,7 @@ export class UserWorkspaceShiftScopesDto {
   @JSONSchema({ description: 'note', example: 'ghi chu day' })
   note: string;
 }
-export class CreateUserWorkspaceShiftScopeDto {
+export class CreateClassScheduleDto {
   @IsNumber()
   @JSONSchema({ description: 'shift id', example: 1 })
   shiftId: number;
