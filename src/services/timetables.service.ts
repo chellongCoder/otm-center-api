@@ -185,7 +185,14 @@ export class TimetablesService {
         workspaceId,
         date: Between(moment(fromDate, 'YYYYMMDD').format('YYYYMMDD'), moment(toDate, 'YYYYMMDD').format('YYYYMMDD')),
       },
-      relations: ['class', 'shift', 'classShiftsClassroom.userWorkspaceShiftScopes', 'classShiftsClassroom.classroom'],
+      relations: [
+        'class',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+      // order: ['date'],
     });
   }
 }

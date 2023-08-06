@@ -10,8 +10,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
-import { Shifts } from './shifts.model';
 import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
+import { UserWorkspaces } from './user-workspaces.model';
 
 export enum TitleShiftScopes {
   TEACHER = 'TEACHER',
@@ -70,6 +70,10 @@ export class UserWorkspaceShiftScopes extends BaseEntity {
   @ManyToOne(() => ClassShiftsClassrooms)
   @JoinColumn({ name: 'class_shifts_classroom_id' })
   classShiftsClassroom: ClassShiftsClassrooms;
+
+  @ManyToOne(() => UserWorkspaces, item => item.userWorkspaceShiftScopes)
+  @JoinColumn({ name: 'user_workspace_id' })
+  userWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_shift_scopes');
