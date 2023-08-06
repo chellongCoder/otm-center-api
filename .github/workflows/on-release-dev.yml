@@ -54,7 +54,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
-        envs: IMAGE_NAME,PR_NUMBER
+        envs: IMAGE_NAME
         script: |
           docker pull $IMAGE_NAME:latest
           docker stop otm-api
