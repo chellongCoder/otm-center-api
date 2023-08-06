@@ -14,6 +14,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceClasses } from './user-workspace-classes.model';
 import { Courses } from './courses.model';
 import { Workspaces } from './workspaces.model';
+import { Timetables } from './timetables.model';
 
 export enum StatusClasses {
   ACTIVE = 'ACTIVE',
@@ -86,6 +87,9 @@ export class Classes extends BaseEntity {
 
   @OneToMany(() => UserWorkspaceClasses, item => item.class)
   public userWorkspaceClasses: UserWorkspaceClasses[];
+
+  @OneToMany(() => Timetables, item => item.class)
+  public timetables: Timetables[];
 
   @ManyToOne(() => Courses, (course: Courses) => course.classes)
   @JoinColumn({ name: 'course_id' })

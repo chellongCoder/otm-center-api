@@ -12,6 +12,7 @@ import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 import { Shifts } from '@/models/shifts.model';
 import moment from 'moment-timezone';
 import { calculateNextStepCycle } from '@/utils/util';
+import { Between } from 'typeorm';
 
 @Service()
 export class TimetablesService {
@@ -145,10 +146,11 @@ export class TimetablesService {
       const timeTable = new Timetables();
       timeTable.workspaceId = item.workspaceId;
       timeTable.shiftId = shiftDataApply.id;
+      timeTable.classId = classData.id;
       timeTable.sessionNumberOrder = index + 1;
       timeTable.lessonId = lecturesData[index].lessonId;
       timeTable.lectureId = lecturesData[index].id;
-      // timeTable.userWorkspaceShiftScopeId = shiftDataApply.;
+      timeTable.classShiftsClassroomId = shiftDataApply?.classShiftsClassroomId;
       timeTable.validDate = moment().format('YYYY-MM-DD');
       timeTable.fromTime = shiftDataApply.fromTime;
       timeTable.toTime = shiftDataApply.toTime;
@@ -167,5 +169,23 @@ export class TimetablesService {
     }
     console.log('chh_log ---> generate ---> bulkCreateTimetables:', bulkCreateTimetables);
     return await Timetables.insert(bulkCreateTimetables);
+  }
+  public async findAllByDate(
+    page = 1,
+    limit = 10,
+    order = 'id:asc',
+    search: string,
+    fromDate: number,
+    toDate: number,
+    userWorkspaceId: number,
+    workspaceId: number,
+  ) {
+    return await Timetables.find({
+      where: {
+        workspaceId,
+        date: Between(moment(fromDate, 'YYYYMMDD').format('YYYYMMDD'), moment(toDate, 'YYYYMMDD').format('YYYYMMDD')),
+      },
+      relations: ['class', 'shift', 'classShiftsClassroom.userWorkspaceShiftScopes', 'classShiftsClassroom.classroom'],
+    });
   }
 }
