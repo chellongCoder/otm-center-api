@@ -24,6 +24,19 @@ export class TimetablesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/by_date')
+  @OpenAPI({ summary: 'Get timetables list' })
+  async findAllByDate(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('order') order: string,
+    @QueryParam('search') search: string,
+    @Res() res: any,
+  ) {
+    const data = await this.service.findAll(page, limit, order, search);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Get('/:id')
   @OpenAPI({ summary: 'Get timetables by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
