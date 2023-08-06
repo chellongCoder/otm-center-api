@@ -1,6 +1,7 @@
 import { Classes } from '@/models/classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Timetables } from '@/models/timetables.model';
 
 @Service()
 export class ClassesService {
@@ -53,5 +54,12 @@ export class ClassesService {
    */
   public async delete(id: number) {
     return Classes.delete(id);
+  }
+  public async getClassSchedule(id: number, userWorkspaceId: number) {
+    return await Timetables.find({
+      where: {
+        classId: id,
+      },
+    });
   }
 }

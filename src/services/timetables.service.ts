@@ -192,7 +192,6 @@ export class TimetablesService {
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
       ],
-      // order: ['date'],
     });
   }
 }
