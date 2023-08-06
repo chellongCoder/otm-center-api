@@ -25,6 +25,23 @@ export class UserWorkspaceShiftScopesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/teaching_schedule')
+  @OpenAPI({ summary: 'Get user_workspace_shift_scopes list' })
+  async getTeachingSchedule(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('order') order: string,
+    @QueryParam('search') search: string,
+    @QueryParam('userWorkspaceId') userWorkspaceId: number,
+    @QueryParam('workspaceId') workspaceId: number,
+    @QueryParam('fromDate') fromDate: number,
+    @QueryParam('toDate') toDate: number,
+    @Res() res: any,
+  ) {
+    const data = await this.service.getTeachingSchedule(page, limit, order, search, userWorkspaceId, workspaceId, fromDate, toDate);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Get('/:id')
   @OpenAPI({ summary: 'Get user_workspace_shift_scopes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
