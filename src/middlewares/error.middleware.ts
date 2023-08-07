@@ -5,10 +5,11 @@ import { HttpError } from 'routing-controllers';
 import { ValidationError } from 'class-validator';
 
 interface ErrorHandle extends HttpError {
-  message?: string;
+  message: string;
   code?: number;
   status_code?: number;
   stack: any;
+  errors?: any;
 }
 const errorMiddleware = (err: ErrorHandle, req: Request, res: Response, next: NextFunction) => {
   const defaultMessage = `Có lỗi xảy ra, vui lòng thử lại sau`;
@@ -26,9 +27,11 @@ const errorMiddleware = (err: ErrorHandle, req: Request, res: Response, next: Ne
       if (err.message === `Invalid body, check 'errors' property for more info.`) {
         if (Array.isArray(err?.errors) && err?.errors?.every(element => element instanceof ValidationError)) {
           err?.errors?.forEach((element: ValidationError) => {
-            Object.keys(element?.constraints).forEach(type => {
-              message = `${element?.constraints[type]}`;
-            });
+            if (element?.constraints && element?.constraints !== undefined) {
+              Object.keys(element.constraints).forEach(type => {
+                if (element?.constraints !== undefined) message = `${element.constraints[type]}`;
+              });
+            }
           });
         }
       }

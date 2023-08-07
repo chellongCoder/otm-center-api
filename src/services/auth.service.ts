@@ -2,7 +2,6 @@ import { UserWorkspaceTokens } from '@/models/user-workspace-tokens.model';
 import { Users } from '@/models/users.model';
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
-import Container, { Service } from 'typedi';
 import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
 import { RefreshToken } from '@/models/refresh-tokens.model';
 import { logger } from '@/utils/logger';
@@ -11,20 +10,19 @@ import config from 'config';
 import { SendGridClient } from '@/utils/sendgrid';
 import { UpdateNewPasswordDto } from '@/dtos/updatePass.dto';
 import { ForgotDto } from '@/dtos/forgot.dto';
-import e, { Response } from 'express';
 import { HttpException } from '@/exceptions/http-exception';
 import { twilioService } from '@/utils/twilio';
-import { HttpMessages } from '@/exceptions/http-messages.constant';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { LoginDto } from '@/dtos/login.dto';
-import { LANGUAGES, STATUS_VERIFICATION_TWILLO } from '@/constants';
+import { STATUS_VERIFICATION_TWILLO } from '@/constants';
 import { TwilloVerificationResponse } from '@/interfaces/twillo-verification-response.interface';
 import { Workspaces } from '@/models/workspaces.model';
-import * as i18n from 'i18n';
+// import * as i18n from 'i18n';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
-import { CACHE_PREFIX } from '@/caches/constants';
+// import { CACHE_PREFIX } from '@/caches/constants';
 import { UserWorkspaceAccess } from '@/interfaces/user-workspace-access';
 import { UserWorkspacesToken } from '@/interfaces/user-workspace-token';
+import { Service } from 'typedi';
 @Service()
 export class AuthService {
   twilioService: any;
@@ -85,7 +83,7 @@ export class AuthService {
     phoneNumber: string;
     username: string;
     workspaceId: number;
-  }): UserWorkspaceAccess {
+  }): Promise<UserWorkspaceAccess> {
     const accessToken = generateAccessToken({
       userWorkspaceId,
       phoneNumber,
@@ -265,10 +263,13 @@ export class AuthService {
         const accessUserWorkspaces: UserWorkspacesToken[] = [];
         for (const userWorkspaceItem of userWorkspaceData) {
           const accessUserWorkspaceItem = userWorkspaceAccesses.find(el => el.userWorkspaceId === userWorkspaceItem.id);
-          accessUserWorkspaces.push({
-            ...accessUserWorkspaceItem,
-            ...userWorkspaceItem,
-          });
+          if (accessUserWorkspaceItem?.accessToken && accessUserWorkspaceItem.refreshToken) {
+            accessUserWorkspaces.push({
+              ...userWorkspaceItem,
+              accessToken: accessUserWorkspaceItem.accessToken,
+              refreshToken: accessUserWorkspaceItem.refreshToken,
+            });
+          }
         }
         return {
           users: userData,
@@ -285,68 +286,70 @@ export class AuthService {
     }
   }
   public async checkUserWorkspaceToken({ token, workspace_host }: { token: string; workspace_host: string }) {
-    if (!token) {
-      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.TOKEN_INVALID, 401);
-    }
-
-    const workspaceHost = '';
-    const userId = '';
-    try {
-      const tokenData = this.verifyAccessToken(token);
-
-      const { workspace_id, user_workspace_id } = tokenData;
-      workspaceHost = workspace_id;
-      userId = staff_id;
-    } catch (e) {
-      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
-    }
-
-    // if (!userId) {
-    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    console.log('chh_log ---> checkUserWorkspaceToken ---> workspace_host:', workspace_host);
+    console.log('chh_log ---> checkUserWorkspaceToken ---> token:', token);
+    // if (!token) {
+    //   throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.TOKEN_INVALID, 401);
     // }
 
-    // if (workspaceHost !== workspace_host) {
-    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    // const workspaceHost = '';
+    // const userId = '';
+    // try {
+    //   const tokenData = this.verifyAccessToken(token);
+
+    //   const { workspace_id, user_workspace_id } = tokenData;
+    //   workspaceHost = workspace_id;
+    //   userId = staff_id;
+    // } catch (e) {
+    //   throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
     // }
 
-    // const workspaceData = await workspacesRepository.findByHost({
-    //   host: workspace_host,
-    //   is_active: true,
-    // });
+    // // if (!userId) {
+    // //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    // // }
 
-    // if (!workspaceData) {
-    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
-    // }
+    // // if (workspaceHost !== workspace_host) {
+    // //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    // // }
 
-    // const userData = await usersRepository.findOneByFilter({
-    //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
-    //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
-    // }); //coithegioicoi
-    // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
-    // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
+    // // const workspaceData = await workspacesRepository.findByHost({
+    // //   host: workspace_host,
+    // //   is_active: true,
+    // // });
 
-    // if (!userData) {
-    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
-    // }
+    // // if (!workspaceData) {
+    // //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    // // }
 
-    // let userWorkspaceData: userWorkspaces | null = null;
-    // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
-    // const cacheData = await caches.getCaches(cacheKey);
-    // if (cacheData) {
-    //   userWorkspaceData = cacheData;
-    // } else {
-    //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
-    //     filter: {
-    //       user_id: userData.id,
-    //       workspace_id: workspaceData.id,
-    //     },
-    //   });
-    //   await caches.setCache(cacheKey, userWorkspaceData);
-    // }
+    // // const userData = await usersRepository.findOneByFilter({
+    // //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
+    // //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
+    // // }); //coithegioicoi
+    // // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
+    // // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
 
-    // if (!userWorkspaceData) {
-    //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
-    // }
+    // // if (!userData) {
+    // //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    // // }
+
+    // // let userWorkspaceData: userWorkspaces | null = null;
+    // // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
+    // // const cacheData = await caches.getCaches(cacheKey);
+    // // if (cacheData) {
+    // //   userWorkspaceData = cacheData;
+    // // } else {
+    // //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
+    // //     filter: {
+    // //       user_id: userData.id,
+    // //       workspace_id: workspaceData.id,
+    // //     },
+    // //   });
+    // //   await caches.setCache(cacheKey, userWorkspaceData);
+    // // }
+
+    // // if (!userWorkspaceData) {
+    // //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
+    // // }
 
     return {
       user_data: null, //userData,

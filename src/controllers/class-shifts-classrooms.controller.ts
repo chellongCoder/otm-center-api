@@ -1,6 +1,6 @@
 import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
+import { CreateShiftsClassroomsDto } from '@/dtos/create-class-shifts-classrooms.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 import { ClassShiftsClassroomsService } from '@/services/class-shifts-classrooms.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -33,7 +33,7 @@ export class ClassShiftsClassroomsController {
 
   @Post('/')
   @OpenAPI({ summary: 'Create class_shifts_classrooms' })
-  async create(@Body({ required: true }) body: ClassShiftsClassrooms, @Res() res: any) {
+  async create(@Body({ required: true }) body: CreateShiftsClassroomsDto, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });
   }

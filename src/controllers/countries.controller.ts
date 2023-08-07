@@ -39,7 +39,7 @@ export class CountriesController {
 
   @Post('/bulk_create')
   @OpenAPI({ summary: 'Create countries' })
-  async create(@Body({ required: true }) body: Countries[], @Res() res: any) {
+  async bulkCreate(@Body({ required: true }) body: Countries[], @Res() res: any) {
     const data = await this.service.bulkCreate(body);
     return successResponse({ res, data, status_code: 201 });
   }

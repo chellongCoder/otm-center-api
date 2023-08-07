@@ -7,6 +7,8 @@ import { Shifts } from '@/models/shifts.model';
 import { Classrooms } from '@/models/classrooms.model';
 import { Classes } from '@/models/classes.model';
 import { Workspaces } from '@/models/workspaces.model';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import moment from 'moment-timezone';
 
 @Service()
 export class ClassShiftsClassroomsService {
@@ -78,7 +80,7 @@ export class ClassShiftsClassroomsService {
     classShiftsClassroom.classroomId = classroomData.id;
     classShiftsClassroom.classId = classData.id;
     classShiftsClassroom.workspaceId = workspaceData.id;
-    classShiftsClassroom.validDate = item.validDate;
+    classShiftsClassroom.validDate = moment(item.validDate).toDate();
     const results = await ClassShiftsClassrooms.insert(classShiftsClassroom);
     return results;
   }

@@ -20,7 +20,7 @@ import { DbConnection } from '@/database/dbConnection';
 import errorMiddleware from '@/middlewares/error.middleware';
 import * as i18n from 'i18n';
 import { LANGUAGES } from './constants';
-import { authMiddleware } from './auth/authorizationChecker';
+// import { authMiddleware } from './auth/authorizationChecker';
 
 export default class App {
   public app: express.Application;
@@ -119,7 +119,7 @@ export default class App {
       controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
       interceptors: [path.join(__dirname + '/interceptors/*{.ts,.js}')],
       defaultErrorHandler: false,
-      authorizationChecker: authMiddleware(),
+      // authorizationChecker: authMiddleware(),
     });
   }
 

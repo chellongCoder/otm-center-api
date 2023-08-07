@@ -6,14 +6,20 @@ import { QueryParser } from '@/utils/query-parser';
 import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
 import { Classes } from '@/models/classes.model';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
-import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
-import { Lessons } from '@/models/lessons.model';
 import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 import { Shifts } from '@/models/shifts.model';
 import moment from 'moment-timezone';
 import { calculateNextStepCycle } from '@/utils/util';
 import { Between } from 'typeorm';
 
+interface ShiftApplyTimetables extends Partial<Shifts> {
+  id: number;
+  classShiftsClassroomId: number;
+  fromTime: Date;
+  toTime: Date;
+  workspaceId: number;
+  weekday: number;
+}
 @Service()
 export class TimetablesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
@@ -90,7 +96,7 @@ export class TimetablesService {
       },
       relations: ['shift'],
     });
-    const shiftData: Shifts[] = _.sortBy(
+    const shiftData: ShiftApplyTimetables[] = _.sortBy(
       ClassShiftsClassroomData.map((el: ClassShiftsClassrooms) => {
         return {
           ...el.shift,
@@ -99,7 +105,6 @@ export class TimetablesService {
       }),
       ['weekday', 'fromTime'],
     );
-    console.log('chh_log ---> generate ---> shiftData:', shiftData);
     // const lessonsData = await Lessons.find({
     //   where: {
     //     workspaceId: item.workspaceId,
@@ -151,10 +156,10 @@ export class TimetablesService {
       timeTable.lessonId = lecturesData[index].lessonId;
       timeTable.lectureId = lecturesData[index].id;
       timeTable.classShiftsClassroomId = shiftDataApply?.classShiftsClassroomId;
-      timeTable.validDate = moment().format('YYYY-MM-DD');
+      timeTable.validDate = moment().toDate();
       timeTable.fromTime = shiftDataApply.fromTime;
       timeTable.toTime = shiftDataApply.toTime;
-      timeTable.date = dateCurrentCheck;
+      timeTable.date = moment(dateCurrentCheck, 'YYYY-MM-DD').toDate();
       bulkCreateTimetables.push(timeTable);
       if (indexCurrentCheck === lastIndexShift) {
         indexCurrentCheck = 0;
@@ -183,7 +188,7 @@ export class TimetablesService {
     return await Timetables.find({
       where: {
         workspaceId,
-        date: Between(moment(fromDate, 'YYYYMMDD').format('YYYYMMDD'), moment(toDate, 'YYYYMMDD').format('YYYYMMDD')),
+        date: Between(moment(fromDate, 'YYYYMMDD').toDate(), moment(toDate, 'YYYYMMDD').toDate()),
       },
       relations: [
         'class',

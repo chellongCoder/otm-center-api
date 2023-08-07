@@ -11,7 +11,7 @@ export class CreateShiftDto {
 
   @IsNumber()
   @JSONSchema({ description: 'workspace_id', example: 1 })
-  workspaceId: string;
+  workspaceId: number;
 
   @IsBoolean()
   @JSONSchema({ description: 'set true or set false and set array params weekdays ', example: true })

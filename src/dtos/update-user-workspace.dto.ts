@@ -1,9 +1,9 @@
-import { UserWorkspaceTypes } from './../models/user-workspaces.model';
-import { LANGUAGES } from '@/constants';
+import { Languages, UserWorkspaceTypes, UserWorkspaces } from './../models/user-workspaces.model';
 import { SexTypes, StatusUserWorkspaces } from '@/models/user-workspaces.model';
 import { IsBoolean, IsEmail, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
-export class UpdateUserWorkspaceDto {
+import { Repository } from 'typeorm';
+export class UpdateUserWorkspaceDto extends Repository<UserWorkspaces> {
   @IsString()
   @IsOptional()
   @JSONSchema({ description: 'fullname update', example: 'Huythuhai' })
@@ -42,7 +42,7 @@ export class UpdateUserWorkspaceDto {
   @IsString()
   @IsOptional()
   @JSONSchema({ description: 'LANGUAGES is VN or EN', example: 'VI' })
-  lang: LANGUAGES;
+  lang: Languages;
 
   @IsString()
   @IsOptional()
