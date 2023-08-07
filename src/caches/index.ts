@@ -3,20 +3,20 @@ import { cacheRelations } from './cacheRelations';
 import { cacheHelper } from '@/helpers/cache.helper';
 
 export const caches = () => {
-  const setCache = async (key: string, value: any, ttl: number = env.CACHE_TTL) => {
-    return await cacheHelper.set(key, value, ttl);
+  const setCache = async (key: string, value: any, ttl = 1) => {
+    return await cacheHelper().set(key, value, ttl);
   };
 
   const removeCache = async (key: string) => {
-    return await cacheHelperUsage.remove(key);
+    return await cacheHelper().remove(key);
   };
 
   const getCaches = async (key: string) => {
-    return await cacheHelperUsage.get(key);
+    return await cacheHelper().get(key);
   };
 
   const removeCacheByPattern = async (pattern: string) => {
-    return await cacheHelperUsage.delByPattern(pattern);
+    return await cacheHelper().delByPattern(pattern);
   };
 
   const removeCacheWithRelation = async (prefix: CACHE_PREFIX, workspace_id?: string) => {
@@ -26,13 +26,13 @@ export const caches = () => {
       if (workspace_id) {
         patternRelation += workspace_id;
       }
-      await cacheHelperUsage.delByPattern(patternRelation);
+      await cacheHelper().delByPattern(patternRelation);
     }
     let pattern = prefix + '*';
     if (workspace_id) {
       pattern += workspace_id;
     }
-    await cacheHelperUsage.delByPattern(pattern);
+    await cacheHelper().delByPattern(pattern);
 
     return true;
   };

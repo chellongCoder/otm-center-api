@@ -1,12 +1,11 @@
+import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import _ from 'lodash';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { Shifts } from '@/models/shifts.model';
 import { CreateClassScheduleDto, UserWorkspaceShiftScopesDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
-import { Courses } from '@/models/courses.model';
 import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.model';
 import { Between, In } from 'typeorm';
@@ -101,7 +100,7 @@ export class UserWorkspaceShiftScopesService {
     if (!item.userWorkspaces.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
-    const userWorkspaceData: UserWorkspaceShiftScopesDto[] = _.uniq(item.userWorkspaces, 'userWorkspaceId');
+    const userWorkspaceData: UserWorkspaceShiftScopesDto[] = _.uniqBy(item.userWorkspaces, 'userWorkspaceId');
     this.validateUserWorkspaceTimeShift({ shift: shiftData, userWorkspaceShiftScopes: userWorkspaceData });
     const userWorkspaceIds: number[] = userWorkspaceData.map(el => el.userWorkspaceId);
     const userWorkspaceCount = await UserWorkspaces.count({
@@ -122,7 +121,7 @@ export class UserWorkspaceShiftScopesService {
     classShiftsClassroom.classroomId = classroomData.id;
     classShiftsClassroom.classId = classData.id;
     classShiftsClassroom.workspaceId = workspaceData.id;
-    classShiftsClassroom.validDate = item.validDate;
+    classShiftsClassroom.validDate = moment(item.validDate).toDate();
     const classShiftsClassroomData = await ClassShiftsClassrooms.insert(classShiftsClassroom);
     /**
      * assign teacher
@@ -132,10 +131,10 @@ export class UserWorkspaceShiftScopesService {
       const userWorkspaceShiftScope = new UserWorkspaceShiftScopes();
       userWorkspaceShiftScope.workspaceId = workspaceData.id;
       userWorkspaceShiftScope.userWorkspaceId = userWorkspaceItem.userWorkspaceId;
-      userWorkspaceShiftScope.validDate = item.validDate;
+      userWorkspaceShiftScope.validDate = moment(item.validDate).toDate();
       userWorkspaceShiftScope.title = userWorkspaceItem.title;
-      userWorkspaceShiftScope.fromTime = userWorkspaceItem.fromTime;
-      userWorkspaceShiftScope.toTime = userWorkspaceItem.toTime;
+      userWorkspaceShiftScope.fromTime = moment(userWorkspaceItem.fromTime).toDate();
+      userWorkspaceShiftScope.toTime = moment(userWorkspaceItem.toTime).toDate();
       userWorkspaceShiftScope.note = userWorkspaceItem.note;
       userWorkspaceShiftScope.classShiftsClassroomsId = classShiftsClassroomData.identifiers[0]?.id;
 
@@ -152,12 +151,10 @@ export class UserWorkspaceShiftScopesService {
     userWorkspaceShiftScopes: UserWorkspaceShiftScopesDto[];
   }) {
     for (const userWorkspaceItem of userWorkspaceShiftScopes) {
-      if (userWorkspaceItem.fromTime < Number(`${shift.fromTime}`.replaceAll(':', ''))) {
-        console.log('chh_log ---> shift.fromTime:', shift.fromTime);
-        console.log('chh_log ---> userWorkspaceItem.fromTime:', userWorkspaceItem.fromTime);
+      if (Number(userWorkspaceItem.fromTime) < Number(`${shift.fromTime}`.replaceAll(':', ''))) {
         throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
       }
-      if (userWorkspaceItem.toTime > shift.toTime) {
+      if (Number(userWorkspaceItem.toTime) > Number(shift.toTime)) {
         throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
       }
     }
@@ -166,7 +163,7 @@ export class UserWorkspaceShiftScopesService {
   /**
    * validate shift classrooms
    */
-  public async checkShiftClassrooms(item: CheckShiftClassroomDto) {
+  public async checkShiftClassrooms(item: CheckShiftClassroomValidDto) {
     // WIP check time before create entity
     console.log('chh_log ---> checkShiftClassrooms ---> item:', item);
     return true;
@@ -208,11 +205,14 @@ export class UserWorkspaceShiftScopesService {
       return null;
     }
     const classShiftsClassroomsIds = userWorkspaceShiftScopesData.map(el => el.classShiftsClassroomsId);
+    if (!fromDate || !toDate) {
+      throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+    }
     return await Timetables.find({
       where: {
         classShiftsClassroomId: In(classShiftsClassroomsIds),
         workspaceId,
-        date: Between(moment(fromDate, 'YYYYMMDD').format('YYYYMMDD'), moment(toDate, 'YYYYMMDD').format('YYYYMMDD')),
+        date: Between(moment(fromDate, 'YYYYMMDD').toDate(), moment(toDate, 'YYYYMMDD').toDate()),
       },
       relations: [
         'class',
