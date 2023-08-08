@@ -1,7 +1,6 @@
-import { CheckShiftClassroomDto } from '@/dtos/check-shift-classroom-valid.dto';
+import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { CreateClassScheduleDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { UserWorkspaceShiftScopesService } from '@/services/user-workspace-shift-scopes.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -65,7 +64,7 @@ export class UserWorkspaceShiftScopesController {
 
   @Post('/check_shift_classroom')
   @OpenAPI({ summary: 'Check shift classroom validate' })
-  async checkShiftClassroom(@Body({ required: true }) body: CheckShiftClassroomDto, @Res() res: any) {
+  async checkShiftClassroom(@Body({ required: true }) body: CheckShiftClassroomValidDto, @Res() res: any) {
     console.log('chh_log ---> create ---> body:', body);
     console.log('chh_log ---> create ---> res:', res);
     // const data = await this.service.checkShiftClassrooms(body);

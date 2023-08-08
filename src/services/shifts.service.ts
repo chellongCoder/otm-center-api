@@ -4,6 +4,7 @@ import { QueryParser } from '@/utils/query-parser';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { CreateShiftDto } from '@/dtos/create-shift.dto';
 import _ from 'lodash';
+import moment from 'moment-timezone';
 
 @Service()
 export class ShiftsService {
@@ -39,13 +40,13 @@ export class ShiftsService {
    * create
    */
   public async create(item: CreateShiftDto) {
-    if (item.fromTime >= item.toTime) {
+    if (Number(item.fromTime) >= Number(item.toTime)) {
       throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
     }
     if (!item.isEveryday && !item.weekdays?.length) {
       throw new Exception(ExceptionName.SHIFT_WEEKDAY_REQUIRE, ExceptionCode.SHIFT_WEEKDAY_REQUIRE);
     }
-    let dayOfWeekLoop: number = [];
+    let dayOfWeekLoop: number[] = [];
     if (item.isEveryday) {
       dayOfWeekLoop = [1, 2, 3, 4, 5, 6, 0];
     } else {
@@ -54,8 +55,8 @@ export class ShiftsService {
     const bulkCreateShifts: Shifts[] = [];
     for (const weekday of dayOfWeekLoop) {
       const shiftCreate = new Shifts();
-      shiftCreate.fromTime = item.fromTime;
-      shiftCreate.toTime = item.toTime;
+      shiftCreate.fromTime = moment(item.fromTime, 'HHmmss').toDate();
+      shiftCreate.toTime = moment(item.toTime, 'HHmmss').toDate();
       shiftCreate.weekday = weekday;
       shiftCreate.workspaceId = item.workspaceId;
 

@@ -373,3 +373,6 @@ Table class_shifts_classrooms {
   valid_date date
   expires_date date
 }
+Table class_lesson {
+  
+}

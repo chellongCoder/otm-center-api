@@ -25,9 +25,9 @@ export class UserWorkspaceClassesController {
   @Get('/timetable_by_date')
   @OpenAPI({ summary: 'Get user_workspace_classes list' })
   async getTimetableByDate(
-    @QueryParam('userWorkspaceId') userWorkspaceId: string,
-    @QueryParam('date') date: string,
-    @QueryParam('workspaceId') workspaceId: string,
+    @QueryParam('userWorkspaceId') userWorkspaceId: number,
+    @QueryParam('date') date: number,
+    @QueryParam('workspaceId') workspaceId: number,
     @Res() res: any,
   ) {
     const data = await this.service.getTimetableByDate({
@@ -42,7 +42,6 @@ export class UserWorkspaceClassesController {
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
   async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
     const data = await this.service.findByFilter(userWorkspaceId, status as UserWorkspaceClassTypes);
-    console.log('chh_log ---> findByFilter ---> data:', data);
     return successResponse({ res, data, status_code: 200 });
   }
 

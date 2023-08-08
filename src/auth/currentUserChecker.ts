@@ -1,10 +1,9 @@
+import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { Action } from 'routing-controllers';
 // import { Connection } from 'typeorm';
 
-import { User } from '../api/models/User';
-
-export function currentUserChecker(): (action: Action) => Promise<User | undefined> {
-  return async function innerCurrentUserChecker(action: Action): Promise<User | undefined> {
+export function currentUserChecker(): (action: Action) => Promise<UserWorkspaces | undefined> {
+  return async function innerCurrentUserChecker(action: Action): Promise<UserWorkspaces | undefined> {
     return action.request.user;
   };
 }
