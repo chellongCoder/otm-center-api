@@ -10,5 +10,6 @@ config trước:
 -> tạo đánh giá hàng ngày
 tiếp luồng:
 -> tạo khoá học -> tạo lịch học -> sinh thời khoá biểu -> ghi danh học sinh
+
 ### sinh thời khoá biểu
 -> dựa trên input lịch học (table: user_workspace_shift_scopes) + data bài học (table: lessons) và data bài giảng (table: lectures) vừa được auto generate khi tạo khoá học(table: courses) => output {number_of_lesson} số buổi học (timetable)
