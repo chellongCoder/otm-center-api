@@ -216,6 +216,7 @@ export class UserWorkspaceShiftScopesService {
       },
       relations: [
         'class',
+        'class.course',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
