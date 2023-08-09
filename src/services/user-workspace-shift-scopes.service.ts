@@ -228,4 +228,7 @@ export class UserWorkspaceShiftScopesService {
       },
     });
   }
+  public getTeachingDashboard(userWorkspaceId: number, workspaceId: number) {
+    console.log('chh_log ---> getTeachingDashboard ---> userWorkspaceId:', userWorkspaceId);
+  }
 }
