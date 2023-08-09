@@ -1,13 +1,11 @@
 {
   "env": "production",
   "dbConfig": {
-    "host": "postgres.2soft.top",
-    "database": "otmdb",
+    "host": "localhost",
+    "database": "nexus_db_production",
     "user": "postgres",
-    "password": "uu8D]HV,bm-7}DzLu@j$",
-    "port": 5432,
-    "synchronize": false,
-    "logging": false
+    "password": "123321@",
+    "port": 5432
   },
   "log": {
     "format": "dev",
@@ -17,12 +15,8 @@
     "origin": true,
     "credentials": true
   },
-  "recovery": {
-    "length": 4,
-    "expiredTime": 180000
-  },
   "sendgrid": {
-    "apiKey": "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",
-    "fromEmail": "divconsole1994@gmail.com"
+    "apiKey": "",
+    "fromEmail": "default@sample.com"
   }
 }
