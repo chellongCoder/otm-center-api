@@ -19,7 +19,11 @@ import { Timetables } from './timetables.model';
 export enum StatusClasses {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
+  CANCEL = 'CANCEL',
+  EXPIRED = 'EXPIRED',
+  DONE = 'DONE',
 }
+
 @Entity('classes')
 export class Classes extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -111,6 +115,6 @@ export class Classes extends BaseEntity {
         }
       }
     }
-    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.where(query.where).orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }
