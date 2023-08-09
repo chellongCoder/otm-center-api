@@ -1,7 +1,9 @@
 import config from 'config';
 import path from 'path';
 import { DataSourceOptions } from 'typeorm';
-
+/**
+ *
+ */
 export default {
   type: 'postgres',
   host: process.env.DB_HOST || config.get('dbConfig.host'),

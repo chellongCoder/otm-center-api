@@ -51,7 +51,11 @@ export class UserWorkspacesService {
     if (!userWorkspaceData) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
-    return UserWorkspaces.update(id, item);
+    const updateUserWorkspace = {
+      ...userWorkspaceData,
+      ...item,
+    };
+    return await UserWorkspaces.update(id, updateUserWorkspace);
   }
 
   /**
