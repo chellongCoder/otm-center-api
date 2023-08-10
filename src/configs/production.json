@@ -17,12 +17,8 @@
     "origin": true,
     "credentials": true
   },
-  "recovery": {
-    "length": 4,
-    "expiredTime": 180000
-  },
   "sendgrid": {
-    "apiKey": "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",
-    "fromEmail": "divconsole1994@gmail.com"
+    "apiKey": "",
+    "fromEmail": "default@sample.com"
   }
 }
