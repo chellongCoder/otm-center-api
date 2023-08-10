@@ -44,12 +44,15 @@ export class UserWorkspaceShiftScopesController {
   @Get('/teaching_dashboard')
   @OpenAPI({ summary: 'Get teaching dashboard home screen' })
   async getTeachingDashboard(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('order') order: string,
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
     @QueryParam('workspaceId') workspaceId: number,
     @QueryParam('currentDate') currentDate: number,
     @Res() res: any,
   ) {
-    const data = await this.service.getTeachingDashboard(userWorkspaceId, workspaceId, currentDate);
+    const data = await this.service.getTeachingDashboard(page, limit, order, userWorkspaceId, workspaceId, currentDate);
     return successResponse({ res, data, status_code: 200 });
   }
 

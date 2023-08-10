@@ -230,7 +230,7 @@ export class UserWorkspaceShiftScopesService {
     });
   }
 
-  public async getTeachingDashboard(userWorkspaceId: number, workspaceId: number, currentDate: number) {
+  public async getTeachingDashboard(page = 1, limit = 10, order = 'id:asc', userWorkspaceId: number, workspaceId: number, currentDate: number) {
     console.log('chh_log ---> getTeachingDashboard ---> userWorkspaceId:', userWorkspaceId);
     const userWorkspaceShiftScopesData = await UserWorkspaceShiftScopes.find({
       where: {
@@ -252,12 +252,16 @@ export class UserWorkspaceShiftScopesService {
     //   },
     // });
     // const classShiftsClassroomsIds = classShiftsClassroomsData.map(el => el.id);
-    const classesData = await Classes.find({
+    const orderCond = QueryParser.toOrderCond(order);
+    const [classesData, total] = await Classes.findAndCount({
       where: {
         classShiftsClassrooms: {
           id: In(classShiftsClassroomsIds),
         },
       },
+      order: { [orderCond.sort]: orderCond.order },
+      skip: (page - 1) * limit,
+      take: limit,
       relations: ['classShiftsClassrooms', 'course', 'classShiftsClassrooms.shift'],
     });
     /**
@@ -307,6 +311,10 @@ export class UserWorkspaceShiftScopesService {
         latestTimetable,
       });
     }
-    return teachingDashboard;
+    return {
+      data: teachingDashboard,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 }
