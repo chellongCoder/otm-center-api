@@ -17,6 +17,6 @@ FROM node:16-alpine
 WORKDIR /usr/src/app
 COPY package.json ./
 RUN yarn install
-COPY --from=appbuild /usr/src/app/dist ./
+COPY --from=appbuild /usr/src/app/dist ./dist
 EXPOSE 8000
 CMD yarn start
