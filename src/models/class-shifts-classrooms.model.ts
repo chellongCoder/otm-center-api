@@ -14,6 +14,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { UserWorkspaceShiftScopes } from './user-workspace-shift-scopes.model';
 import { Shifts } from './shifts.model';
 import { Classrooms } from './classrooms.model';
+import { Classes } from './classes.model';
 
 /**
  * đăng ký lịch
@@ -70,6 +71,10 @@ export class ClassShiftsClassrooms extends BaseEntity {
   @ManyToOne(() => Classrooms)
   @JoinColumn({ name: 'classroom_id' })
   classroom: Classrooms;
+
+  @ManyToOne(() => Classes, item => item.classShiftsClassrooms)
+  @JoinColumn({ name: 'class_id' })
+  class: Classes;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_shifts_classrooms');

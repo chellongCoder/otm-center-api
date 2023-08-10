@@ -13,6 +13,7 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { Workspaces } from './workspaces.model';
 import { Courses } from './courses.model';
+import { UserWorkspaces } from './user-workspaces.model';
 
 export enum classScheduleTypes {
   ALL = 'ALL',
@@ -85,6 +86,10 @@ export class UserWorkspaceClasses extends BaseEntity {
   @ManyToOne(() => Courses, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'course_id' })
   course: Courses;
+
+  @ManyToOne(() => UserWorkspaces, item => item.userWorkspaceClasses)
+  @JoinColumn({ name: 'user_workspace_id' })
+  userWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_classes');
