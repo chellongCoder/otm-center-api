@@ -15,6 +15,7 @@ import { UserWorkspaceClasses } from './user-workspace-classes.model';
 import { Courses } from './courses.model';
 import { Workspaces } from './workspaces.model';
 import { Timetables } from './timetables.model';
+import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
 
 export enum StatusClasses {
   ACTIVE = 'ACTIVE',
@@ -98,6 +99,9 @@ export class Classes extends BaseEntity {
   @ManyToOne(() => Workspaces)
   @JoinColumn({ name: 'workspace_id' })
   public workspace: Workspaces;
+
+  @OneToMany(() => ClassShiftsClassrooms, item => item.class)
+  public classShiftsClassrooms: ClassShiftsClassrooms[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('classes');

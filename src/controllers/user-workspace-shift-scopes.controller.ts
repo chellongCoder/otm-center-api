@@ -46,9 +46,10 @@ export class UserWorkspaceShiftScopesController {
   async getTeachingDashboard(
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
     @QueryParam('workspaceId') workspaceId: number,
+    @QueryParam('currentDate') currentDate: number,
     @Res() res: any,
   ) {
-    const data = await this.service.getTeachingDashboard(userWorkspaceId, workspaceId);
+    const data = await this.service.getTeachingDashboard(userWorkspaceId, workspaceId, currentDate);
     return successResponse({ res, data, status_code: 200 });
   }
 

@@ -1,3 +1,4 @@
+import { UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
 import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import _ from 'lodash';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
@@ -228,7 +229,84 @@ export class UserWorkspaceShiftScopesService {
       },
     });
   }
-  public getTeachingDashboard(userWorkspaceId: number, workspaceId: number) {
+
+  public async getTeachingDashboard(userWorkspaceId: number, workspaceId: number, currentDate: number) {
     console.log('chh_log ---> getTeachingDashboard ---> userWorkspaceId:', userWorkspaceId);
+    const userWorkspaceShiftScopesData = await UserWorkspaceShiftScopes.find({
+      where: {
+        userWorkspaceId,
+        workspaceId,
+      },
+    });
+    if (!userWorkspaceShiftScopesData.length) {
+      return null;
+    }
+    const classShiftsClassroomsIds = userWorkspaceShiftScopesData.map(el => el.classShiftsClassroomsId);
+    if (!currentDate) {
+      throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
+    }
+    // const classShiftsClassroomsData = await ClassShiftsClassrooms.find({
+    //   where: {
+    //     id: In(classShiftsClassroomsIds),
+    //     workspaceId,
+    //   },
+    // });
+    // const classShiftsClassroomsIds = classShiftsClassroomsData.map(el => el.id);
+    const classesData = await Classes.find({
+      where: {
+        classShiftsClassrooms: {
+          id: In(classShiftsClassroomsIds),
+        },
+      },
+      relations: ['classShiftsClassrooms', 'course', 'classShiftsClassrooms.shift'],
+    });
+    /**
+     * get user_workspaces in class
+     */
+    const classesIds = classesData.map(el => el.id);
+    const userWorkspaceClasses = await UserWorkspaceClasses.find({
+      where: {
+        classId: In(classesIds),
+        workspaceId,
+      },
+      relations: ['userWorkspace'],
+    });
+    if (!classesData.length) {
+      return null;
+    }
+    /**
+     * get latest timetable
+     */
+    const timetableData = await Timetables.find({
+      where: {
+        classShiftsClassroomId: In(classShiftsClassroomsIds),
+        workspaceId,
+        date: Between(moment(currentDate, 'YYYYMMDD').subtract(15, 'days').toDate(), moment(currentDate, 'YYYYMMDD').toDate()),
+      },
+      order: {
+        date: 'desc',
+        fromTime: 'desc',
+      },
+    });
+    // const subQueryTimetable = Timetables.createQueryBuilder('subQueryTimetable')
+    //   .where('subQueryTimetable.class_id in (:...classId)', { classId: classesIds })
+    //   .groupBy('subQueryTimetable.class_id');
+    // const latestTimetable = await Timetables.createQueryBuilder('record')
+    //   // .where('record.id In (' + subQueryTimetable.getQuery() + ')')
+    //   .innerJoin('(' + subQueryTimetable.getQuery() + ')', 'sub', 'record.id = sub.max AND record.created_at = sub.created_at')
+    //   .setParameters(subQueryTimetable.getParameters())
+    //   .getMany();
+    const teachingDashboard: any[] = [];
+    for (const classItem of classesData) {
+      const userWorkspaceInClass = userWorkspaceClasses.filter(el => el.classId === classItem.id);
+      const latestTimetable = timetableData.find(el => el.classId === classItem.id);
+      teachingDashboard.push({
+        ...classItem,
+        userWorkspaces: userWorkspaceInClass,
+        userWorkspacesCount: userWorkspaceInClass.length,
+        latestTimetable,
+      });
+    }
+    return teachingDashboard;
   }
 }
