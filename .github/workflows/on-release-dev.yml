@@ -34,9 +34,9 @@ jobs:
       uses: ozaytsev86/create-env-file@v1
       with:
         ENV_DB_HOST: "125.212.235.135"
-        ENV_DB_PORT: 55431
+        ENV_DB_PORT: 5432
         ENV_DB_USER: "postgres"
-        ENV_DB_PASS: "postgres"
+        ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
         ENV_DB_DBNAME: "otmdb"
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
