@@ -1,4 +1,4 @@
-import { Classes } from '@/models/classes.model';
+import { Classes, StatusClasses } from '@/models/classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Timetables } from '@/models/timetables.model';
@@ -7,6 +7,7 @@ import { Timetables } from '@/models/timetables.model';
 export class ClassesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
+
     const filteredData = await Classes.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
@@ -14,6 +15,30 @@ export class ClassesService {
       take: limit,
       cache: false,
       search: QueryParser.toFilters(search),
+    });
+    return {
+      data: filteredData[0],
+      total: filteredData[1],
+      pages: Math.ceil(filteredData[1] / limit),
+    };
+  }
+
+  public async findAllClasses(page = 1, limit = 10, order = 'id:asc', search: string, status: StatusClasses) {
+    const orderCond = QueryParser.toOrderCond(order);
+
+    const filteredData = await Classes.findByCond({
+      sort: orderCond.sort,
+      order: orderCond.order,
+      skip: (page - 1) * limit,
+      take: limit,
+      cache: false,
+      search: QueryParser.toFilters(search),
+      relations: {
+        course: true,
+      },
+      where: {
+        status: status,
+      },
     });
     return {
       data: filteredData[0],
