@@ -155,8 +155,8 @@ export class TimetablesService {
       timeTable.shiftId = shiftDataApply.id;
       timeTable.classId = classData.id;
       timeTable.sessionNumberOrder = index + 1;
-      timeTable.classLessonId = classLessonsData.find(el => el.sessionNumberOrder === index + 1)?.id;
-      timeTable.classLectureId = classLecturesData.find(el => el.sessionNumberOrder === index + 1)?.id;
+      timeTable.classLessonId = classLessonsData.find(el => el.sessionNumberOrder === index + 1)?.id || 0;
+      timeTable.classLectureId = classLecturesData.find(el => el.sessionNumberOrder === index + 1)?.id || 0;
       timeTable.classShiftsClassroomId = shiftDataApply?.classShiftsClassroomId;
       timeTable.validDate = moment().toDate();
       timeTable.fromTime = shiftDataApply.fromTime;
