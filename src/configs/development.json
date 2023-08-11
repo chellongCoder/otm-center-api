@@ -26,9 +26,9 @@
     "fromEmail": "divconsole1994@gmail.com"
   },
   "twilio": {
-    "accountSID": "ACf4eeb503e9d4efd5570cf96435f62a7f",
-    "authToken": "e904e4964d881ae6ce2a3548dae90afe",
-    "verifySid": "VA2987083a7995d5031e067b897877a9e2"
+    "accountSID": "ACf2a237ee3d729e55e99963e94d07d7c0",
+    "authToken": "f17e5957cb5af007f1c29ce0c0b37cd9",
+    "verifySid": "VAdf643dc29c9c5a3b973d533da3e866b2"
   },
   "redis": {
     "host": "localhost",
