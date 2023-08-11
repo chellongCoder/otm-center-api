@@ -1,5 +1,5 @@
 import { successResponse } from '@/helpers/response.helper';
-import { Classes } from '@/models/classes.model';
+import { Classes, StatusClasses } from '@/models/classes.model';
 import { ClassesService } from '@/services/classes.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -20,6 +20,20 @@ export class ClassesController {
     @Res() res: any,
   ) {
     const data = await this.service.findAll(page, limit, order, search);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/owner-teacher')
+  @OpenAPI({ summary: 'Get lớp học' })
+  async getOwnerClasses(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('order') order: string,
+    @QueryParam('search') search: string,
+    @QueryParam('status', { type: 'string' }) status: StatusClasses,
+    @Res() res: any,
+  ) {
+    const data = await this.service.findAllClasses(page, limit, order, search, status);
     return successResponse({ res, data, status_code: 200 });
   }
 

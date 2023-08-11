@@ -4,8 +4,9 @@
     "host": "localhost",
     "database": "nexus_db_production",
     "user": "postgres",
-    "password": "123321@",
+     "password": "123321@",
     "port": 5432
+
   },
   "log": {
     "format": "dev",
