@@ -1,13 +1,12 @@
 {
   "env": "production",
   "dbConfig": {
-    "host": "125.212.235.135",
-    "database": "otmdb",
+    "host": "localhost",
+    "database": "nexus_db_production",
     "user": "postgres",
-    "password": "postgres",
-    "port": 55431,
-    "synchronize": false,
-    "logging": false
+     "password": "123321@",
+    "port": 5432
+
   },
   "log": {
     "format": "dev",
