@@ -61,9 +61,6 @@ export class Courses extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => UserWorkspaceClasses, item => item.course)
-  public userWorkspaceClasses: UserWorkspaceClasses[];
-
   @OneToMany(() => Lessons, item => item.course, {
     cascade: true,
     onDelete: 'CASCADE',

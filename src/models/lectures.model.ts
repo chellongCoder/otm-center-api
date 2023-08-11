@@ -38,8 +38,8 @@ export class Lectures extends BaseEntity {
   @Column({ name: 'is_use_name', default: false }) //Sử dụng tên của bài học
   isUseName: boolean;
 
-  @Column({ name: 'lecture_file_id', nullable: true })
-  lectureFileId: number;
+  @Column({ name: 'session_number_order' })
+  sessionNumberOrder: number;
 
   @Column({ name: 'course_id' })
   courseId: number;

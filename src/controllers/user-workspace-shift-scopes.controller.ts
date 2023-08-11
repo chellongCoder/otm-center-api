@@ -71,7 +71,7 @@ export class UserWorkspaceShiftScopesController {
   // }
 
   @Post('/create_class_schedule')
-  @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business' })
+  @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business(sau khi cập nhật lịch học cần cập nhật lại thời khoá biểu)' })
   async createClassSchedule(@Body({ required: true }) body: CreateClassScheduleDto, @Res() res: any) {
     const data = await this.service.createClassSchedule(body);
     return successResponse({ res, data, status_code: 201 });

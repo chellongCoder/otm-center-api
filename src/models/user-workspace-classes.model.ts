@@ -36,9 +36,6 @@ export class UserWorkspaceClasses extends BaseEntity {
   @Column({ name: 'user_workspace_id' })
   userWorkspaceId: number;
 
-  @Column({ name: 'course_id' })
-  courseId: number;
-
   @Column({ name: 'class_id' })
   classId: number;
 
@@ -82,10 +79,6 @@ export class UserWorkspaceClasses extends BaseEntity {
   @ManyToOne(() => Workspaces, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'workspace_id' })
   workspace: Workspaces;
-
-  @ManyToOne(() => Courses, item => item.userWorkspaceClasses)
-  @JoinColumn({ name: 'course_id' })
-  course: Courses;
 
   @ManyToOne(() => UserWorkspaces, item => item.userWorkspaceClasses)
   @JoinColumn({ name: 'user_workspace_id' })
