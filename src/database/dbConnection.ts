@@ -12,7 +12,7 @@ export class DbConnection {
 
   public static async createConnection() {
     try {
-      logger.info(JSON.stringify(config));
+      // logger.info(JSON.stringify(config));
       this.appDataSource = new DataSource(config);
       this.appDataSource
         .initialize()

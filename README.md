@@ -13,3 +13,7 @@ tiếp luồng:
 
 ### sinh thời khoá biểu
 -> dựa trên input lịch học (table: user_workspace_shift_scopes) + data bài học (table: lessons) và data bài giảng (table: lectures) vừa được auto generate khi tạo khoá học(table: courses) => output {number_of_lesson} số buổi học (timetable)
+### tạo lớp học
+--> input từ một khoá học (courses) import các thông tin của khoá học vào lớp học [
+  --> các bài giảng(lectures) và bài học(lessons) của khoá học sẽ sao lưu sang bảng class_lectures và class_lessons
+]

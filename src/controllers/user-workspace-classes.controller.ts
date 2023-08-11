@@ -53,7 +53,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create user_workspace_classes' })
+  @OpenAPI({ summary: 'Create user_workspace_classes(Ghi danh học viên vào lớp học)' })
   async create(@Body({ required: true }) body: UserWorkspaceClasses, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });

@@ -19,11 +19,11 @@ export class Timetables extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'lesson_id' })
-  lessonId: number;
+  @Column({ name: 'class_lesson_id' })
+  classLessonId: number;
 
-  @Column({ name: 'lecture_id' })
-  lectureId: number;
+  @Column({ name: 'class_lecture_id' })
+  classLectureId: number;
 
   @Column({ name: 'shift_id' })
   shiftId: number;

@@ -5,7 +5,7 @@ import { JSONSchema } from 'class-validator-jsonschema';
 
 export class UserWorkspaceShiftScopesDto {
   @IsNumber()
-  @JSONSchema({ description: 'user_workspace_id', example: 1 })
+  @JSONSchema({ description: 'user_workspace_id', example: 7 })
   userWorkspaceId: number;
 
   @IsString()
@@ -36,7 +36,7 @@ export class CreateClassScheduleDto {
   classroomId: number;
 
   @IsNumber()
-  @JSONSchema({ description: 'class id', example: 2 })
+  @JSONSchema({ description: 'class id', example: 9 })
   classId: number;
 
   @IsNumber()
@@ -44,7 +44,7 @@ export class CreateClassScheduleDto {
   workspaceId: number;
 
   @IsISO8601()
-  @JSONSchema({ description: 'date apply value is start_time of course', example: '2023-08-05' })
+  @JSONSchema({ description: 'applicable date (ngày áp dụng lịch học đối với lớp)', example: '2023-08-05' })
   validDate: string;
 
   @IsArray()

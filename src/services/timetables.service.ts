@@ -11,6 +11,8 @@ import { Shifts } from '@/models/shifts.model';
 import moment from 'moment-timezone';
 import { calculateNextStepCycle } from '@/utils/util';
 import { Between } from 'typeorm';
+import { ClassLectures } from '@/models/class-lectures.model';
+import { ClassLessons } from '@/models/class-lessons.model';
 
 interface ShiftApplyTimetables extends Partial<Shifts> {
   id: number;
@@ -82,17 +84,14 @@ export class TimetablesService {
       },
       relations: ['course'],
     });
-    console.log('chh_log ---> generate ---> classData:', classData);
     if (!classData?.id) {
       throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
     const numberOfLesson: number = classData.sessionNumber;
-    console.log('chh_log ---> generate ---> numberOfLesson:', numberOfLesson);
-    console.log('chh_log ---> generate ---> classData.fromTime:', classData.fromTime);
     const ClassShiftsClassroomData: ClassShiftsClassrooms[] = await ClassShiftsClassrooms.find({
       where: {
-        workspaceId: item.workspaceId,
         classId: classData.id,
+        workspaceId: item.workspaceId,
       },
       relations: ['shift'],
     });
@@ -105,24 +104,23 @@ export class TimetablesService {
       }),
       ['weekday', 'fromTime'],
     );
-    // const lessonsData = await Lessons.find({
-    //   where: {
-    //     workspaceId: item.workspaceId,
-    //     courseId: classData.courseId,
-    //   },
-    // });
-    const lecturesData = await Lectures.find({
+    const classLecturesData = await ClassLectures.find({
       where: {
         workspaceId: item.workspaceId,
-        courseId: classData.courseId,
+        classId: classData.id,
       },
     });
-    if (lecturesData.length !== numberOfLesson) {
+    const classLessonsData = await ClassLessons.find({
+      where: {
+        workspaceId: item.workspaceId,
+        classId: classData.id,
+      },
+    });
+    if (classLecturesData.length !== numberOfLesson || classLessonsData.length !== numberOfLesson) {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }
     const startDateClass = moment(classData.fromTime).format('YYYY-MM-DD');
     const dayOfWeekStart = moment(classData.fromTime).weekday();
-    // let dateCurrentCheck = Number(startDateClass.replace('-', ''));
     let dateCurrentCheck = startDateClass;
     const lastIndexShift = shiftData.length - 1;
     let indexOfFirstShiftApply = 0;
@@ -141,7 +139,11 @@ export class TimetablesService {
       indexCurrentCheck = indexOfFirstShiftApply;
     } else {
       const shiftApplyFirst = shiftData.filter(el => el.weekday >= dayOfWeekStart);
-      indexOfFirstShiftApply = shiftData.findIndex(el => el.id === shiftApplyFirst[0].id);
+      if (shiftApplyFirst.length) {
+        indexOfFirstShiftApply = shiftData.findIndex(el => el.id === shiftApplyFirst[0].id);
+      } else {
+        indexOfFirstShiftApply = 0;
+      }
       indexCurrentCheck = indexOfFirstShiftApply;
     }
     for (let index = 0; index < numberOfLesson; index++) {
@@ -153,8 +155,8 @@ export class TimetablesService {
       timeTable.shiftId = shiftDataApply.id;
       timeTable.classId = classData.id;
       timeTable.sessionNumberOrder = index + 1;
-      timeTable.lessonId = lecturesData[index].lessonId;
-      timeTable.lectureId = lecturesData[index].id;
+      timeTable.classLessonId = classLessonsData.find(el => el.sessionNumberOrder === index + 1)?.id;
+      timeTable.classLectureId = classLecturesData.find(el => el.sessionNumberOrder === index + 1)?.id;
       timeTable.classShiftsClassroomId = shiftDataApply?.classShiftsClassroomId;
       timeTable.validDate = moment().toDate();
       timeTable.fromTime = shiftDataApply.fromTime;
@@ -168,11 +170,10 @@ export class TimetablesService {
       }
 
       const shiftDataApplyNext = shiftData[indexCurrentCheck];
-      if (shiftDataApplyNext.weekday !== shiftDataApply.weekday) {
+      if (shiftDataApplyNext.weekday !== shiftDataApply.weekday || shiftData.length === 1) {
         dateCurrentCheck = moment(dateCurrentCheck, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD');
       }
     }
-    console.log('chh_log ---> generate ---> bulkCreateTimetables:', bulkCreateTimetables);
     return await Timetables.insert(bulkCreateTimetables);
   }
   public async findAllByDate(

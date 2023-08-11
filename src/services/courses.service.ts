@@ -45,6 +45,7 @@ export class CoursesService {
     for (let index = 0; index < numberOfLesson; index++) {
       const lesson = new Lessons();
       lesson.courseId = course.identifiers[0]?.id;
+      lesson.sessionNumberOrder = index + 1;
       lesson.workspaceId = item.workspaceId;
       bulkCreateLessons.push(lesson);
     }
@@ -53,6 +54,7 @@ export class CoursesService {
       const lecture = new Lectures();
       lecture.lessonId = bulkCreateLessonInsert.identifiers[index]?.id;
       lecture.courseId = course.identifiers[0]?.id;
+      lecture.sessionNumberOrder = index + 1;
       lecture.workspaceId = item.workspaceId;
       bulkCreateLectures.push(lecture);
     }

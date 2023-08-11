@@ -89,17 +89,19 @@ export class UserWorkspaceShiftScopesService {
     if (!shiftData?.id) {
       throw new Exception(ExceptionName.SHIFT_NOT_FOUND, ExceptionCode.SHIFT_NOT_FOUND);
     }
-    // const courseData = await Courses.findOne({
-    //   where: {
-    //     id: item.courseId,
-    //     workspaceId: item.workspaceId,
-    //   },
-    // });
-    // if (!courseData?.id) {
-    //   throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
-    // }
     if (!item.userWorkspaces.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
+    }
+    const classShiftsClassroomExist = await ClassShiftsClassrooms.findOne({
+      where: {
+        shiftId: item.shiftId,
+        classroomId: item.classroomId,
+        classId: item.classId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (classShiftsClassroomExist?.id) {
+      throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
     const userWorkspaceData: UserWorkspaceShiftScopesDto[] = _.uniqBy(item.userWorkspaces, 'userWorkspaceId');
     this.validateUserWorkspaceTimeShift({ shift: shiftData, userWorkspaceShiftScopes: userWorkspaceData });
@@ -122,7 +124,7 @@ export class UserWorkspaceShiftScopesService {
     classShiftsClassroom.classroomId = classroomData.id;
     classShiftsClassroom.classId = classData.id;
     classShiftsClassroom.workspaceId = workspaceData.id;
-    classShiftsClassroom.validDate = moment(item.validDate).toDate();
+    classShiftsClassroom.validDate = moment(item.validDate, 'YYYY-MM-DD').toDate();
     const classShiftsClassroomData = await ClassShiftsClassrooms.insert(classShiftsClassroom);
     /**
      * assign teacher
@@ -132,15 +134,16 @@ export class UserWorkspaceShiftScopesService {
       const userWorkspaceShiftScope = new UserWorkspaceShiftScopes();
       userWorkspaceShiftScope.workspaceId = workspaceData.id;
       userWorkspaceShiftScope.userWorkspaceId = userWorkspaceItem.userWorkspaceId;
-      userWorkspaceShiftScope.validDate = moment(item.validDate).toDate();
+      userWorkspaceShiftScope.validDate = moment(item.validDate, 'YYYY-MM-DD').toDate();
       userWorkspaceShiftScope.title = userWorkspaceItem.title;
-      userWorkspaceShiftScope.fromTime = moment(userWorkspaceItem.fromTime).toDate();
-      userWorkspaceShiftScope.toTime = moment(userWorkspaceItem.toTime).toDate();
+      userWorkspaceShiftScope.fromTime = moment(userWorkspaceItem.fromTime, 'HHmmss').toDate();
+      userWorkspaceShiftScope.toTime = moment(userWorkspaceItem.toTime, 'HHmmss').toDate();
       userWorkspaceShiftScope.note = userWorkspaceItem.note;
       userWorkspaceShiftScope.classShiftsClassroomsId = classShiftsClassroomData.identifiers[0]?.id;
 
       bulkCreateShiftScopes.push(userWorkspaceShiftScope);
     }
+
     return await UserWorkspaceShiftScopes.insert(bulkCreateShiftScopes);
   }
 
