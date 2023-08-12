@@ -6,7 +6,7 @@
     "user": "postgres",
     "password": "",
     "port": 5432,
-    "synchronize": true,
+    "synchronize": false,
     "logging": false
   },
   "log": {
