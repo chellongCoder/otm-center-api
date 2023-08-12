@@ -176,16 +176,7 @@ export class TimetablesService {
     }
     return await Timetables.insert(bulkCreateTimetables);
   }
-  public async findAllByDate(
-    page = 1,
-    limit = 10,
-    order = 'id:asc',
-    search: string,
-    fromDate: number,
-    toDate: number,
-    userWorkspaceId: number,
-    workspaceId: number,
-  ) {
+  public async findAllByDate(fromDate: number, toDate: number, userWorkspaceId: number, workspaceId: number) {
     return await Timetables.find({
       where: {
         workspaceId,
@@ -193,6 +184,7 @@ export class TimetablesService {
       },
       relations: [
         'class',
+        'classLesson',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
