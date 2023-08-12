@@ -40,8 +40,8 @@ export class UserWorkspaceClassesController {
 
   @Get('/list')
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
-  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: UserWorkspaceClassTypes, @Res() res: any) {
-    const data = await this.service.findByFilter(userWorkspaceId, status);
+  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
+    const data = await this.service.findByFilter(userWorkspaceId, status as UserWorkspaceClassTypes);
     return successResponse({ res, data, status_code: 200 });
   }
 
