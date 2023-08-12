@@ -1,3 +1,4 @@
+import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLessons } from '@/models/class-lessons.model';
 import { ClassLessonsService } from '@/services/class-lessons.service';
@@ -30,7 +31,7 @@ export class ClassLessonsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
-  @Get('/classId/:classId')
+  @Get('/class/:classId')
   @OpenAPI({ summary: 'Get homework by classId' })
   async getHomeworkByClassId(
     @Param('classId') classId: number,
@@ -46,6 +47,13 @@ export class ClassLessonsController {
   @OpenAPI({ summary: 'Create class_lessons' })
   async create(@Body({ required: true }) body: ClassLessons, @Res() res: any) {
     const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Put('/exercise/:id')
+  @OpenAPI({ summary: 'Update class_lessons in class' })
+  async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any) {
+    const data = await this.service.updateExercise(id, body);
     return successResponse({ res, data, status_code: 201 });
   }
 
