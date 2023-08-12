@@ -8,6 +8,10 @@ import { ClassLectures } from '@/models/class-lectures.model';
 import { ClassLessons } from '@/models/class-lessons.model';
 import { Lectures } from '@/models/lectures.model';
 import { Lessons } from '@/models/lessons.model';
+import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
+import _ from 'lodash';
 
 @Service()
 export class ClassesService {
@@ -57,12 +61,36 @@ export class ClassesService {
    * findById
    */
   public async findById(id: number) {
-    return Classes.findOne({
+    const classData = await Classes.findOne({
       where: {
         id,
       },
-      relations: ['course', 'workspace'],
+      relations: [
+        'course',
+        'workspace',
+        'classShiftsClassrooms.userWorkspaceShiftScopes',
+        'classShiftsClassrooms.userWorkspaceShiftScopes.userWorkspace',
+      ],
     });
+    const teacherData: UserWorkspaces[] = [];
+    const classShiftsClassroomsData = classData?.classShiftsClassrooms as ClassShiftsClassrooms[];
+    if (classShiftsClassroomsData.length) {
+      const userWorkspaceShiftScopesData: UserWorkspaceShiftScopes[] = [];
+      for (const classShiftsClassroomsItem of classShiftsClassroomsData) {
+        userWorkspaceShiftScopesData.push(...classShiftsClassroomsItem.userWorkspaceShiftScopes);
+      }
+      if (userWorkspaceShiftScopesData.length) {
+        for (const userWorkspaceShiftScopesItem of userWorkspaceShiftScopesData) {
+          teacherData.push(userWorkspaceShiftScopesItem.userWorkspace);
+        }
+      }
+    }
+    return {
+      data: {
+        ...classData,
+        teacher: _.uniqBy(teacherData, 'id'),
+      },
+    };
   }
 
   /**
