@@ -38,12 +38,15 @@ jobs:
         ENV_DB_USER: "postgres"
         ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
         ENV_DB_DBNAME: "otmdb"
+        ENV_AUTH_TWILLO: "755a8f0cee26f28e706c85c9103a3035"
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
         tags: ${{ env.IMAGE_NAME }}:latest
+
     - name: SSH to dev server to run container
       uses: appleboy/ssh-action@v0.1.5
       with:
