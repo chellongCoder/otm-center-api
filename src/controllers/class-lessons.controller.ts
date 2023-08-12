@@ -30,6 +30,18 @@ export class ClassLessonsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/classId/:classId')
+  @OpenAPI({ summary: 'Get homework by classId' })
+  async getHomeworkByClassId(
+    @Param('classId') classId: number,
+    @QueryParam('workspaceId') workspaceId: number,
+    @QueryParam('search') search: string,
+    @Res() res: any,
+  ) {
+    const data = await this.service.getHomeworkByClassId(classId, workspaceId, search);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Post('/')
   @OpenAPI({ summary: 'Create class_lessons' })
   async create(@Body({ required: true }) body: ClassLessons, @Res() res: any) {
