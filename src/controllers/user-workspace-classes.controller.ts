@@ -40,8 +40,8 @@ export class UserWorkspaceClassesController {
 
   @Get('/list')
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
-  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: UserWorkspaceClassTypes, @Res() res: any) {
-    const data = await this.service.findByFilter(userWorkspaceId, status);
+  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
+    const data = await this.service.findByFilter(userWorkspaceId, status as UserWorkspaceClassTypes);
     return successResponse({ res, data, status_code: 200 });
   }
 
@@ -53,7 +53,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create user_workspace_classes' })
+  @OpenAPI({ summary: 'Create user_workspace_classes(Ghi danh học viên vào lớp học)' })
   async create(@Body({ required: true }) body: UserWorkspaceClasses, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });

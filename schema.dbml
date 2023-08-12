@@ -373,6 +373,25 @@ Table class_shifts_classrooms {
   valid_date date
   expires_date date
 }
-Table class_lesson {
-  
+Table class_lessons {
+  id integer [pk]
+  name varchar
+  content text [note: 'Nội dung bài học']
+  exercise text [note: 'Bài tập về nhà']
+  session_number_order integer
+  class_id integer
+  workspace_id integer
+}
+Table class_lectures {
+  id integer [pk]
+  class_lesson_id integer
+  name varchar
+  content varchar
+  exercise varchar
+  equipment varchar
+  is_use_name boolean
+  lecture_file_id integer
+  session_number_order integer
+  class_id integer
+  workspace_id integer
 }

@@ -8,22 +8,25 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Classes } from './classes.model';
 import { Shifts } from './shifts.model';
 import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
+import { ClassLessons } from './class-lessons.model';
+import { ClassLectures } from './class-lectures.model';
 
 @Entity('timetables')
 export class Timetables extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'lesson_id' })
-  lessonId: number;
+  @Column({ name: 'class_lesson_id' })
+  classLessonId: number;
 
-  @Column({ name: 'lecture_id' })
-  lectureId: number;
+  @Column({ name: 'class_lecture_id' })
+  classLectureId: number;
 
   @Column({ name: 'shift_id' })
   shiftId: number;
@@ -81,6 +84,14 @@ export class Timetables extends BaseEntity {
   @ManyToOne(() => ClassShiftsClassrooms)
   @JoinColumn({ name: 'class_shifts_classroom_id' })
   classShiftsClassroom: ClassShiftsClassrooms;
+
+  @OneToOne(() => ClassLessons)
+  @JoinColumn({ name: 'class_lesson_id' })
+  classLesson: ClassLessons;
+
+  @OneToOne(() => ClassLectures)
+  @JoinColumn({ name: 'class_lecture_id' })
+  classLecture: ClassLectures;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('timetables');

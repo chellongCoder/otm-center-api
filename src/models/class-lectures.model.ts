@@ -1,16 +1,31 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
-@Entity('assignment_skills')
-export class AssignmentSkills extends BaseEntity {
+@Entity('class_lectures')
+export class ClassLectures extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'assignment_id', nullable: true })
-  assignmentId: number;
+  @Column({ name: 'session_number_order' })
+  sessionNumberOrder: number;
 
-  @Column({ name: 'skill_id', nullable: true })
-  skillId: number;
+  @Column({ name: 'name', nullable: true })
+  name: string;
+
+  @Column({ name: 'content', nullable: true })
+  content: string;
+
+  @Column({ name: 'exercise', nullable: true })
+  exercise: string;
+
+  @Column({ name: 'equipment', nullable: true })
+  equipment: string;
+
+  @Column({ name: 'is_use_name', nullable: true })
+  isUseName: boolean;
+
+  @Column({ name: 'class_id' })
+  classId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
@@ -31,14 +46,14 @@ export class AssignmentSkills extends BaseEntity {
   deletedAt?: Date;
 
   static findByCond(query: any) {
-    const queryBuilder = this.createQueryBuilder('assignment_skills');
+    const queryBuilder = this.createQueryBuilder('class_lectures');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuilder.where(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`class_lectures.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuilder.andWhere(`assignment_skills.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`class_lectures.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

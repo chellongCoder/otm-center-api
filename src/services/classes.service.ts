@@ -2,6 +2,12 @@ import { Classes, StatusClasses } from '@/models/classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Timetables } from '@/models/timetables.model';
+import { Courses } from '@/models/courses.model';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { ClassLectures } from '@/models/class-lectures.model';
+import { ClassLessons } from '@/models/class-lessons.model';
+import { Lectures } from '@/models/lectures.model';
+import { Lessons } from '@/models/lessons.model';
 
 @Service()
 export class ClassesService {
@@ -63,8 +69,62 @@ export class ClassesService {
    * create
    */
   public async create(item: Classes) {
-    const results = await Classes.insert(item);
-    return results;
+    const classCreate = await Classes.insert(item);
+    const courseData = await Courses.findOne({
+      where: {
+        id: item.courseId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!courseData?.id) {
+      throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+    }
+    const courseLessons = await Lessons.find({
+      where: {
+        courseId: courseData.id,
+        workspaceId: item.workspaceId,
+      },
+    });
+    const courseLectures = await Lectures.find({
+      where: {
+        courseId: courseData.id,
+        workspaceId: item.workspaceId,
+      },
+    });
+
+    const bulkCreateClassLessons: ClassLessons[] = [];
+    const bulkCreateClassLectures: ClassLectures[] = [];
+    for (const courseLessonItem of courseLessons) {
+      const classLessonCreate = new ClassLessons();
+      classLessonCreate.name = courseLessonItem.name;
+      classLessonCreate.content = courseLessonItem.content;
+      classLessonCreate.exercise = courseLessonItem.exercise;
+      classLessonCreate.sessionNumberOrder = courseLessonItem.sessionNumberOrder;
+      classLessonCreate.classId = classCreate.identifiers[0].id;
+      classLessonCreate.workspaceId = item.workspaceId;
+      bulkCreateClassLessons.push(classLessonCreate);
+    }
+    for (const courseLectureItem of courseLectures) {
+      const classLectureCreate = new ClassLectures();
+      classLectureCreate.sessionNumberOrder = courseLectureItem.sessionNumberOrder;
+      classLectureCreate.name = courseLectureItem.name;
+      classLectureCreate.content = courseLectureItem.content;
+      classLectureCreate.exercise = courseLectureItem.exercise;
+      classLectureCreate.equipment = courseLectureItem.equipment;
+      classLectureCreate.isUseName = courseLectureItem.isUseName;
+      classLectureCreate.classId = classCreate.identifiers[0].id;
+      classLectureCreate.workspaceId = item.workspaceId;
+
+      bulkCreateClassLectures.push(classLectureCreate);
+    }
+
+    if (bulkCreateClassLessons.length) {
+      await ClassLessons.insert(bulkCreateClassLessons);
+    }
+    if (bulkCreateClassLectures.length) {
+      await ClassLectures.insert(bulkCreateClassLectures);
+    }
+    return classCreate;
   }
 
   /**

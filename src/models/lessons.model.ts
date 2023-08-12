@@ -29,6 +29,9 @@ export class Lessons extends BaseEntity {
   @Column({ name: 'exercise', nullable: true })
   exercise: string;
 
+  @Column({ name: 'session_number_order' })
+  sessionNumberOrder: number;
+
   @Column({ name: 'course_id' })
   courseId: number;
 
