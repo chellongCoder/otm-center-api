@@ -2,6 +2,8 @@ import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
+import { Timetables } from '@/models/timetables.model';
+import { Like } from 'typeorm';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -73,6 +75,37 @@ export class ClassTimetableDetailsService {
     return await ClassTimetableDetails.update(classTimetableDetail.id, {
       ...classTimetableDetail,
       homeworkAssignment: item.assignment,
+    });
+  }
+
+  public async getAttendances(timetableId: number, search?: string) {
+    let condition: any = {
+      id: timetableId,
+    };
+    if (search) {
+      condition = {
+        ...condition,
+        classTimetableDetails: {
+          userWorkspace: [
+            {
+              fullname: Like(`%${search}%`),
+            },
+            {
+              nickname: Like(`%${search}%`),
+            },
+            {
+              phoneNumber: Like(`%${search}%`),
+            },
+            {
+              email: Like(`%${search}%`),
+            },
+          ],
+        },
+      };
+    }
+    return Timetables.findOne({
+      where: condition,
+      relations: ['classTimetableDetails', 'classTimetableDetails.userWorkspace'],
     });
   }
 }

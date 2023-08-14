@@ -106,7 +106,6 @@ export class UserWorkspaceClassesService {
     workspaceId,
     status,
   }: {
-    classId: number;
     userWorkspaceId: number;
     workspaceId: number;
     status: homeworkStatus;
@@ -118,7 +117,7 @@ export class UserWorkspaceClassesService {
       relations: ['class'],
     });
     const classIds: number[] = userWorkspaceClassData.map(el => el.classId);
-    let conditionTimetable = {
+    let conditionTimetable: any = {
       classId: In(classIds),
       classLesson: {
         exercise: Not(IsNull()),

@@ -57,6 +57,9 @@ export class Timetables extends BaseEntity {
   @Column({ name: 'session_number_order' }) // số thứ tự buổi học
   sessionNumberOrder: number;
 
+  @Column({ name: 'attendance_note', nullable: true })
+  attendanceNote: string;
+
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 

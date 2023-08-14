@@ -13,6 +13,12 @@ import { Exclude, Expose } from 'class-transformer';
 import { Timetables } from './timetables.model';
 import { UserWorkspaces } from './user-workspaces.model';
 
+export enum AttendanceStatus {
+  ON_TIME = 'ON_TIME', // ĐÚNG GIỜ
+  LATE = 'LATE', // MUỘN
+  ABSENT_WITH_LEAVE = 'ABSENT_WITH_LEAVE', // NGHỈ CÓ PHÉP
+  ABSENT = 'ABSENT', // NGHỈ KHÔNG PHÉP
+}
 @Entity('class_timetable_details')
 export class ClassTimetableDetails extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -25,7 +31,7 @@ export class ClassTimetableDetails extends BaseEntity {
   userWorkspaceId: number;
 
   @Column({ name: 'attendance_status', nullable: true })
-  attendanceStatus: string;
+  attendanceStatus: AttendanceStatus;
 
   @Column({ name: 'attendance_note', nullable: true })
   attendanceNote: string;

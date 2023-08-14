@@ -31,6 +31,13 @@ export class ClassTimetableDetailsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/timetable/:timetableId')
+  @OpenAPI({ summary: 'Get thông tin màn điểm danh' })
+  async getAttendances(@Param('timetableId') timetableId: number, @QueryParam('search') search: string, @Res() res: any) {
+    const data = await this.service.getAttendances(timetableId, search);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Post('/finish_assignment')
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any) {
