@@ -27,17 +27,13 @@ export class TimetablesController {
   @Get('/by_date')
   @OpenAPI({ summary: 'Get timetables list' })
   async findAllByDate(
-    @QueryParam('page') page: number,
-    @QueryParam('limit') limit: number,
-    @QueryParam('order') order: string,
-    @QueryParam('search') search: string,
     @QueryParam('fromDate') fromDate: number,
     @QueryParam('toDate') toDate: number,
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
     @QueryParam('workspaceId') workspaceId: number,
     @Res() res: any,
   ) {
-    const data = await this.service.findAllByDate(page, limit, order, search, fromDate, toDate, userWorkspaceId, workspaceId);
+    const data = await this.service.findAllByDate(fromDate, toDate, userWorkspaceId, workspaceId);
     return successResponse({ res, data, status_code: 200 });
   }
 
