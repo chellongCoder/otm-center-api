@@ -175,6 +175,7 @@ export class ClassesService {
       },
       relations: [
         'class',
+        'classLesson',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',

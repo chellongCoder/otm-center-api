@@ -1,5 +1,5 @@
 import { successResponse } from '@/helpers/response.helper';
-import { UserWorkspaceClassTypes, UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses, homeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -49,6 +49,18 @@ export class UserWorkspaceClassesController {
   @OpenAPI({ summary: 'Get user_workspace_classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/class/homework')
+  @OpenAPI({ summary: 'Get homework of class by status are DONE or NOT_DONE' })
+  async getHomeworkOfClass(
+    @QueryParam('userWorkspaceId') userWorkspaceId: number,
+    @QueryParam('workspaceId') workspaceId: number,
+    @QueryParam('status') status: string,
+    @Res() res: any,
+  ) {
+    const data = await this.service.getHomeworkOfClass({ userWorkspaceId, workspaceId, status: status as homeworkStatus });
     return successResponse({ res, data, status_code: 200 });
   }
 
