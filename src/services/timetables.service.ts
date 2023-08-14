@@ -1,4 +1,3 @@
-import { Lectures } from '@/models/lectures.model';
 import { Timetables } from '@/models/timetables.model';
 import _ from 'lodash';
 import { Service } from 'typedi';
@@ -49,6 +48,15 @@ export class TimetablesService {
       where: {
         id,
       },
+      relations: [
+        'class',
+        'classLesson',
+        'classLecture',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
     });
   }
 
@@ -190,6 +198,9 @@ export class TimetablesService {
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
       ],
+      order: {
+        sessionNumberOrder: 'ASC',
+      },
     });
   }
 }

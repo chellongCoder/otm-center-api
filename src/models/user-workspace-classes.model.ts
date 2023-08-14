@@ -19,6 +19,11 @@ export enum classScheduleTypes {
   ALL = 'ALL',
   SPECIAL = 'SPECIAL',
 }
+
+export enum homeworkStatus {
+  DONE = 'DONE',
+  NOT_DONE = 'NOT_DONE',
+}
 export enum UserWorkspaceClassTypes {
   UNLEARNED = 'UNLEARNED', //chưa học
   STUDYING = 'STUDYING', //đang học
@@ -28,6 +33,9 @@ export enum UserWorkspaceClassTypes {
   DROPOUT = 'DROPOUT', //bỏ học
 }
 
+/**
+ * Học sinh trong lớp học
+ */
 @Entity('user_workspace_classes')
 export class UserWorkspaceClasses extends BaseEntity {
   @PrimaryGeneratedColumn()

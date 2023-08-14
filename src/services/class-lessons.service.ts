@@ -5,6 +5,7 @@ import { Timetables } from '@/models/timetables.model';
 import { Like } from 'typeorm';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 
 @Service()
 export class ClassLessonsService {
@@ -28,12 +29,29 @@ export class ClassLessonsService {
   /**
    * findById
    */
-  public async findById(id: number) {
-    return ClassLessons.findOne({
+  public async findById(id: number, userWorkspaceId?: number) {
+    const classLessonData = await ClassLessons.findOne({
       where: {
         id,
       },
     });
+    if (!userWorkspaceId) {
+      return classLessonData;
+    }
+    const classTimetableDetail = await ClassTimetableDetails.findOne({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        timetable: {
+          classLesson: {
+            id,
+          },
+        },
+      },
+    });
+    return {
+      ...classTimetableDetail,
+      ...classLessonData,
+    };
   }
 
   public async getHomeworkByClassId(classId: number, workspaceId: number, search: string) {
