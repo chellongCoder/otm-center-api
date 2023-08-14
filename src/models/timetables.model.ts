@@ -9,6 +9,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Classes } from './classes.model';
@@ -16,6 +17,7 @@ import { Shifts } from './shifts.model';
 import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
 import { ClassLessons } from './class-lessons.model';
 import { ClassLectures } from './class-lectures.model';
+import { ClassTimetableDetails } from './class-timetable-details.model';
 
 @Entity('timetables')
 export class Timetables extends BaseEntity {
@@ -92,6 +94,9 @@ export class Timetables extends BaseEntity {
   @OneToOne(() => ClassLectures)
   @JoinColumn({ name: 'class_lecture_id' })
   classLecture: ClassLectures;
+
+  @OneToMany(() => ClassTimetableDetails, item => item.timetable)
+  public classTimetableDetails: ClassTimetableDetails[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('timetables');

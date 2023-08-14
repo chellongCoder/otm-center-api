@@ -22,21 +22,6 @@ export class UserWorkspaceClassesController {
     const data = await this.service.findAll(page, limit, order, search);
     return successResponse({ res, data, status_code: 200 });
   }
-  @Get('/timetable_by_date')
-  @OpenAPI({ summary: 'Get user_workspace_classes list' })
-  async getTimetableByDate(
-    @QueryParam('userWorkspaceId') userWorkspaceId: number,
-    @QueryParam('date') date: number,
-    @QueryParam('workspaceId') workspaceId: number,
-    @Res() res: any,
-  ) {
-    const data = await this.service.getTimetableByDate({
-      userWorkspaceId,
-      date,
-      workspaceId,
-    });
-    return successResponse({ res, data, status_code: 200 });
-  }
 
   @Get('/list')
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })

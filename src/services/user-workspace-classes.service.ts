@@ -7,6 +7,7 @@ import { Classes } from '@/models/classes.model';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { Timetables } from '@/models/timetables.model';
+import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 
 @Service()
 export class UserWorkspaceClassesService {
@@ -100,21 +101,6 @@ export class UserWorkspaceClassesService {
     return UserWorkspaceClasses.delete(id);
   }
 
-  public async getTimetableByDate({ userWorkspaceId, date, workspaceId }: { userWorkspaceId: number; date: number; workspaceId: number }) {
-    console.log('chh_log ---> getTimetableByDate ---> workspaceId:', workspaceId);
-    console.log('chh_log ---> getTimetableByDate ---> userWorkspaceId:', userWorkspaceId);
-    const checkDate = moment(date, 'YYYYMMDD').toDate();
-    const userWorkspaceClassData = await UserWorkspaceClasses.find({
-      where: {
-        userWorkspaceId,
-        workspaceId,
-        fromDate: LessThan(checkDate),
-      },
-    });
-    console.log('chh_log ---> getTimetableByDate ---> userWorkspaceClassData:', userWorkspaceClassData);
-    console.log('chh_log ---> getTimetableByDate ---> checkDate:', checkDate);
-    return true;
-  }
   public async getHomeworkOfClass({
     userWorkspaceId,
     workspaceId,
@@ -129,20 +115,42 @@ export class UserWorkspaceClassesService {
       where: {
         userWorkspaceId,
       },
+      relations: ['class'],
     });
     const classIds: number[] = userWorkspaceClassData.map(el => el.classId);
-    const timetableExistLesson = await Timetables.find({
-      where: {
-        classId: In(classIds),
-        classLesson: {
-          exercise: Not(IsNull()),
-        },
-        workspaceId,
+    let conditionTimetable = {
+      classId: In(classIds),
+      classLesson: {
+        exercise: Not(IsNull()),
       },
+      workspaceId,
+    };
+    if (status === homeworkStatus.DONE) {
+      conditionTimetable = {
+        ...conditionTimetable,
+        classTimetableDetails: {
+          homeworkAssignment: Not(IsNull()),
+        },
+      };
+    } else {
+      const classTimetableDetailData = await ClassTimetableDetails.find({
+        where: {
+          timetable: {
+            classId: In(classIds),
+          },
+          userWorkspaceId,
+        },
+      });
+      const timetableHasAssignmentIds = classTimetableDetailData.map(el => el.timetableId);
+      conditionTimetable = {
+        ...conditionTimetable,
+        id: Not(In(timetableHasAssignmentIds)),
+      };
+    }
+    const timetableExistLesson = await Timetables.find({
+      where: conditionTimetable,
       relations: [
-        'class',
         'classLesson',
-        'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',

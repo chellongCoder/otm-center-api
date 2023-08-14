@@ -26,8 +26,10 @@ export class ClassLessonsController {
 
   @Get('/:id')
   @OpenAPI({ summary: 'Get class_lessons by id' })
-  async findById(@Param('id') id: number, @Res() res: any) {
-    const data = await this.service.findById(id);
+  async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
+    console.log('chh_log ---> findById ---> userWorkspaceId:', userWorkspaceId);
+    console.log('chh_log ---> findById ---> id:', id);
+    const data = await this.service.findById(id, userWorkspaceId);
     return successResponse({ res, data, status_code: 200 });
   }
 
