@@ -1,6 +1,6 @@
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
+import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 import { ClassTimetableDetailsService } from '@/services/class-timetable-details.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -42,6 +42,13 @@ export class ClassTimetableDetailsController {
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any) {
     const data = await this.service.finishAssignment(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Post('/student_attendance')
+  @OpenAPI({ summary: 'Điểm danh học sinh' })
+  async studentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any) {
+    const data = await this.service.studentAttendance(body);
     return successResponse({ res, data, status_code: 201 });
   }
 

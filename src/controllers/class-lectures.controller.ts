@@ -1,3 +1,4 @@
+import { UpdateClassLectureDto } from '@/dtos/update-class-lecture.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLectures } from '@/models/class-lectures.model';
 import { ClassLecturesService } from '@/services/class-lectures.service';
@@ -44,6 +45,17 @@ export class ClassLecturesController {
     } catch (error) {
       return { error };
     }
+  }
+
+  @Put('/timetable/:timetableId')
+  @OpenAPI({ summary: 'Update class_lecture by timetable' })
+  async updateClassLectureByTimetable(
+    @Param('timetableId') timetableId: number,
+    @Body({ required: true }) body: UpdateClassLectureDto,
+    @Res() res: any,
+  ) {
+    const data = await this.service.updateClassLectureByTimetable(timetableId, body);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Delete('/:id')

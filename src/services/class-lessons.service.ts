@@ -6,6 +6,7 @@ import { Like } from 'typeorm';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
+import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
 
 @Service()
 export class ClassLessonsService {
@@ -124,6 +125,29 @@ export class ClassLessonsService {
       exercise: item.exercise,
     };
     return await ClassLessons.update(id, updateClassLesson);
+  }
+
+  /**
+   * update
+   */
+  public async updateClassLessonByTimetable(timetableId: number, item: UpdateClassLessonDto) {
+    const timetableData = await Timetables.findOne({
+      where: {
+        id: timetableId,
+      },
+      relations: ['classLesson'],
+    });
+    const classLessonData = await ClassLessons.findOne({ where: { id: timetableData?.classLessonId } });
+    if (!classLessonData) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const updateClassLesson: Partial<ClassLessons> = {
+      ...classLessonData,
+      name: item.name,
+      content: item.content,
+      exercise: item.exercise,
+    };
+    return await ClassLessons.update(classLessonData.id, updateClassLesson);
   }
 
   /**
