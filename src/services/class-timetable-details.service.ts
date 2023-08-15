@@ -4,6 +4,7 @@ import { QueryParser } from '@/utils/query-parser';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { Timetables } from '@/models/timetables.model';
 import { Like } from 'typeorm';
+import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -107,5 +108,8 @@ export class ClassTimetableDetailsService {
       where: condition,
       relations: ['classTimetableDetails', 'classTimetableDetails.userWorkspace'],
     });
+  }
+  public async studentAttendance(item: UpdateStudentAttendanceDto) {
+    console.log('chh_log ---> item:', item);
   }
 }

@@ -1,3 +1,4 @@
+import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLessons } from '@/models/class-lessons.model';
@@ -27,12 +28,12 @@ export class ClassLessonsController {
   @Get('/:id')
   @OpenAPI({ summary: 'Get class_lessons by id' })
   async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
-    console.log('chh_log ---> findById ---> userWorkspaceId:', userWorkspaceId);
-    console.log('chh_log ---> findById ---> id:', id);
     const data = await this.service.findById(id, userWorkspaceId);
     return successResponse({ res, data, status_code: 200 });
   }
-
+  /**
+   * For Teacher
+   */
   @Get('/class/:classId')
   @OpenAPI({ summary: 'Get homework by classId' })
   async getHomeworkByClassId(
@@ -59,6 +60,16 @@ export class ClassLessonsController {
     return successResponse({ res, data, status_code: 201 });
   }
 
+  @Put('/timetable/:timetableId')
+  @OpenAPI({ summary: 'Update class_lessons by timetable' })
+  async updateClassLessonByTimetable(
+    @Param('timetableId') timetableId: number,
+    @Body({ required: true }) body: UpdateClassLessonDto,
+    @Res() res: any,
+  ) {
+    const data = await this.service.updateClassLessonByTimetable(timetableId, body);
+    return successResponse({ res, data, status_code: 200 });
+  }
   @Put('/:id')
   @OpenAPI({ summary: 'Update class_lessons' })
   async update() {
