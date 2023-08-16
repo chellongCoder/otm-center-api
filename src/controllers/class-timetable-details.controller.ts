@@ -1,3 +1,4 @@
+import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
@@ -45,11 +46,22 @@ export class ClassTimetableDetailsController {
     return successResponse({ res, data, status_code: 201 });
   }
 
-  @Post('/student_attendance')
+  @Put('/student_attendance')
   @OpenAPI({ summary: 'Điểm danh học sinh' })
-  async studentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any) {
-    const data = await this.service.studentAttendance(body);
+  async updateStudentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any) {
+    const data = await this.service.updateStudentAttendance(body);
     return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Put('/marking/:id')
+  @OpenAPI({ summary: 'Update homeworkAssessment and homeworkScore' })
+  async updateClassTimetableDetailMarking(
+    @Param('id') id: number,
+    @Body({ required: true }) body: UpdateClassTimetableDetailMarkingDto,
+    @Res() res: any,
+  ) {
+    const data = await this.service.updateClassTimetableDetailMarking(id, body);
+    return successResponse({ res, data, status_code: 200 });
   }
 
   @Put('/:id')

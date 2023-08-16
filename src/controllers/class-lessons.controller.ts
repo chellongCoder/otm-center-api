@@ -45,6 +45,15 @@ export class ClassLessonsController {
     const data = await this.service.getHomeworkByClassId(classId, workspaceId, search);
     return successResponse({ res, data, status_code: 200 });
   }
+  /**
+   * For Teacher
+   */
+  @Get('/timetable/:timetableId')
+  @OpenAPI({ summary: 'Get homework by timetableId' })
+  async getHomeworkByTimetableId(@Param('timetableId') timetableId: number, @QueryParam('workspaceId') workspaceId: number, @Res() res: any) {
+    const data = await this.service.getHomeworkByTimetableId(timetableId, workspaceId);
+    return successResponse({ res, data, status_code: 200 });
+  }
 
   @Post('/')
   @OpenAPI({ summary: 'Create class_lessons' })

@@ -1,8 +1,8 @@
 import moment from 'moment-timezone';
-import { UserWorkspaceClassTypes, UserWorkspaceClasses, homeworkStatus } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses, ClassScheduleTypes, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { In, IsNull, LessThan, Not } from 'typeorm';
+import { In, IsNull, MoreThanOrEqual, Not } from 'typeorm';
 import { Classes } from '@/models/classes.model';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
@@ -84,6 +84,32 @@ export class UserWorkspaceClassesService {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
     const results = await UserWorkspaceClasses.insert(item);
+    /**
+     * Add student to timetable
+     */
+    let timeTableData: Timetables[] = [];
+    // WIP check classScheduleType type
+    if (item.classScheduleType === ClassScheduleTypes.ALL) {
+      timeTableData = await Timetables.find({
+        where: {
+          classId: classData.id,
+          workspaceId: item.workspaceId,
+          date: MoreThanOrEqual(moment(item.fromDate, 'YYYY-MM-DD').toDate()),
+        },
+      });
+    }
+    const bulkCreateClassTimetableDetails: ClassTimetableDetails[] = [];
+    for (const timetableItem of timeTableData) {
+      const classTimetableDetailCreate = new ClassTimetableDetails();
+      classTimetableDetailCreate.timetableId = timetableItem.id;
+      classTimetableDetailCreate.userWorkspaceId = item.userWorkspaceId;
+      classTimetableDetailCreate.workspaceId = item.workspaceId;
+
+      bulkCreateClassTimetableDetails.push(classTimetableDetailCreate);
+    }
+    if (bulkCreateClassTimetableDetails.length) {
+      await ClassTimetableDetails.insert(bulkCreateClassTimetableDetails);
+    }
     return results;
   }
 
@@ -104,16 +130,25 @@ export class UserWorkspaceClassesService {
   public async getHomeworkOfClass({
     userWorkspaceId,
     workspaceId,
+    classId,
     status,
   }: {
     userWorkspaceId: number;
     workspaceId: number;
-    status: homeworkStatus;
+    classId: number;
+    status: HomeworkStatus;
   }) {
+    let conditionUserWorkspaceClass: any = {
+      userWorkspaceId,
+    };
+    if (classId) {
+      conditionUserWorkspaceClass = {
+        ...conditionUserWorkspaceClass,
+        classId,
+      };
+    }
     const userWorkspaceClassData = await UserWorkspaceClasses.find({
-      where: {
-        userWorkspaceId,
-      },
+      where: conditionUserWorkspaceClass,
       relations: ['class'],
     });
     const classIds: number[] = userWorkspaceClassData.map(el => el.classId);
@@ -124,7 +159,7 @@ export class UserWorkspaceClassesService {
       },
       workspaceId,
     };
-    if (status === homeworkStatus.DONE) {
+    if (status === HomeworkStatus.DONE) {
       conditionTimetable = {
         ...conditionTimetable,
         classTimetableDetails: {

@@ -26,5 +26,6 @@
 	"SHIFT_NOT_FOUND": "Không tìm thấy ca làm việc",
 	"COURSE_NOT_FOUND": "Không tìm thấy khoá học",
 	"CLASSROOM_NOT_FOUND": "Không tìm thấy phòng học",
-	"CLASS_NOT_FOUND": "Không tìm thấy lớp học"
+	"CLASS_NOT_FOUND": "Không tìm thấy lớp học",
+	"SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau"
 }

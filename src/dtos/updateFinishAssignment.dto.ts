@@ -11,7 +11,7 @@ export class AssignmentLinkNotes {
 
   @IsString()
   @IsOptional()
-  @JSONSchema({ description: 'description link', example: 'nhap vao dich ra' })
+  @JSONSchema({ description: 'description link', example: 'Dịch tiếng anh' })
   note: string;
 }
 

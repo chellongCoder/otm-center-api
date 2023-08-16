@@ -5,6 +5,10 @@ import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { Timetables } from '@/models/timetables.model';
 import { Like } from 'typeorm';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { DbConnection } from '@/database/dbConnection';
+import moment from 'moment-timezone';
+import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -76,6 +80,7 @@ export class ClassTimetableDetailsService {
     return await ClassTimetableDetails.update(classTimetableDetail.id, {
       ...classTimetableDetail,
       homeworkAssignment: item.assignment,
+      homeworkAssignmentTime: moment().toDate(),
     });
   }
 
@@ -109,7 +114,66 @@ export class ClassTimetableDetailsService {
       relations: ['classTimetableDetails', 'classTimetableDetails.userWorkspace'],
     });
   }
-  public async studentAttendance(item: UpdateStudentAttendanceDto) {
-    console.log('chh_log ---> item:', item);
+  public async updateClassTimetableDetailMarking(id: number, item: UpdateClassTimetableDetailMarkingDto) {
+    const classTimetableDetailData = await ClassTimetableDetails.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!classTimetableDetailData?.id) {
+      throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
+    }
+    return await ClassTimetableDetails.update(id, {
+      homeworkAssessment: item.homeworkAssessment,
+      homeworkScore: item.homeworkScore,
+      homeworkByUserWorkspaceId: item.userWorkspaceId,
+    });
+  }
+  public async updateStudentAttendance(item: UpdateStudentAttendanceDto) {
+    const timeTableData = await Timetables.findOne({
+      where: {
+        id: item.timetableId,
+      },
+    });
+    if (!timeTableData?.id) {
+      throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
+    }
+
+    // const classTimetableDetailData = await ClassTimetableDetails.find({
+    //   where: {},
+    // });
+
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      // const queryManager = connection.createQueryRunner().manager.transaction(async transactionalEntityManager => {
+      //   try {
+      //     await transactionalEntityManager.save();
+      //   } catch (error) {
+      //     console.log('chh_log ---> updateStudentAttendance ---> error:', error);
+      //     await transactionalEntityManager.transaction.rollback();
+      //     throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
+      //   }
+      // });
+      // const queryRunner = connection.createQueryRunner();
+      // await queryRunner.connect();
+      // await queryRunner.startTransaction();
+      // try {
+      //   await queryManager
+      //     .createQueryBuilder()
+      //     .update(Timetables)
+      //     .set({
+      //       ...timeTableData,
+      //       attendanceNote: item.attendanceNote,
+      //     })
+      //     .where('id = : id', { id: timeTableData.id })
+      //     .execute();
+      //   await queryRunner.commitTransaction();
+      //   await queryRunner.release();
+      // } catch (error) {
+      //   await queryRunner.rollbackTransaction();
+      //   await queryRunner.release();
+      //   throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
+      // }
+    }
   }
 }

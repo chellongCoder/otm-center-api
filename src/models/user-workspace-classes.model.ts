@@ -15,12 +15,12 @@ import { Workspaces } from './workspaces.model';
 import { Courses } from './courses.model';
 import { UserWorkspaces } from './user-workspaces.model';
 
-export enum classScheduleTypes {
+export enum ClassScheduleTypes {
   ALL = 'ALL',
   SPECIAL = 'SPECIAL',
 }
 
-export enum homeworkStatus {
+export enum HomeworkStatus {
   DONE = 'DONE',
   NOT_DONE = 'NOT_DONE',
 }
@@ -62,8 +62,8 @@ export class UserWorkspaceClasses extends BaseEntity {
   @Column({ name: 'status', nullable: true, default: UserWorkspaceClassTypes.UNLEARNED })
   status: UserWorkspaceClassTypes;
 
-  @Column({ name: 'class_schedule_type', default: classScheduleTypes.ALL }) //Chọn lịch học * ALL áp dụng với tất cả ca học
-  classScheduleType: classScheduleTypes;
+  @Column({ name: 'class_schedule_type', default: ClassScheduleTypes.ALL }) //Chọn lịch học * ALL áp dụng với tất cả ca học
+  classScheduleType: ClassScheduleTypes;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
