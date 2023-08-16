@@ -1,8 +1,13 @@
 import moment from 'moment-timezone';
-import { UserWorkspaceClassTypes, UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses, homeworkStatus } from '@/models/user-workspace-classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { LessThan } from 'typeorm';
+import { In, IsNull, LessThan, Not } from 'typeorm';
+import { Classes } from '@/models/classes.model';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { Timetables } from '@/models/timetables.model';
+import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 
 @Service()
 export class UserWorkspaceClassesService {
@@ -50,6 +55,34 @@ export class UserWorkspaceClassesService {
    * create
    */
   public async create(item: UserWorkspaceClasses) {
+    const userWorkspaceData = await UserWorkspaces.findOne({
+      where: {
+        id: item.id,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!userWorkspaceData?.id) {
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_INVALID_TYPE);
+    }
+    const classData = await Classes.findOne({
+      where: {
+        id: item.classId,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (!classData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
+    }
+    const checkExist = await UserWorkspaceClasses.findOne({
+      where: {
+        userWorkspaceId: userWorkspaceData.id,
+        classId: classData.id,
+        workspaceId: item.workspaceId,
+      },
+    });
+    if (checkExist?.id) {
+      throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
+    }
     const results = await UserWorkspaceClasses.insert(item);
     return results;
   }
@@ -68,19 +101,77 @@ export class UserWorkspaceClassesService {
     return UserWorkspaceClasses.delete(id);
   }
 
-  public async getTimetableByDate({ userWorkspaceId, date, workspaceId }: { userWorkspaceId: number; date: number; workspaceId: number }) {
-    console.log('chh_log ---> getTimetableByDate ---> workspaceId:', workspaceId);
-    console.log('chh_log ---> getTimetableByDate ---> userWorkspaceId:', userWorkspaceId);
-    const checkDate = moment(date, 'YYYYMMDD').toDate();
+  public async getHomeworkOfClass({
+    userWorkspaceId,
+    workspaceId,
+    status,
+  }: {
+    userWorkspaceId: number;
+    workspaceId: number;
+    status: homeworkStatus;
+  }) {
     const userWorkspaceClassData = await UserWorkspaceClasses.find({
       where: {
         userWorkspaceId,
-        workspaceId,
-        fromDate: LessThan(checkDate),
+      },
+      relations: ['class'],
+    });
+    const classIds: number[] = userWorkspaceClassData.map(el => el.classId);
+    let conditionTimetable: any = {
+      classId: In(classIds),
+      classLesson: {
+        exercise: Not(IsNull()),
+      },
+      workspaceId,
+    };
+    if (status === homeworkStatus.DONE) {
+      conditionTimetable = {
+        ...conditionTimetable,
+        classTimetableDetails: {
+          homeworkAssignment: Not(IsNull()),
+        },
+      };
+    } else {
+      const classTimetableDetailData = await ClassTimetableDetails.find({
+        where: {
+          timetable: {
+            classId: In(classIds),
+          },
+          userWorkspaceId,
+        },
+      });
+      const timetableHasAssignmentIds = classTimetableDetailData.map(el => el.timetableId);
+      conditionTimetable = {
+        ...conditionTimetable,
+        id: Not(In(timetableHasAssignmentIds)),
+      };
+    }
+    const timetableExistLesson = await Timetables.find({
+      where: conditionTimetable,
+      relations: [
+        'classLesson',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+      order: {
+        sessionNumberOrder: 'ASC',
       },
     });
-    console.log('chh_log ---> getTimetableByDate ---> userWorkspaceClassData:', userWorkspaceClassData);
-    console.log('chh_log ---> getTimetableByDate ---> checkDate:', checkDate);
-    return true;
+    const results: any[] = [];
+    for (const userWorkspaceClassItem of userWorkspaceClassData) {
+      const timetables: Timetables[] = timetableExistLesson.filter(el => el.classId === userWorkspaceClassItem.classId);
+      if (timetables.length) {
+        results.push({
+          ...userWorkspaceClassItem,
+          timetables,
+          total: timetables.length,
+        });
+      }
+    }
+    return {
+      data: results,
+      total: results.length,
+    };
   }
 }

@@ -395,3 +395,18 @@ Table class_lectures {
   class_id integer
   workspace_id integer
 }
+Table class_timetable_details {
+  id integer [pk]
+  timetable_id integer
+  user_workspace_id integer
+
+  attendance_status varchar
+  attendance_note varchar
+  attendance_by_user_workspace_id integer
+  homework_assignment varchar
+  homework_score integer
+  homework_assessment varchar
+  homework_by_user_workspace_id varchar
+
+  workspace_id integer
+}

@@ -5,6 +5,8 @@ import { Timetables } from '@/models/timetables.model';
 import { Like } from 'typeorm';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
+import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
 
 @Service()
 export class ClassLessonsService {
@@ -28,12 +30,29 @@ export class ClassLessonsService {
   /**
    * findById
    */
-  public async findById(id: number) {
-    return ClassLessons.findOne({
+  public async findById(id: number, userWorkspaceId?: number) {
+    const classLessonData = await ClassLessons.findOne({
       where: {
         id,
       },
     });
+    if (!userWorkspaceId) {
+      return classLessonData;
+    }
+    const classTimetableDetail = await ClassTimetableDetails.findOne({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        timetable: {
+          classLesson: {
+            id,
+          },
+        },
+      },
+    });
+    return {
+      ...classTimetableDetail,
+      ...classLessonData,
+    };
   }
 
   public async getHomeworkByClassId(classId: number, workspaceId: number, search: string) {
@@ -106,6 +125,29 @@ export class ClassLessonsService {
       exercise: item.exercise,
     };
     return await ClassLessons.update(id, updateClassLesson);
+  }
+
+  /**
+   * update
+   */
+  public async updateClassLessonByTimetable(timetableId: number, item: UpdateClassLessonDto) {
+    const timetableData = await Timetables.findOne({
+      where: {
+        id: timetableId,
+      },
+      relations: ['classLesson'],
+    });
+    const classLessonData = await ClassLessons.findOne({ where: { id: timetableData?.classLessonId } });
+    if (!classLessonData) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const updateClassLesson: Partial<ClassLessons> = {
+      ...classLessonData,
+      name: item.name,
+      content: item.content,
+      exercise: item.exercise,
+    };
+    return await ClassLessons.update(classLessonData.id, updateClassLesson);
   }
 
   /**

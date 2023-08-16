@@ -17,7 +17,7 @@ import { Classrooms } from './classrooms.model';
 import { Classes } from './classes.model';
 
 /**
- * đăng ký lịch
+ * đăng ký lịch (Lưu thông tin lịch học của lớp với ca học và phòng học gán với giáo viên dạy)
  */
 @Entity('class_shifts_classrooms')
 export class ClassShiftsClassrooms extends BaseEntity {
