@@ -19,6 +19,9 @@ export enum AttendanceStatus {
   ABSENT_WITH_LEAVE = 'ABSENT_WITH_LEAVE', // NGHỈ CÓ PHÉP
   ABSENT = 'ABSENT', // NGHỈ KHÔNG PHÉP
 }
+/**
+ * Thông tin chi tiết buổi học
+ */
 @Entity('class_timetable_details')
 export class ClassTimetableDetails extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -42,6 +45,9 @@ export class ClassTimetableDetails extends BaseEntity {
   @Column({ name: 'homework_assignment', nullable: true })
   homeworkAssignment: string;
 
+  @Column({ name: 'homework_assignment_time', nullable: true })
+  homeworkAssignmentTime: Date;
+
   @Column({ name: 'homework_score', nullable: true })
   homeworkScore: number;
 
@@ -49,7 +55,7 @@ export class ClassTimetableDetails extends BaseEntity {
   homeworkAssessment: string;
 
   @Column({ name: 'homework_by_user_workspace_id', nullable: true })
-  homeworkByUserWorkspaceId: string;
+  homeworkByUserWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;

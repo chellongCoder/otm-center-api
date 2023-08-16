@@ -89,14 +89,26 @@ export class ClassLessonsService {
     }
     return Timetables.find({
       where: whereCondition,
-      relations: ['classLecture', 'classLesson'],
+      relations: ['classLecture', 'classLesson', 'classTimetableDetails', 'classTimetableDetails.userWorkspace'],
       order: {
         date: 'ASC',
         fromTime: 'ASC',
       },
     });
   }
-
+  public async getHomeworkByTimetableId(timetableId: number, workspaceId: number) {
+    return Timetables.findOne({
+      where: {
+        id: timetableId,
+        workspaceId,
+      },
+      relations: ['classLecture', 'classLesson', 'classTimetableDetails', 'classTimetableDetails.userWorkspace'],
+      order: {
+        date: 'ASC',
+        fromTime: 'ASC',
+      },
+    });
+  }
   /**
    * create
    */

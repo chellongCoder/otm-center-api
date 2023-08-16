@@ -1,27 +1,30 @@
-import { ClassLessons } from '@/models/class-lessons.model';
+import { AttendanceStatus } from '@/models/class-timetable-details.model';
 import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
-import { Repository } from 'typeorm';
 
-export class AssignmentLinkNotes {
+export class UserWorkspaceAttendances {
+  @IsNumber()
+  @JSONSchema({ description: 'user_workspace_id: student are updated status', example: 6 })
+  userWorkspaceId: number;
+
   @IsString()
-  @JSONSchema({ description: 'link path', example: 'https://translate.google.com/' })
-  link: string;
+  @JSONSchema({ description: 'StatusUserWorkspaces', example: AttendanceStatus.ON_TIME })
+  status: AttendanceStatus;
 
   @IsString()
   @IsOptional()
-  @JSONSchema({ description: 'description link', example: 'nhap vao dich ra' })
+  @JSONSchema({ description: 'note attentdance', example: 'Dịch tiếng anh' })
   note: string;
 }
 
-export class UpdateStudentAttendanceDto extends Repository<ClassLessons> {
+export class UpdateStudentAttendanceDto {
   @IsNumber()
-  @JSONSchema({ description: 'timetable id', example: 100 })
+  @JSONSchema({ description: 'timetable id', example: 143 })
   timetableId: number;
 
   @IsNumber()
-  @JSONSchema({ description: 'user_workspace_id', example: 1 })
+  @JSONSchema({ description: 'user_workspace_id: teacher update status', example: 7 })
   userWorkspaceId: number;
 
   @IsNumber()
@@ -29,20 +32,14 @@ export class UpdateStudentAttendanceDto extends Repository<ClassLessons> {
   workspaceId: number;
 
   @IsString()
-  @JSONSchema({ description: 'assignment content', example: '1 + 1 = 2' })
-  assignment: string;
+  @IsOptional()
+  @JSONSchema({ description: 'summary attendance note', example: 'Học sinh cả lớp đi đúng giờ' })
+  attendanceNote: string;
 
   @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })
   @JSONSchema({ description: 'list link and note assignment' })
-  @Type(() => AssignmentLinkNotes)
-  assignmentLinkNotes: AssignmentLinkNotes[];
-
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @JSONSchema({ description: 'list link images up assignment' })
-  @Type(() => AssignmentLinkNotes)
-  assignmentLinkImages: AssignmentLinkNotes[];
+  @Type(() => UserWorkspaceAttendances)
+  userWorkspaceAttendances: UserWorkspaceAttendances[];
 }
