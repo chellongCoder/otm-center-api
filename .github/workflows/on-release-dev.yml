@@ -38,7 +38,7 @@ jobs:
         ENV_DB_USER: "postgres"
         ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
         ENV_DB_DBNAME: "otmdb"
-        ENV_AUTH_TWILLO: "755a8f0cee26f28e706c85c9103a3035"
+        ENV_AUTH_TWILLO: "8399e57efbcf4ac4e422d6a5d6f6b897"
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
