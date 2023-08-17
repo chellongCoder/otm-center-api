@@ -1,5 +1,5 @@
 import { successResponse } from '@/helpers/response.helper';
-import { UserWorkspaceClassTypes, UserWorkspaceClasses, homeworkStatus } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -42,10 +42,11 @@ export class UserWorkspaceClassesController {
   async getHomeworkOfClass(
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
     @QueryParam('workspaceId') workspaceId: number,
+    @QueryParam('classId') classId: number,
     @QueryParam('status') status: string,
     @Res() res: any,
   ) {
-    const data = await this.service.getHomeworkOfClass({ userWorkspaceId, workspaceId, status: status as homeworkStatus });
+    const data = await this.service.getHomeworkOfClass({ userWorkspaceId, workspaceId, status: status as HomeworkStatus, classId });
     return successResponse({ res, data, status_code: 200 });
   }
 
