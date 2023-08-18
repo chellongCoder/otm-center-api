@@ -139,41 +139,43 @@ export class ClassTimetableDetailsService {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
 
-    // const classTimetableDetailData = await ClassTimetableDetails.find({
-    //   where: {},
-    // });
-
     const connection = await DbConnection.getConnection();
     if (connection) {
-      // const queryManager = connection.createQueryRunner().manager.transaction(async transactionalEntityManager => {
-      //   try {
-      //     await transactionalEntityManager.save();
-      //   } catch (error) {
-      //     console.log('chh_log ---> updateStudentAttendance ---> error:', error);
-      //     await transactionalEntityManager.transaction.rollback();
-      //     throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
-      //   }
-      // });
-      // const queryRunner = connection.createQueryRunner();
-      // await queryRunner.connect();
-      // await queryRunner.startTransaction();
-      // try {
-      //   await queryManager
-      //     .createQueryBuilder()
-      //     .update(Timetables)
-      //     .set({
-      //       ...timeTableData,
-      //       attendanceNote: item.attendanceNote,
-      //     })
-      //     .where('id = : id', { id: timeTableData.id })
-      //     .execute();
-      //   await queryRunner.commitTransaction();
-      //   await queryRunner.release();
-      // } catch (error) {
-      //   await queryRunner.rollbackTransaction();
-      //   await queryRunner.release();
-      //   throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
-      // }
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        if (item.attendanceNote) {
+          await queryRunner.manager.getRepository(Timetables).save({
+            id: timeTableData.id,
+            attendanceNote: item.attendanceNote,
+          });
+        }
+        const classTimetableDetailData: ClassTimetableDetails[] = await ClassTimetableDetails.find({
+          where: {
+            timetableId: item.timetableId,
+          },
+        });
+        const bulkUpdateClassTimetableDetail: Partial<ClassTimetableDetails>[] = [];
+        for (const userWorkspaceAttendanceItem of item.userWorkspaceAttendances) {
+          const classTimetableDetailItem = classTimetableDetailData.find(el => el.userWorkspaceId === userWorkspaceAttendanceItem.userWorkspaceId);
+          if (classTimetableDetailItem?.id) {
+            bulkUpdateClassTimetableDetail.push({
+              id: classTimetableDetailItem.id,
+              attendanceStatus: userWorkspaceAttendanceItem.status,
+              attendanceNote: userWorkspaceAttendanceItem.note,
+              attendanceByUserWorkspaceId: item.userWorkspaceId,
+            });
+          }
+        }
+        await queryRunner.manager.getRepository(ClassTimetableDetails).save(bulkUpdateClassTimetableDetail);
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
+      } finally {
+        await queryRunner.release();
+      }
     }
   }
 }
