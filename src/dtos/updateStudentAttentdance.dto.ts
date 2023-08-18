@@ -15,7 +15,7 @@ export class UserWorkspaceAttendances {
   @IsString()
   @IsOptional()
   @JSONSchema({ description: 'note attentdance', example: 'Dịch tiếng anh' })
-  note: string;
+  note?: string;
 }
 
 export class UpdateStudentAttendanceDto {
@@ -34,7 +34,7 @@ export class UpdateStudentAttendanceDto {
   @IsString()
   @IsOptional()
   @JSONSchema({ description: 'summary attendance note', example: 'Học sinh cả lớp đi đúng giờ' })
-  attendanceNote: string;
+  attendanceNote?: string;
 
   @IsArray()
   @IsOptional()
