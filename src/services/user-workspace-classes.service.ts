@@ -172,6 +172,7 @@ export class UserWorkspaceClassesService {
           timetable: {
             classId: In(classIds),
           },
+          homeworkAssignment: Not(IsNull()),
           userWorkspaceId,
         },
       });
