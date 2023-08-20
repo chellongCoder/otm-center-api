@@ -1,3 +1,4 @@
+import { CreateUserDto } from '@/dtos/create-user.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Users } from '@/models/users.model';
 import { UsersService } from '@/services/users.service';
@@ -32,7 +33,7 @@ export class UsersController {
 
   @Post('/')
   @OpenAPI({ summary: 'Create users' })
-  async create(@Body({ required: true }) body: Users, @Res() res: any) {
+  async create(@Body({ required: true }) body: CreateUserDto, @Res() res: any) {
     const data = await this.service.create(body);
     return successResponse({ res, data, status_code: 201 });
   }
