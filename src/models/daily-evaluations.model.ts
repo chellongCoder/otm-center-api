@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { EvaluationCriterias } from './evaluation-criterias.model';
 
 @Entity('daily_evaluations')
 export class DailyEvaluations extends BaseEntity {
@@ -27,6 +28,9 @@ export class DailyEvaluations extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
+  @OneToMany(() => EvaluationCriterias, item => item.dailyEvaluation)
+  public evaluationCriterias: EvaluationCriterias[];
+
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('daily_evaluations');
     if (query.search && query.search.length > 0) {
@@ -39,6 +43,12 @@ export class DailyEvaluations extends BaseEntity {
         }
       }
     }
-    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    const result = queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    const [sql, parameters] = queryBuilder.getQueryAndParameters();
+
+    // Log the raw SQL query
+    console.log('Raw SQL Query:', sql);
+    console.log('Parameters:', parameters);
+    return result;
   }
 }
