@@ -3,6 +3,7 @@ import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { fixPhoneVN } from '@/utils/util';
+import { CreateUserDto } from '@/dtos/create-user.dto';
 
 @Service()
 export class UsersService {
@@ -37,7 +38,7 @@ export class UsersService {
   /**
    * create
    */
-  public async create(item: Users) {
+  public async create(item: CreateUserDto) {
     const userData = await Users.findOne({
       where: {
         phoneNumber: fixPhoneVN(item.phoneNumber),
@@ -47,7 +48,6 @@ export class UsersService {
       throw new Exception(ExceptionName.USER_IS_EXIST, ExceptionCode.USER_IS_EXIST);
     }
     const results = await Users.insert({
-      ...item,
       phoneNumber: fixPhoneVN(item.phoneNumber),
     });
     return results;
