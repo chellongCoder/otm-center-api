@@ -10,8 +10,10 @@ import { DbConnection } from '@/database/dbConnection';
 import moment from 'moment-timezone';
 import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
 import { UpdateEvaluationInLessonDto } from '@/dtos/update-evaluation-student-in-lesson.dto';
-import { TimetablesService } from './timetables.service';
 import { DailyEvaluations } from '@/models/daily-evaluations.model';
+import { EvaluationTypes } from '@/models/evaluation-criterias.model';
+import { ClassTimetableDetailEvaluations } from '@/models/class-timetable-detail-evaluations.model';
+import { ClassTimetableDetailEvaluationOptions } from '@/models/class-timetable-detail-evaluation-options.model';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -193,13 +195,15 @@ export class ClassTimetableDetailsService {
     }
     const userWorkspaceIds: number[] = timetableData.classTimetableDetails.map(el => el.userWorkspaceId);
     if (!userWorkspaceIds.length) {
-      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
     const updateUserWorkspaceIds = [...item.userWorkspacePublishIds, ...item.userWorkspacePrivateIds];
     if (updateUserWorkspaceIds.filter(x => !userWorkspaceIds.includes(x)).length) {
-      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+      throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
-
+    /**
+     * validate evaluation data
+     */
     const dailyEvaluationData = await DailyEvaluations.findOne({
       where: {
         id: timetableData?.class.dailyEvaluationId,
@@ -207,15 +211,84 @@ export class ClassTimetableDetailsService {
       relations: ['evaluationCriterias', 'evaluationCriterias.evaluationOptionValues'],
     });
     if (!dailyEvaluationData?.id) {
-      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+      throw new Exception(ExceptionName.EVALUATION_NOT_FOUND, ExceptionCode.EVALUATION_NOT_FOUND);
     }
     const evaluationCriteriaData = dailyEvaluationData.evaluationCriterias;
     const updateEvaluationCriteria = item.evaluationDetails.map(el => el.evaluationCriteriaId);
-    if (evaluationCriteriaData.map(el => el.id).filter(el => !updateEvaluationCriteria.includes(el)).length) {
-      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    if (updateEvaluationCriteria.filter(el => !evaluationCriteriaData.map(el => el.id).includes(el)).length) {
+      throw new Exception(ExceptionName.EVALUATION_NOT_FOUND, ExceptionCode.EVALUATION_NOT_FOUND);
     }
-    console.log('chh_log ---> updateEvaluationStudentInLesson ---> dailyEvaluationData:', dailyEvaluationData);
-    console.log('chh_log ---> updateEvaluationStudentInLesson ---> timetableData:', timetableData);
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const bulkCreateEvaluationTimetable: ClassTimetableDetailEvaluations[] = [];
+        const bulkCreateEvaluationOptionTimetable: ClassTimetableDetailEvaluationOptions[] = [];
+        for (const updateEvaluationCriteria of item.evaluationDetails) {
+          const evaluationCriteriaDataCurrent = evaluationCriteriaData.find(el => el.id === updateEvaluationCriteria.evaluationCriteriaId);
+          if (!evaluationCriteriaDataCurrent) {
+            console.log('chh_log ---> updateEvaluationStudentInLesson ---> evaluationCriteriaDataCurrent:', evaluationCriteriaDataCurrent);
+            throw new Exception(ExceptionName.EVALUATION_NOT_FOUND, ExceptionCode.EVALUATION_NOT_FOUND);
+          }
+          switch (evaluationCriteriaDataCurrent.type) {
+            case EvaluationTypes.TEXT: {
+              const newEvaluationTimetable = new ClassTimetableDetailEvaluations();
+              newEvaluationTimetable.classTimetableDetailId = timetableData.id;
+              newEvaluationTimetable.evaluationCriteriaId = evaluationCriteriaDataCurrent.id;
+              newEvaluationTimetable.workspaceId = item.workspaceId;
+              newEvaluationTimetable.textValue = updateEvaluationCriteria.value;
+              bulkCreateEvaluationTimetable.push(newEvaluationTimetable);
+              break;
+            }
+            case EvaluationTypes.SCORE: {
+              if (Number(updateEvaluationCriteria.value) > evaluationCriteriaDataCurrent.maximumScore) {
+                throw new Exception(ExceptionName.SCORE_INVALID, ExceptionCode.SCORE_INVALID);
+              }
+              const newEvaluationTimetable = new ClassTimetableDetailEvaluations();
+              newEvaluationTimetable.classTimetableDetailId = timetableData.id;
+              newEvaluationTimetable.evaluationCriteriaId = evaluationCriteriaDataCurrent.id;
+              newEvaluationTimetable.workspaceId = item.workspaceId;
+              newEvaluationTimetable.scoreValue = Number(updateEvaluationCriteria.value);
+              bulkCreateEvaluationTimetable.push(newEvaluationTimetable);
+              break;
+            }
+            case EvaluationTypes.ONE_OPTION:
+            case EvaluationTypes.MULTIPLE_OPTIONS: {
+              const evaluationOptionValuesData = evaluationCriteriaDataCurrent.evaluationOptionValues.map(el => el.id);
+              if (updateEvaluationCriteria.evaluationOptionValueIds.filter(x => !evaluationOptionValuesData.includes(x)).length) {
+                throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
+              }
+              const newEvaluationTimetable = new ClassTimetableDetailEvaluations();
+              newEvaluationTimetable.classTimetableDetailId = timetableData.id;
+              newEvaluationTimetable.evaluationCriteriaId = evaluationCriteriaDataCurrent.id;
+              newEvaluationTimetable.workspaceId = item.workspaceId;
+              const classTimetableDetailEvaluationCreate = await queryRunner.manager
+                .getRepository(ClassTimetableDetailEvaluations)
+                .insert(newEvaluationTimetable);
+
+              for (const optionValue of updateEvaluationCriteria.evaluationOptionValueIds) {
+                const newEvaluationOptionTimetable = new ClassTimetableDetailEvaluationOptions();
+                newEvaluationOptionTimetable.classTimetableDetailEvaluationId = classTimetableDetailEvaluationCreate.identifiers[0]?.id;
+                newEvaluationOptionTimetable.evaluationOptionValueId = optionValue;
+                newEvaluationOptionTimetable.workspaceId = item.workspaceId;
+                bulkCreateEvaluationOptionTimetable.push(newEvaluationOptionTimetable);
+              }
+              break;
+            }
+          }
+        }
+        await queryRunner.manager.getRepository(ClassTimetableDetailEvaluations).insert(bulkCreateEvaluationTimetable);
+        await queryRunner.manager.getRepository(ClassTimetableDetailEvaluationOptions).insert(bulkCreateEvaluationOptionTimetable);
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
     return timetableData;
   }
 }

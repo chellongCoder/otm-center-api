@@ -28,5 +28,6 @@
 	"CLASSROOM_NOT_FOUND": "Không tìm thấy phòng học",
 	"CLASS_NOT_FOUND": "Không tìm thấy lớp học",
 	"SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau",
-	"SCORE_INVALID": "Điểm không hợp lệ, vui lòng thử lại"
+	"SCORE_INVALID": "Điểm không hợp lệ, vui lòng thử lại",
+	"EVALUATION_NOT_FOUND": "EVALUATION_NOT_FOUND"
 }

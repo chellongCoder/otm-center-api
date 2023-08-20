@@ -54,8 +54,14 @@ export class ClassTimetableDetails extends BaseEntity {
   @Column({ name: 'homework_assessment', nullable: true })
   homeworkAssessment: string;
 
-  @Column({ name: 'homework_by_user_workspace_id', nullable: true })
+  @Column({ name: 'homework_by_user_workspace_id', nullable: true }) // giáo viên chấm điểm
   homeworkByUserWorkspaceId: number;
+
+  @Column({ name: 'evaluation_by_user_workspace_id', nullable: true }) // giáo viên publish đánh giá
+  evaluationByUserWorkspaceId: number;
+
+  @Column({ name: 'evaluation_publish', default: false })
+  evaluationPublish: boolean;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;

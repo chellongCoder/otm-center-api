@@ -12,6 +12,8 @@ import { ClassShiftsClassrooms } from '@/models/class-shifts-classrooms.model';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import _ from 'lodash';
+import { DbConnection } from '@/database/dbConnection';
+import { DailyEvaluations } from '@/models/daily-evaluations.model';
 
 @Service()
 export class ClassesService {
@@ -97,62 +99,82 @@ export class ClassesService {
    * create
    */
   public async create(item: Classes) {
-    const classCreate = await Classes.insert(item);
-    const courseData = await Courses.findOne({
-      where: {
-        id: item.courseId,
-        workspaceId: item.workspaceId,
-      },
-    });
-    if (!courseData?.id) {
-      throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
-    }
-    const courseLessons = await Lessons.find({
-      where: {
-        courseId: courseData.id,
-        workspaceId: item.workspaceId,
-      },
-    });
-    const courseLectures = await Lectures.find({
-      where: {
-        courseId: courseData.id,
-        workspaceId: item.workspaceId,
-      },
-    });
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const classCreate = await await queryRunner.manager.getRepository(Classes).insert(item);
+        const courseData = await Courses.findOne({
+          where: {
+            id: item.courseId,
+            workspaceId: item.workspaceId,
+          },
+        });
+        if (!courseData?.id) {
+          throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+        }
+        const courseLessons = await Lessons.find({
+          where: {
+            courseId: courseData.id,
+            workspaceId: item.workspaceId,
+          },
+        });
+        const courseLectures = await Lectures.find({
+          where: {
+            courseId: courseData.id,
+            workspaceId: item.workspaceId,
+          },
+        });
 
-    const bulkCreateClassLessons: ClassLessons[] = [];
-    const bulkCreateClassLectures: ClassLectures[] = [];
-    for (const courseLessonItem of courseLessons) {
-      const classLessonCreate = new ClassLessons();
-      classLessonCreate.name = courseLessonItem.name;
-      classLessonCreate.content = courseLessonItem.content;
-      classLessonCreate.exercise = courseLessonItem.exercise;
-      classLessonCreate.sessionNumberOrder = courseLessonItem.sessionNumberOrder;
-      classLessonCreate.classId = classCreate.identifiers[0].id;
-      classLessonCreate.workspaceId = item.workspaceId;
-      bulkCreateClassLessons.push(classLessonCreate);
-    }
-    for (const courseLectureItem of courseLectures) {
-      const classLectureCreate = new ClassLectures();
-      classLectureCreate.sessionNumberOrder = courseLectureItem.sessionNumberOrder;
-      classLectureCreate.name = courseLectureItem.name;
-      classLectureCreate.content = courseLectureItem.content;
-      classLectureCreate.exercise = courseLectureItem.exercise;
-      classLectureCreate.equipment = courseLectureItem.equipment;
-      classLectureCreate.isUseName = courseLectureItem.isUseName;
-      classLectureCreate.classId = classCreate.identifiers[0].id;
-      classLectureCreate.workspaceId = item.workspaceId;
+        const bulkCreateClassLessons: ClassLessons[] = [];
+        const bulkCreateClassLectures: ClassLectures[] = [];
+        for (const courseLessonItem of courseLessons) {
+          const classLessonCreate = new ClassLessons();
+          classLessonCreate.name = courseLessonItem.name;
+          classLessonCreate.content = courseLessonItem.content;
+          classLessonCreate.exercise = courseLessonItem.exercise;
+          classLessonCreate.sessionNumberOrder = courseLessonItem.sessionNumberOrder;
+          classLessonCreate.classId = classCreate.identifiers[0].id;
+          classLessonCreate.workspaceId = item.workspaceId;
+          bulkCreateClassLessons.push(classLessonCreate);
+        }
+        for (const courseLectureItem of courseLectures) {
+          const classLectureCreate = new ClassLectures();
+          classLectureCreate.sessionNumberOrder = courseLectureItem.sessionNumberOrder;
+          classLectureCreate.name = courseLectureItem.name;
+          classLectureCreate.content = courseLectureItem.content;
+          classLectureCreate.exercise = courseLectureItem.exercise;
+          classLectureCreate.equipment = courseLectureItem.equipment;
+          classLectureCreate.isUseName = courseLectureItem.isUseName;
+          classLectureCreate.classId = classCreate.identifiers[0].id;
+          classLectureCreate.workspaceId = item.workspaceId;
 
-      bulkCreateClassLectures.push(classLectureCreate);
-    }
+          bulkCreateClassLectures.push(classLectureCreate);
+        }
 
-    if (bulkCreateClassLessons.length) {
-      await ClassLessons.insert(bulkCreateClassLessons);
+        if (bulkCreateClassLessons.length) {
+          await queryRunner.manager.getRepository(ClassLessons).insert(bulkCreateClassLessons);
+        }
+        if (bulkCreateClassLectures.length) {
+          await queryRunner.manager.getRepository(ClassLectures).insert(bulkCreateClassLectures);
+        }
+        /**
+         * update daily evaluation config
+         */
+        await queryRunner.manager.getRepository(DailyEvaluations).update(item.dailyEvaluationId, {
+          editable: false,
+        });
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
+      } finally {
+        await queryRunner.release();
+      }
     }
-    if (bulkCreateClassLectures.length) {
-      await ClassLectures.insert(bulkCreateClassLectures);
-    }
-    return classCreate;
+    return true;
   }
 
   /**
