@@ -25,6 +25,7 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get users by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);

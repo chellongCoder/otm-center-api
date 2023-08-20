@@ -2,7 +2,7 @@ import { UserWorkspaceTokens } from '@/models/user-workspace-tokens.model';
 import { Users } from '@/models/users.model';
 import bcrypt from 'bcrypt';
 import { Account } from '@/models/accounts.model';
-import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode } from '@/utils/util';
+import { fixPhoneVN, generateAccessToken, generateRandToken, generateRecoveryCode, verifyAccessToken } from '@/utils/util';
 import { RefreshToken } from '@/models/refresh-tokens.model';
 import { logger } from '@/utils/logger';
 import { RecoveryCodes } from '@/models/recovery-codes.model';
@@ -85,10 +85,10 @@ export class AuthService {
     workspaceId: number;
   }): Promise<UserWorkspaceAccess> {
     const accessToken = generateAccessToken({
-      userWorkspaceId,
-      phoneNumber,
+      user_workspace_id: userWorkspaceId,
+      phone_number: phoneNumber,
       username,
-      workspaceId,
+      workspace_id: workspaceId,
     });
     // find refreshToken and remove
     const currToken = await UserWorkspaceTokens.findOne({
@@ -306,74 +306,91 @@ export class AuthService {
     }
   }
   public async checkUserWorkspaceToken({ token, workspace_host }: { token: string; workspace_host: string }) {
-    console.log('chh_log ---> checkUserWorkspaceToken ---> workspace_host:', workspace_host);
-    console.log('chh_log ---> checkUserWorkspaceToken ---> token:', token);
-    // if (!token) {
-    //   throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.TOKEN_INVALID, 401);
+    if (!token) {
+      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.TOKEN_INVALID, 401);
+    }
+
+    let userWorkspaceId: number;
+    let workspaceId: number;
+    try {
+      const tokenData = verifyAccessToken(token);
+
+      const { user_workspace_id, workspace_id } = tokenData;
+      userWorkspaceId = user_workspace_id;
+      workspaceId = workspace_id;
+    } catch (e) {
+      throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
+    }
+
+    if (!userWorkspaceId) {
+      throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    }
+
+    if (!workspaceId) {
+      throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    }
+
+    const workspaceData = await Workspaces.findOne({
+      where: {
+        id: workspaceId,
+      },
+    });
+    if (workspaceData?.host !== workspace_host) {
+      throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
+    }
+    const userWorkspaceData = await UserWorkspaces.findOne({
+      where: {
+        id: userWorkspaceId,
+        workspaceId: workspaceData.id,
+      },
+    });
+
+    if (!userWorkspaceData?.id) {
+      throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
+    }
+
+    // const workspaceData = await workspacesRepository.findByHost({
+    //   host: workspace_host,
+    //   is_active: true,
+    // });
+
+    // if (!workspaceData) {
+    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
     // }
 
-    // const workspaceHost = '';
-    // const userId = '';
-    // try {
-    //   const tokenData = this.verifyAccessToken(token);
+    // const userData = await usersRepository.findOneByFilter({
+    //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
+    //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
+    // }); //coithegioicoi
+    // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
+    // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
 
-    //   const { workspace_id, user_workspace_id } = tokenData;
-    //   workspaceHost = workspace_id;
-    //   userId = staff_id;
-    // } catch (e) {
-    //   throw new Exception(ExceptionName.TOKEN_INVALID, ExceptionCode.FORCE_LOGOUT);
+    // if (!userData) {
+    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
     // }
 
-    // // if (!userId) {
-    // //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
-    // // }
+    // let userWorkspaceData: userWorkspaces | null = null;
+    // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
+    // const cacheData = await caches.getCaches(cacheKey);
+    // if (cacheData) {
+    //   userWorkspaceData = cacheData;
+    // } else {
+    //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
+    //     filter: {
+    //       user_id: userData.id,
+    //       workspace_id: workspaceData.id,
+    //     },
+    //   });
+    //   await caches.setCache(cacheKey, userWorkspaceData);
+    // }
 
-    // // if (workspaceHost !== workspace_host) {
-    // //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
-    // // }
-
-    // // const workspaceData = await workspacesRepository.findByHost({
-    // //   host: workspace_host,
-    // //   is_active: true,
-    // // });
-
-    // // if (!workspaceData) {
-    // //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
-    // // }
-
-    // // const userData = await usersRepository.findOneByFilter({
-    // //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
-    // //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
-    // // }); //coithegioicoi
-    // // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
-    // // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
-
-    // // if (!userData) {
-    // //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
-    // // }
-
-    // // let userWorkspaceData: userWorkspaces | null = null;
-    // // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
-    // // const cacheData = await caches.getCaches(cacheKey);
-    // // if (cacheData) {
-    // //   userWorkspaceData = cacheData;
-    // // } else {
-    // //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
-    // //     filter: {
-    // //       user_id: userData.id,
-    // //       workspace_id: workspaceData.id,
-    // //     },
-    // //   });
-    // //   await caches.setCache(cacheKey, userWorkspaceData);
-    // // }
-
-    // // if (!userWorkspaceData) {
-    // //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
-    // // }
+    // if (!userWorkspaceData) {
+    //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
+    // }
 
     return {
-      user_data: null, //userData,
-      workspace_data: null, //workspaceData,
+      user_workspace_data: userWorkspaceData,
+      workspace_data: workspaceData,
     };
   }
 }

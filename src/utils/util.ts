@@ -58,7 +58,7 @@ export const generateAccessToken = (payload: string | object): string => {
   return jwt.sign(payload, privateKEY, signOptions);
 };
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken: any = (token: string) => {
   const publicKEY = fs.readFileSync(path.join(__dirname, 'keys/public.key'), 'utf8');
   return jwt.verify(token, publicKEY, verifyOptions);
 };
