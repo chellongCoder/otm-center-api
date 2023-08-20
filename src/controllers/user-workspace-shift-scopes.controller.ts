@@ -2,7 +2,7 @@ import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.
 import { CreateClassScheduleDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceShiftScopesService } from '@/services/user-workspace-shift-scopes.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -12,6 +12,7 @@ export class UserWorkspaceShiftScopesController {
   constructor(public service: UserWorkspaceShiftScopesService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_shift_scopes list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -25,6 +26,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Get('/teaching_schedule')
+  @Authorized()
   @OpenAPI({ summary: 'Get teaching schedule' })
   async getTeachingSchedule(
     @QueryParam('page') page: number,
@@ -42,6 +44,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Get('/teaching_dashboard')
+  @Authorized()
   @OpenAPI({ summary: 'Get teaching dashboard home screen' })
   async getTeachingDashboard(
     @QueryParam('page') page: number,
@@ -57,6 +60,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_shift_scopes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -64,6 +68,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   // @Post('/')
+  // @Authorized()
   // @OpenAPI({ summary: 'Create 1 user_workspace_shift_scopes' })
   // async create(@Body({ required: true }) body: UserWorkspaceShiftScopes, @Res() res: any) {
   //   const data = await this.service.create(body);
@@ -71,6 +76,7 @@ export class UserWorkspaceShiftScopesController {
   // }
 
   @Post('/create_class_schedule')
+  @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_shift_scopes flow business(sau khi cập nhật lịch học cần cập nhật lại thời khoá biểu)' })
   async createClassSchedule(@Body({ required: true }) body: CreateClassScheduleDto, @Res() res: any) {
     const data = await this.service.createClassSchedule(body);
@@ -78,6 +84,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Post('/check_shift_classroom')
+  @Authorized()
   @OpenAPI({ summary: 'Check shift classroom validate' })
   async checkShiftClassroom(@Body({ required: true }) body: CheckShiftClassroomValidDto, @Res() res: any) {
     console.log('chh_log ---> create ---> body:', body);
@@ -87,6 +94,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update user_workspace_shift_scopes' })
   async update() {
     try {
@@ -96,6 +104,7 @@ export class UserWorkspaceShiftScopesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspace_shift_scopes' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

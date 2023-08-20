@@ -1,7 +1,7 @@
 import { CreateEvaluationCriteriaDto } from '@/dtos/create-evaluation-criterias.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { EvaluationCriteriasService } from '@/services/evaluation-criterias.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class EvaluationCriteriasController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get evaluation_criterias by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class EvaluationCriteriasController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create evaluation_criterias' })
   async create(@Body({ required: true }) body: CreateEvaluationCriteriaDto, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class EvaluationCriteriasController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update evaluation_criterias' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class EvaluationCriteriasController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete evaluation_criterias' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

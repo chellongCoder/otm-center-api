@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { EvaluationOptionValues } from '@/models/evaluation-option-values.model';
 import { EvaluationOptionValuesService } from '@/services/evaluation-option-values.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class EvaluationOptionValuesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get evaluation_option_values by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class EvaluationOptionValuesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create evaluation_option_values' })
   async create(@Body({ required: true }) body: EvaluationOptionValues, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class EvaluationOptionValuesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update evaluation_option_values' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class EvaluationOptionValuesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete evaluation_option_values' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

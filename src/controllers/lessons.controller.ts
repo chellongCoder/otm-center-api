@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Lessons } from '@/models/lessons.model';
 import { LessonsService } from '@/services/lessons.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class LessonsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get lessons by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class LessonsController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create lessons' })
   async create(@Body({ required: true }) body: Lessons, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class LessonsController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update lessons' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class LessonsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete lessons' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

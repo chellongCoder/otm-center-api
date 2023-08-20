@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -11,6 +11,7 @@ export class UserWorkspaceClassesController {
   constructor(public service: UserWorkspaceClassesService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_classes list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -24,6 +25,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Get('/list')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
   async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
     const data = await this.service.findByFilter(userWorkspaceId, status as UserWorkspaceClassTypes);
@@ -31,6 +33,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -38,6 +41,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Get('/class/homework')
+  @Authorized()
   @OpenAPI({ summary: 'Get homework of class by status are DONE or NOT_DONE' })
   async getHomeworkOfClass(
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
@@ -51,6 +55,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_classes(Ghi danh học viên vào lớp học)' })
   async create(@Body({ required: true }) body: UserWorkspaceClasses, @Res() res: any) {
     const data = await this.service.create(body);
@@ -58,6 +63,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update user_workspace_classes' })
   async update() {
     try {
@@ -67,6 +73,7 @@ export class UserWorkspaceClassesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspace_classes' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

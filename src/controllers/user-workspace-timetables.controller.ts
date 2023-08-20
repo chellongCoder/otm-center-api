@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceTimetables } from '@/models/user-workspace-timetables.model';
 import { UserWorkspaceTimetablesService } from '@/services/user-workspace-timetables.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class UserWorkspaceTimetablesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_timetables by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class UserWorkspaceTimetablesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_timetables' })
   async create(@Body({ required: true }) body: UserWorkspaceTimetables, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class UserWorkspaceTimetablesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update user_workspace_timetables' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class UserWorkspaceTimetablesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspace_timetables' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

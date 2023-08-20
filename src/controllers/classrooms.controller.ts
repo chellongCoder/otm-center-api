@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Classrooms } from '@/models/classrooms.model';
 import { ClassroomsService } from '@/services/classrooms.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -11,6 +11,7 @@ export class ClassroomsController {
   constructor(public service: ClassroomsService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get classrooms list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -24,6 +25,7 @@ export class ClassroomsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get classrooms by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +33,7 @@ export class ClassroomsController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create classrooms' })
   async create(@Body({ required: true }) body: Classrooms, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +41,7 @@ export class ClassroomsController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update classrooms' })
   async update() {
     try {
@@ -47,6 +51,7 @@ export class ClassroomsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete classrooms' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

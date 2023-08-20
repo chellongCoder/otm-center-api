@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Workspaces } from '@/models/workspaces.model';
 import { WorkspacesService } from '@/services/workspaces.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -47,6 +47,7 @@ export class WorkspacesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete workspaces' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

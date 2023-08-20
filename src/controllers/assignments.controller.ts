@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Assignments } from '@/models/assignments.model';
 import { AssignmentsService } from '@/services/assignments.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class AssignmentsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get assignments by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class AssignmentsController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create assignments' })
   async create(@Body({ required: true }) body: Assignments, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class AssignmentsController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update assignments' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class AssignmentsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete assignments' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
