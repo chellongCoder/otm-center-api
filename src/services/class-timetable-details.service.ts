@@ -9,6 +9,9 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { DbConnection } from '@/database/dbConnection';
 import moment from 'moment-timezone';
 import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
+import { UpdateEvaluationInLessonDto } from '@/dtos/update-evaluation-student-in-lesson.dto';
+import { TimetablesService } from './timetables.service';
+import { DailyEvaluations } from '@/models/daily-evaluations.model';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -177,5 +180,42 @@ export class ClassTimetableDetailsService {
         await queryRunner.release();
       }
     }
+  }
+  public async updateEvaluationStudentInLesson(item: UpdateEvaluationInLessonDto) {
+    const timetableData = await Timetables.findOne({
+      where: {
+        id: item.timetableId,
+      },
+      relations: ['class', 'classTimetableDetails'],
+    });
+    if (!timetableData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const userWorkspaceIds: number[] = timetableData.classTimetableDetails.map(el => el.userWorkspaceId);
+    if (!userWorkspaceIds.length) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const updateUserWorkspaceIds = [...item.userWorkspacePublishIds, ...item.userWorkspacePrivateIds];
+    if (updateUserWorkspaceIds.filter(x => !userWorkspaceIds.includes(x)).length) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+
+    const dailyEvaluationData = await DailyEvaluations.findOne({
+      where: {
+        id: timetableData?.class.dailyEvaluationId,
+      },
+      relations: ['evaluationCriterias', 'evaluationCriterias.evaluationOptionValues'],
+    });
+    if (!dailyEvaluationData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const evaluationCriteriaData = dailyEvaluationData.evaluationCriterias;
+    const updateEvaluationCriteria = item.evaluationDetails.map(el => el.evaluationCriteriaId);
+    if (evaluationCriteriaData.map(el => el.id).filter(el => !updateEvaluationCriteria.includes(el)).length) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    console.log('chh_log ---> updateEvaluationStudentInLesson ---> dailyEvaluationData:', dailyEvaluationData);
+    console.log('chh_log ---> updateEvaluationStudentInLesson ---> timetableData:', timetableData);
+    return timetableData;
   }
 }

@@ -1,12 +1,12 @@
-import { DailyEvaluations } from '@/models/daily-evaluations.model';
+import { EvaluationOptionValues } from '@/models/evaluation-option-values.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 
 @Service()
-export class DailyEvaluationsService {
+export class EvaluationOptionValuesService {
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
-    const filteredData = await DailyEvaluations.findByCond({
+    const filteredData = await EvaluationOptionValues.findByCond({
       sort: orderCond.sort,
       order: orderCond.order,
       skip: (page - 1) * limit,
@@ -25,33 +25,32 @@ export class DailyEvaluationsService {
    * findById
    */
   public async findById(id: number) {
-    return DailyEvaluations.findOne({
+    return EvaluationOptionValues.findOne({
       where: {
         id,
       },
-      relations: ['evaluationCriterias', 'evaluationCriterias.evaluationOptionValues'],
     });
   }
 
   /**
    * create
    */
-  public async create(item: DailyEvaluations) {
-    const results = await DailyEvaluations.insert(item);
+  public async create(item: EvaluationOptionValues) {
+    const results = await EvaluationOptionValues.insert(item);
     return results;
   }
 
   /**
    * update
    */
-  public async update(id: number, item: DailyEvaluations) {
-    return DailyEvaluations.update(id, item);
+  public async update(id: number, item: EvaluationOptionValues) {
+    return EvaluationOptionValues.update(id, item);
   }
 
   /**
    * delete
    */
   public async delete(id: number) {
-    return DailyEvaluations.delete(id);
+    return EvaluationOptionValues.delete(id);
   }
 }
