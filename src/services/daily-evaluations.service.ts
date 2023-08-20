@@ -1,6 +1,8 @@
 import { DailyEvaluations } from '@/models/daily-evaluations.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Classes } from '@/models/classes.model';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 
 @Service()
 export class DailyEvaluationsService {
@@ -28,6 +30,26 @@ export class DailyEvaluationsService {
     return DailyEvaluations.findOne({
       where: {
         id,
+      },
+      relations: ['evaluationCriterias', 'evaluationCriterias.evaluationOptionValues'],
+    });
+  }
+
+  /**
+   * findById
+   */
+  public async getDailyEvaluationByClassId(id: number) {
+    const classData = await Classes.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!classData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
+    }
+    return DailyEvaluations.findOne({
+      where: {
+        id: classData.dailyEvaluationId,
       },
       relations: ['evaluationCriterias', 'evaluationCriterias.evaluationOptionValues'],
     });
