@@ -2,7 +2,7 @@ import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Timetables } from '@/models/timetables.model';
 import { TimetablesService } from '@/services/timetables.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -12,6 +12,7 @@ export class TimetablesController {
   constructor(public service: TimetablesService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get timetables list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -25,6 +26,7 @@ export class TimetablesController {
   }
 
   @Get('/by_date')
+  @Authorized()
   @OpenAPI({ summary: 'Get timetables list' })
   async findAllByDate(
     @QueryParam('fromDate') fromDate: number,
@@ -38,6 +40,7 @@ export class TimetablesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get timetables by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -45,6 +48,7 @@ export class TimetablesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create timetables' })
   async create(@Body({ required: true }) body: Timetables, @Res() res: any) {
     const data = await this.service.create(body);
@@ -52,6 +56,7 @@ export class TimetablesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update timetables' })
   async update() {
     try {
@@ -61,6 +66,7 @@ export class TimetablesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete timetables' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
@@ -68,6 +74,7 @@ export class TimetablesController {
   }
 
   @Post('/generate')
+  @Authorized()
   @OpenAPI({ summary: 'Generate timetables from user_workspace_shift_scopes and classes' })
   async generate(@Body({ required: true }) body: GenerateTimetableDto, @Res() res: any) {
     const data = await this.service.generate(body);

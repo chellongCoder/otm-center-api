@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceCourses } from '@/models/user-workspace-courses.model';
 import { UserWorkspaceCoursesService } from '@/services/user-workspace-courses.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class UserWorkspaceCoursesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_courses by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class UserWorkspaceCoursesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_courses' })
   async create(@Body({ required: true }) body: UserWorkspaceCourses, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class UserWorkspaceCoursesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update user_workspace_courses' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class UserWorkspaceCoursesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspace_courses' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

@@ -4,7 +4,7 @@ import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassTimetableDetailsService } from '@/services/class-timetable-details.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -14,6 +14,7 @@ export class ClassTimetableDetailsController {
   constructor(public service: ClassTimetableDetailsService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get class_timetable_details list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -27,6 +28,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get class_timetable_details by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -34,6 +36,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Get('/timetable/:timetableId')
+  @Authorized()
   @OpenAPI({ summary: 'Get thông tin màn điểm danh' })
   async getAttendances(@Param('timetableId') timetableId: number, @QueryParam('search') search: string, @Res() res: any) {
     const data = await this.service.getAttendances(timetableId, search);
@@ -41,6 +44,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Post('/finish_assignment')
+  @Authorized()
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any) {
     const data = await this.service.finishAssignment(body);
@@ -48,6 +52,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Put('/student_attendance')
+  @Authorized()
   @OpenAPI({ summary: 'Điểm danh học sinh' })
   async updateStudentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any) {
     const data = await this.service.updateStudentAttendance(body);
@@ -55,6 +60,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Put('/student_evaluation')
+  @Authorized()
   @OpenAPI({ summary: 'Đánh giá hàng ngày học sinh' })
   async updateEvaluationStudentInLesson(@Body({ required: true }) body: UpdateEvaluationInLessonDto, @Res() res: any) {
     const data = await this.service.updateEvaluationStudentInLesson(body);
@@ -62,6 +68,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Put('/marking/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update homeworkAssessment and homeworkScore' })
   async updateClassTimetableDetailMarking(
     @Param('id') id: number,
@@ -73,6 +80,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_timetable_details' })
   async update() {
     try {
@@ -82,6 +90,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete class_timetable_details' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

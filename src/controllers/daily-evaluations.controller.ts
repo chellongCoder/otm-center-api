@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { DailyEvaluations } from '@/models/daily-evaluations.model';
 import { DailyEvaluationsService } from '@/services/daily-evaluations.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -24,6 +24,7 @@ export class DailyEvaluationsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get daily_evaluations by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -31,6 +32,7 @@ export class DailyEvaluationsController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create daily_evaluations' })
   async create(@Body({ required: true }) body: DailyEvaluations, @Res() res: any) {
     const data = await this.service.create(body);
@@ -38,6 +40,7 @@ export class DailyEvaluationsController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update daily_evaluations' })
   async update() {
     try {
@@ -47,6 +50,7 @@ export class DailyEvaluationsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete daily_evaluations' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

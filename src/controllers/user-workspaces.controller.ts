@@ -2,7 +2,7 @@ import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { UserWorkspacesService } from '@/services/user-workspaces.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -39,6 +39,7 @@ export class UserWorkspacesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update user_workspaces' })
   async update(@Param('id') id: number, @Body({ required: true }) body: UpdateUserWorkspaceDto, @Res() res: any) {
     const data = await this.service.update(id, body);
@@ -46,6 +47,7 @@ export class UserWorkspacesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspaces' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

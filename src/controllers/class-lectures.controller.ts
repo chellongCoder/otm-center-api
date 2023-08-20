@@ -2,7 +2,7 @@ import { UpdateClassLectureDto } from '@/dtos/update-class-lecture.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLectures } from '@/models/class-lectures.model';
 import { ClassLecturesService } from '@/services/class-lectures.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -25,6 +25,7 @@ export class ClassLecturesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get class_lectures by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -32,6 +33,7 @@ export class ClassLecturesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create class_lectures' })
   async create(@Body({ required: true }) body: ClassLectures, @Res() res: any) {
     const data = await this.service.create(body);
@@ -39,6 +41,7 @@ export class ClassLecturesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_lectures' })
   async update() {
     try {
@@ -48,6 +51,7 @@ export class ClassLecturesController {
   }
 
   @Put('/timetable/:timetableId')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_lecture by timetable' })
   async updateClassLectureByTimetable(
     @Param('timetableId') timetableId: number,
@@ -59,6 +63,7 @@ export class ClassLecturesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete class_lectures' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
