@@ -410,3 +410,19 @@ Table class_timetable_details {
 
   workspace_id integer
 }
+
+Table evaluation_criterias {
+  id integer [pk]
+  name varchar
+  type varchar [note: 'nhập điểm | nhập văn bản | chọn 1 lựa chọn | chọn nhiều lựa chọn']
+  status varchar
+  maximum_score integer [note: ' với type nhập điểm: Điểm tối đa']
+  daily_evaluation_id integer
+  workspace_id integer
+}
+Table evaluation_option_values {
+  id integer [pk]
+  value varchar
+  evaluation_criteria_id integer
+  workspace_id integer
+}

@@ -3,7 +3,7 @@ import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesso
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLessons } from '@/models/class-lessons.model';
 import { ClassLessonsService } from '@/services/class-lessons.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -26,6 +26,7 @@ export class ClassLessonsController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get class_lessons by id' })
   async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
     const data = await this.service.findById(id, userWorkspaceId);
@@ -35,6 +36,7 @@ export class ClassLessonsController {
    * For Teacher
    */
   @Get('/class/:classId')
+  @Authorized()
   @OpenAPI({ summary: 'Get homework by classId' })
   async getHomeworkByClassId(
     @Param('classId') classId: number,
@@ -49,6 +51,7 @@ export class ClassLessonsController {
    * For Teacher
    */
   @Get('/timetable/:timetableId')
+  @Authorized()
   @OpenAPI({ summary: 'Get homework by timetableId' })
   async getHomeworkByTimetableId(@Param('timetableId') timetableId: number, @QueryParam('workspaceId') workspaceId: number, @Res() res: any) {
     const data = await this.service.getHomeworkByTimetableId(timetableId, workspaceId);
@@ -56,6 +59,7 @@ export class ClassLessonsController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create class_lessons' })
   async create(@Body({ required: true }) body: ClassLessons, @Res() res: any) {
     const data = await this.service.create(body);
@@ -63,6 +67,7 @@ export class ClassLessonsController {
   }
 
   @Put('/exercise/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_lessons in class' })
   async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any) {
     const data = await this.service.updateExercise(id, body);
@@ -70,6 +75,7 @@ export class ClassLessonsController {
   }
 
   @Put('/timetable/:timetableId')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_lessons by timetable' })
   async updateClassLessonByTimetable(
     @Param('timetableId') timetableId: number,
@@ -80,6 +86,7 @@ export class ClassLessonsController {
     return successResponse({ res, data, status_code: 200 });
   }
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update class_lessons' })
   async update() {
     try {
@@ -89,6 +96,7 @@ export class ClassLessonsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete class_lessons' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

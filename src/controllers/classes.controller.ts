@@ -1,7 +1,7 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Classes, StatusClasses } from '@/models/classes.model';
 import { ClassesService } from '@/services/classes.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -11,6 +11,7 @@ export class ClassesController {
   constructor(public service: ClassesService) {}
 
   @Get('/')
+  @Authorized()
   @OpenAPI({ summary: 'Get classes list' })
   async findAll(
     @QueryParam('page') page: number,
@@ -24,6 +25,7 @@ export class ClassesController {
   }
 
   @Get('/owner-teacher')
+  @Authorized()
   @OpenAPI({ summary: 'Get lớp học' })
   async getOwnerClasses(
     @QueryParam('page') page: number,
@@ -38,6 +40,7 @@ export class ClassesController {
   }
 
   @Get('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Get classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
@@ -45,6 +48,7 @@ export class ClassesController {
   }
 
   @Get('/:id/schedule')
+  @Authorized()
   @OpenAPI({ summary: 'Get lịch học' })
   async getClassSchedule(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.getClassSchedule(id);
@@ -52,6 +56,7 @@ export class ClassesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create classes' })
   async create(@Body({ required: true }) body: Classes, @Res() res: any) {
     const data = await this.service.create(body);
@@ -59,6 +64,7 @@ export class ClassesController {
   }
 
   @Put('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Update classes' })
   async update() {
     try {
@@ -68,6 +74,7 @@ export class ClassesController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete classes' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
