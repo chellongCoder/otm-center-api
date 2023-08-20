@@ -6,9 +6,6 @@ export class Users extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'workspace_id' })
-  workspaceId: number;
-
   @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
 
