@@ -31,6 +31,14 @@ export class DailyEvaluationsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/class/:id')
+  @Authorized()
+  @OpenAPI({ summary: 'Get daily_evaluations of class by class_id' })
+  async getDailyEvaluationByClassId(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.getDailyEvaluationByClassId(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Post('/')
   @Authorized()
   @OpenAPI({ summary: 'Create daily_evaluations' })

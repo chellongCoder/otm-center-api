@@ -426,3 +426,19 @@ Table evaluation_option_values {
   evaluation_criteria_id integer
   workspace_id integer
 }
+Table class_timetable_detail_evaluations {
+  id integer [pk]
+  class_timetable_detail_id integer
+  evaluation_criteria_id integer
+  score_value integer
+  text_value varchar
+  
+  workspace_id integer
+}
+Table class_timetable_detail_evaluation_options {
+  id integer [pk]
+  class_timetable_detail_evaluation_id integer
+  evaluation_option_value_id integer
+
+  workspace_id integer
+}

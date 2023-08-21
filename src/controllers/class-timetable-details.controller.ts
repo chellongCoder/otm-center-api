@@ -59,7 +59,7 @@ export class ClassTimetableDetailsController {
     return successResponse({ res, data, status_code: 201 });
   }
 
-  @Put('/student_evaluation')
+  @Post('/student_evaluation')
   @Authorized()
   @OpenAPI({ summary: 'Đánh giá hàng ngày học sinh' })
   async updateEvaluationStudentInLesson(@Body({ required: true }) body: UpdateEvaluationInLessonDto, @Res() res: any) {

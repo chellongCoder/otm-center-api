@@ -63,6 +63,7 @@ enum ERROR {
   CLASSROOM_NOT_FOUND = 1301,
   CLASS_NOT_FOUND = 1302,
   SCORE_INVALID = 1303,
+  EVALUATION_NOT_FOUND = 1304,
   /**
    * * Organization
    */

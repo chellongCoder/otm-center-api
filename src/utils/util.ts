@@ -13,7 +13,7 @@ const signOptions: jwt.SignOptions = {
   issuer: i,
   subject: s,
   audience: a,
-  expiresIn: '1h',
+  expiresIn: '30d',
   algorithm: 'RS256',
 };
 // VERIFY OPTIONS
@@ -21,7 +21,7 @@ const verifyOptions = {
   issuer: i,
   subject: s,
   audience: a,
-  expiresIn: '1h',
+  expiresIn: '30d',
   algorithm: ['RS256'],
 };
 

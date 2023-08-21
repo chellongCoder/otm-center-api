@@ -10,6 +10,9 @@ export class DailyEvaluations extends BaseEntity {
   @Column({ name: 'name' })
   name: string;
 
+  @Column({ name: 'editable', default: true })
+  editable: boolean;
+
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
