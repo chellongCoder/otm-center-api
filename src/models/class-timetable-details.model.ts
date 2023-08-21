@@ -8,10 +8,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Timetables } from './timetables.model';
 import { UserWorkspaces } from './user-workspaces.model';
+import { ClassTimetableDetailEvaluations } from './class-timetable-detail-evaluations.model';
 
 export enum AttendanceStatus {
   ON_TIME = 'ON_TIME', // ĐÚNG GIỜ
@@ -88,6 +90,9 @@ export class ClassTimetableDetails extends BaseEntity {
   @ManyToOne(() => UserWorkspaces)
   @JoinColumn({ name: 'user_workspace_id' })
   userWorkspace: UserWorkspaces;
+
+  @OneToMany(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetail)
+  public classTimetableDetailEvaluations: ClassTimetableDetailEvaluations[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_details');

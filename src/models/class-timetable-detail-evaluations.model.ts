@@ -1,5 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { ClassTimetableDetails } from './class-timetable-details.model';
+import { ClassTimetableDetailEvaluationOptions } from './class-timetable-detail-evaluation-options.model';
 /**
  * Đánh giá học viên trong buổi học của lớp
  */
@@ -37,6 +50,13 @@ export class ClassTimetableDetailEvaluations extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => ClassTimetableDetails, item => item.classTimetableDetailEvaluations)
+  @JoinColumn({ name: 'class_timetable_detail_id' })
+  classTimetableDetail: ClassTimetableDetails;
+
+  @OneToMany(() => ClassTimetableDetailEvaluationOptions, item => item.classTimetableDetailEvaluation)
+  public classTimetableDetailEvaluationOptions: ClassTimetableDetailEvaluationOptions[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_detail_evaluations');

@@ -1,5 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { ClassTimetableDetailEvaluations } from './class-timetable-detail-evaluations.model';
+import { EvaluationOptionValues } from './evaluation-option-values.model';
 
 @Entity('class_timetable_detail_evaluation_options')
 export class ClassTimetableDetailEvaluationOptions extends BaseEntity {
@@ -29,6 +42,14 @@ export class ClassTimetableDetailEvaluationOptions extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetailEvaluationOptions)
+  @JoinColumn({ name: 'class_timetable_detail_evaluation_id' })
+  classTimetableDetailEvaluation: ClassTimetableDetailEvaluations;
+
+  @OneToOne(() => EvaluationOptionValues)
+  @JoinColumn({ name: 'evaluation_option_value_id' })
+  evaluationOptionValue: EvaluationOptionValues;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_detail_evaluation_options');
