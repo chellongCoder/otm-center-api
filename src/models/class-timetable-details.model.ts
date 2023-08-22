@@ -21,6 +21,11 @@ export enum AttendanceStatus {
   ABSENT_WITH_LEAVE = 'ABSENT_WITH_LEAVE', // NGHỈ CÓ PHÉP
   ABSENT = 'ABSENT', // NGHỈ KHÔNG PHÉP
 }
+
+export enum LearningStatus {
+  UNLEARNED = 'UNLEARNED', // CHƯA HỌC
+  LEARNED = 'LEARNED', // ĐÃ HỌC
+}
 /**
  * Thông tin chi tiết buổi học
  */
@@ -34,6 +39,9 @@ export class ClassTimetableDetails extends BaseEntity {
 
   @Column({ name: 'user_workspace_id' })
   userWorkspaceId: number;
+
+  @Column({ name: 'learning_status', default: LearningStatus.UNLEARNED })
+  learningStatus: LearningStatus;
 
   @Column({ name: 'attendance_status', nullable: true })
   attendanceStatus: AttendanceStatus;

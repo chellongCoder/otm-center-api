@@ -120,6 +120,7 @@ export class ClassTimetableDetailsService {
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
         'classTimetableDetails.classTimetableDetailEvaluations',
+        'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions.evaluationOptionValue',
       ],
@@ -276,7 +277,7 @@ export class ClassTimetableDetailsService {
               case EvaluationTypes.MULTIPLE_OPTIONS: {
                 const evaluationOptionValuesIds = evaluationCriteriaDataCurrent.evaluationOptionValues.map(el => el.id);
                 if (updateEvaluationCriteria.evaluationOptionValueIds.filter(x => !evaluationOptionValuesIds.includes(x)).length) {
-                  throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
+                  throw new Exception(ExceptionName.EVALUATION_OPTION_NOT_FOUND, ExceptionCode.EVALUATION_OPTION_NOT_FOUND);
                 }
                 const newEvaluationTimetable = new ClassTimetableDetailEvaluations();
                 newEvaluationTimetable.classTimetableDetailId = classTimetableDetailItem.id;

@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
-import { UserWorkspaceClasses } from './user-workspace-classes.model';
 import { Lessons } from './lessons.model';
 import { Lectures } from './lectures.model';
 import { Classes } from './classes.model';

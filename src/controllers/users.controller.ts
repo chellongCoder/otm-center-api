@@ -1,6 +1,5 @@
 import { CreateUserDto } from '@/dtos/create-user.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { Users } from '@/models/users.model';
 import { UsersService } from '@/services/users.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
