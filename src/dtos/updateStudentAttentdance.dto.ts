@@ -24,10 +24,6 @@ export class UpdateStudentAttendanceDto {
   timetableId: number;
 
   @IsNumber()
-  @JSONSchema({ description: 'user_workspace_id: teacher update status', example: 7 })
-  userWorkspaceId: number;
-
-  @IsNumber()
   @JSONSchema({ description: 'workspace_id', example: 1 })
   workspaceId: number;
 
