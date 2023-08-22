@@ -13,6 +13,7 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { ClassTimetableDetails } from './class-timetable-details.model';
 import { ClassTimetableDetailEvaluationOptions } from './class-timetable-detail-evaluation-options.model';
+import { EvaluationCriterias } from './evaluation-criterias.model';
 /**
  * Đánh giá học viên trong buổi học của lớp
  */
@@ -57,6 +58,10 @@ export class ClassTimetableDetailEvaluations extends BaseEntity {
 
   @OneToMany(() => ClassTimetableDetailEvaluationOptions, item => item.classTimetableDetailEvaluation)
   public classTimetableDetailEvaluationOptions: ClassTimetableDetailEvaluationOptions[];
+
+  @ManyToOne(() => EvaluationCriterias)
+  @JoinColumn({ name: 'evaluation_criteria_id' })
+  evaluationCriteria: EvaluationCriterias;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_detail_evaluations');

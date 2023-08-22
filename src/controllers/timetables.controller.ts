@@ -1,8 +1,9 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Timetables } from '@/models/timetables.model';
 import { TimetablesService } from '@/services/timetables.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -39,11 +40,20 @@ export class TimetablesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
-  @Get('/:id')
+  @Get('/teacher/:id')
   @Authorized()
   @OpenAPI({ summary: 'Get timetables by id' })
-  async findById(@Param('id') id: number, @Res() res: any) {
-    const data = await this.service.findById(id);
+  async findByIdTeacher(@Param('id') id: number, @Res() res: any) {
+    const data = await this.service.findByIdTeacher(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/student/:id')
+  @Authorized()
+  @OpenAPI({ summary: 'Get timetables by id' })
+  async findByIdStudent(@Param('id') id: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.findByIdStudent(id, user_workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
 

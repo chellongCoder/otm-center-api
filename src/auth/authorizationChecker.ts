@@ -1,5 +1,5 @@
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
-import { NextFunction, Request as ExpressRequest, Response } from 'express';
+import { Request as ExpressRequest } from 'express';
 
 import { Action } from 'routing-controllers';
 import { LANGUAGES } from '@/constants';

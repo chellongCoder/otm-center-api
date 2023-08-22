@@ -43,7 +43,7 @@ export class TimetablesService {
   /**
    * findById
    */
-  public async findById(id: number) {
+  public async findByIdTeacher(id: number) {
     return Timetables.findOne({
       where: {
         id,
@@ -56,6 +56,35 @@ export class TimetablesService {
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+      ],
+    });
+  }
+
+  /**
+   * findById
+   */
+  public async findByIdStudent(id: number, userWorkspaceId: number) {
+    return Timetables.findOne({
+      where: {
+        id,
+        classTimetableDetails: {
+          userWorkspaceId: userWorkspaceId,
+        },
+      },
+      relations: [
+        'class',
+        'classLesson',
+        'classLecture',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.classroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.classTimetableDetailEvaluations',
+        'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
+        'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
+        'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions.evaluationOptionValue',
       ],
     });
   }
