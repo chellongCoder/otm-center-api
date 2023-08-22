@@ -1,10 +1,11 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { UpdateEvaluationInLessonDto } from '@/dtos/update-evaluation-student-in-lesson.dto';
 import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassTimetableDetailsService } from '@/services/class-timetable-details.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -46,24 +47,27 @@ export class ClassTimetableDetailsController {
   @Post('/finish_assignment')
   @Authorized()
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
-  async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any) {
-    const data = await this.service.finishAssignment(body);
+  async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.finishAssignment(body, user_workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
   @Put('/student_attendance')
   @Authorized()
   @OpenAPI({ summary: 'Điểm danh học sinh' })
-  async updateStudentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any) {
-    const data = await this.service.updateStudentAttendance(body);
+  async updateStudentAttendance(@Body({ required: true }) body: UpdateStudentAttendanceDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateStudentAttendance(body, user_workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
   @Post('/student_evaluation')
   @Authorized()
   @OpenAPI({ summary: 'Đánh giá hàng ngày học sinh' })
-  async updateEvaluationStudentInLesson(@Body({ required: true }) body: UpdateEvaluationInLessonDto, @Res() res: any) {
-    const data = await this.service.updateEvaluationStudentInLesson(body);
+  async updateEvaluationStudentInLesson(@Body({ required: true }) body: UpdateEvaluationInLessonDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateEvaluationStudentInLesson(body, user_workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
@@ -74,8 +78,10 @@ export class ClassTimetableDetailsController {
     @Param('id') id: number,
     @Body({ required: true }) body: UpdateClassTimetableDetailMarkingDto,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.updateClassTimetableDetailMarking(id, body);
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateClassTimetableDetailMarking(id, body, user_workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
 

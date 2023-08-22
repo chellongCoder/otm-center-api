@@ -66,10 +66,10 @@ export class ClassTimetableDetailsService {
   public async delete(id: number) {
     return ClassTimetableDetails.delete(id);
   }
-  public async finishAssignment(item: UpdateFinishAssignmentDto) {
+  public async finishAssignment(item: UpdateFinishAssignmentDto, userWorkspaceId: number) {
     const classTimetableDetail = await ClassTimetableDetails.findOne({
       where: {
-        userWorkspaceId: item.userWorkspaceId,
+        userWorkspaceId: userWorkspaceId,
         workspaceId: item.workspaceId,
         timetableId: item.timetableId,
       },
@@ -77,7 +77,7 @@ export class ClassTimetableDetailsService {
     if (!classTimetableDetail?.id) {
       const classTimetableDetailCreate = new ClassTimetableDetails();
       classTimetableDetailCreate.timetableId = item.timetableId;
-      classTimetableDetailCreate.userWorkspaceId = item.userWorkspaceId;
+      classTimetableDetailCreate.userWorkspaceId = userWorkspaceId;
       classTimetableDetailCreate.homeworkAssignment = item.assignment;
       classTimetableDetailCreate.workspaceId = item.workspaceId;
       return await ClassTimetableDetails.insert(classTimetableDetailCreate);
@@ -126,7 +126,7 @@ export class ClassTimetableDetailsService {
       ],
     });
   }
-  public async updateClassTimetableDetailMarking(id: number, item: UpdateClassTimetableDetailMarkingDto) {
+  public async updateClassTimetableDetailMarking(id: number, item: UpdateClassTimetableDetailMarkingDto, userWorkspaceId: number) {
     const classTimetableDetailData = await ClassTimetableDetails.findOne({
       where: {
         id,
@@ -138,10 +138,10 @@ export class ClassTimetableDetailsService {
     return await ClassTimetableDetails.update(id, {
       homeworkAssessment: item.homeworkAssessment,
       homeworkScore: item.homeworkScore,
-      homeworkByUserWorkspaceId: item.userWorkspaceId,
+      homeworkByUserWorkspaceId: userWorkspaceId,
     });
   }
-  public async updateStudentAttendance(item: UpdateStudentAttendanceDto) {
+  public async updateStudentAttendance(item: UpdateStudentAttendanceDto, userWorkspaceId: number) {
     const timeTableData = await Timetables.findOne({
       where: {
         id: item.timetableId,
@@ -176,7 +176,7 @@ export class ClassTimetableDetailsService {
               id: classTimetableDetailItem.id,
               attendanceStatus: userWorkspaceAttendanceItem.status,
               attendanceNote: userWorkspaceAttendanceItem.note,
-              attendanceByUserWorkspaceId: item.userWorkspaceId,
+              attendanceByUserWorkspaceId: userWorkspaceId,
             });
           }
         }
@@ -190,7 +190,7 @@ export class ClassTimetableDetailsService {
       }
     }
   }
-  public async updateEvaluationStudentInLesson(item: UpdateEvaluationInLessonDto) {
+  public async updateEvaluationStudentInLesson(item: UpdateEvaluationInLessonDto, userWorkspaceId: number) {
     const timetableData = await Timetables.findOne({
       where: {
         id: item.timetableId,
@@ -243,7 +243,7 @@ export class ClassTimetableDetailsService {
             isPublishEvaluation = true;
           }
           await queryRunner.manager.getRepository(ClassTimetableDetails).update(classTimetableDetailItem.id, {
-            evaluationByUserWorkspaceId: item.userWorkspaceId,
+            evaluationByUserWorkspaceId: userWorkspaceId,
             evaluationPublish: isPublishEvaluation,
           });
           for (const updateEvaluationCriteria of item.evaluationDetails) {
