@@ -8,16 +8,23 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Timetables } from './timetables.model';
 import { UserWorkspaces } from './user-workspaces.model';
+import { ClassTimetableDetailEvaluations } from './class-timetable-detail-evaluations.model';
 
 export enum AttendanceStatus {
   ON_TIME = 'ON_TIME', // ĐÚNG GIỜ
   LATE = 'LATE', // MUỘN
   ABSENT_WITH_LEAVE = 'ABSENT_WITH_LEAVE', // NGHỈ CÓ PHÉP
   ABSENT = 'ABSENT', // NGHỈ KHÔNG PHÉP
+}
+
+export enum LearningStatus {
+  UNLEARNED = 'UNLEARNED', // CHƯA HỌC
+  LEARNED = 'LEARNED', // ĐÃ HỌC
 }
 /**
  * Thông tin chi tiết buổi học
@@ -32,6 +39,9 @@ export class ClassTimetableDetails extends BaseEntity {
 
   @Column({ name: 'user_workspace_id' })
   userWorkspaceId: number;
+
+  @Column({ name: 'learning_status', default: LearningStatus.UNLEARNED })
+  learningStatus: LearningStatus;
 
   @Column({ name: 'attendance_status', nullable: true })
   attendanceStatus: AttendanceStatus;
@@ -88,6 +98,9 @@ export class ClassTimetableDetails extends BaseEntity {
   @ManyToOne(() => UserWorkspaces)
   @JoinColumn({ name: 'user_workspace_id' })
   userWorkspace: UserWorkspaces;
+
+  @OneToMany(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetail)
+  public classTimetableDetailEvaluations: ClassTimetableDetailEvaluations[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_details');
