@@ -1,25 +1,30 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
+export enum PermissionKeys {
+  TEACHER = 'TEACHER',
+  STUDENT = 'STUDENT',
+  STAFF = 'STAFF',
+}
 @Entity('permissions')
 export class Permissions extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'key' })
-  key: string;
+  key: PermissionKeys;
 
-  @Column({ name: 'workspace_id' })
-  workspaceId: number;
+  // @Column({ name: 'workspace_id' })
+  // workspaceId: number;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
-  @Column({ name: 'is_all_permissions' })
+  @Column({ name: 'is_all_permissions', default: false })
   isAllPermissions: boolean;
 
-  @Column({ name: 'group_permission_id' })
-  groupPermissionId: number;
+  // @Column({ name: 'group_permission_id' })
+  // groupPermissionId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
