@@ -283,7 +283,6 @@ export class ClassTimetableDetailsService {
                 newEvaluationTimetable.classTimetableDetailId = classTimetableDetailItem.id;
                 newEvaluationTimetable.evaluationCriteriaId = evaluationCriteriaDataCurrent.id;
                 newEvaluationTimetable.workspaceId = item.workspaceId;
-                console.log('chh_log ---> updateEvaluationStudentInLesson ---> newEvaluationTimetable:', newEvaluationTimetable);
                 const classTimetableDetailEvaluationCreate = await queryRunner.manager
                   .getRepository(ClassTimetableDetailEvaluations)
                   .insert(newEvaluationTimetable);

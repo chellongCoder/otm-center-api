@@ -2,6 +2,7 @@ import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLessons } from '@/models/class-lessons.model';
+import { PermissionKeys } from '@/models/permissions.model';
 import { ClassLessonsService } from '@/services/class-lessons.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -36,7 +37,7 @@ export class ClassLessonsController {
    * For Teacher
    */
   @Get('/class/:classId')
-  @Authorized()
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get homework by classId' })
   async getHomeworkByClassId(
     @Param('classId') classId: number,
@@ -51,7 +52,7 @@ export class ClassLessonsController {
    * For Teacher
    */
   @Get('/timetable/:timetableId')
-  @Authorized()
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get homework by timetableId' })
   async getHomeworkByTimetableId(@Param('timetableId') timetableId: number, @QueryParam('workspaceId') workspaceId: number, @Res() res: any) {
     const data = await this.service.getHomeworkByTimetableId(timetableId, workspaceId);

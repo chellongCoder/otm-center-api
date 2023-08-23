@@ -1,8 +1,12 @@
-import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { UserWorkspaceTypes, UserWorkspaces } from '@/models/user-workspaces.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { DbConnection } from '@/database/dbConnection';
+import { PermissionKeys, Permissions } from '@/models/permissions.model';
+import { UserWorkspacePermissions } from '@/models/user-workspace-permissions.model';
+import moment from 'moment-timezone';
 
 @Service()
 export class UserWorkspacesService {
@@ -39,8 +43,49 @@ export class UserWorkspacesService {
    * create
    */
   public async create(item: UserWorkspaces) {
-    const results = await UserWorkspaces.insert(item);
-    return results;
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const userWorkspaceCreate = await queryRunner.manager.getRepository(UserWorkspaces).insert(item);
+        const userWorkspacePermissionCreate = new UserWorkspacePermissions();
+        userWorkspacePermissionCreate.userWorkspaceId = userWorkspaceCreate.identifiers[0]?.id;
+        userWorkspacePermissionCreate.validDate = moment().toDate();
+        userWorkspacePermissionCreate.workspaceId = item.workspaceId;
+        const permissionData = await Permissions.find();
+
+        switch (item.userWorkspaceType) {
+          case UserWorkspaceTypes.STAFF: {
+            const permissionItem = permissionData.find(el => el.key === PermissionKeys.STAFF);
+            if (permissionItem) userWorkspacePermissionCreate.permissionId = permissionItem.id;
+            break;
+          }
+          case UserWorkspaceTypes.TEACHER: {
+            const permissionItem = permissionData.find(el => el.key === PermissionKeys.TEACHER);
+            if (permissionItem) userWorkspacePermissionCreate.permissionId = permissionItem.id;
+            break;
+          }
+          case UserWorkspaceTypes.PARENT:
+          case UserWorkspaceTypes.STUDENT: {
+            const permissionItem = permissionData.find(el => el.key === PermissionKeys.STUDENT);
+            if (permissionItem) userWorkspacePermissionCreate.permissionId = permissionItem.id;
+            break;
+          }
+          default:
+            break;
+        }
+        await queryRunner.manager.getRepository(UserWorkspacePermissions).insert(userWorkspacePermissionCreate);
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+      return true;
+    }
   }
 
   /**

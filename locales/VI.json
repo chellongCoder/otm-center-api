@@ -1,7 +1,7 @@
 {
 	"WORKSPACE_NAME_IS_NOT_ALLOWED": "Tên trung tâm không hợp lệ",
 	"VALIDATE_FAILED": "Validate thất bại",
-	"PERMISSION_DENIED": "Truy cập không hợp lệ",
+	"PERMISSION_DENIED": "Quyền truy cập không hợp lệ",
 	"DATA_NOT_FOUND": "Không tìm thấy dữ liệu",
 	"DATA_IS_EXIST": "Dữ liệu đã tồn tại",
 	"WORKSPACE_NOT_FOUND": "Không tìm thấy trung tâm",

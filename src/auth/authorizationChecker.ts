@@ -8,6 +8,9 @@ import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { AuthService } from '@/services/auth.service';
 import Container from 'typedi';
+import { UserWorkspacePermissions } from '@/models/user-workspace-permissions.model';
+import { IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import moment from 'moment-timezone';
 
 export interface Request extends ExpressRequest {
   headers: {
@@ -38,7 +41,7 @@ export interface MobileContext {
   // hook_context: IHookContext;
 }
 export function authMiddleware(): (action: Action, roles: any[]) => Promise<boolean> | boolean {
-  return async function innerAuthorizationChecker(action: Action): Promise<boolean> {
+  return async function innerAuthorizationChecker(action: Action, roles: string[]): Promise<boolean> {
     const { request, response, context, next } = action;
     const authService = Container.get(AuthService);
 
@@ -77,6 +80,31 @@ export function authMiddleware(): (action: Action, roles: any[]) => Promise<bool
 
     mobileContext['user_workspace_context'] = user_workspace_data;
     mobileContext['workspace_context'] = workspace_data;
+    if (user_workspace_data.isOwner) {
+      mobileContext['is_owner'] = true;
+    }
+    if (roles) {
+      const permissionData = await UserWorkspacePermissions.findOne({
+        where: [
+          {
+            userWorkspaceId: user_workspace_data.id,
+            workspaceId: workspace_data.id,
+            validDate: LessThanOrEqual(moment().toDate()),
+            expiresDate: IsNull(),
+          },
+          {
+            userWorkspaceId: user_workspace_data.id,
+            workspaceId: workspace_data.id,
+            validDate: LessThanOrEqual(moment().toDate()),
+            expiresDate: MoreThanOrEqual(moment().toDate()),
+          },
+        ],
+        relations: ['permission'],
+      });
+      if (permissionData && roles.find(role => permissionData.permission.key.indexOf(role) === -1)) {
+        throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
+      }
+    }
     // /**
     //  * Because we need to validate access token expired
     //  * So we need to get cache after check user token
