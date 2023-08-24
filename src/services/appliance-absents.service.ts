@@ -6,6 +6,7 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Timetables } from '@/models/timetables.model';
 import { In } from 'typeorm';
 import { ApplianceAbsentTimetables } from '@/models/appliance-absent-timetables.model';
+import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -40,7 +41,7 @@ export class ApplianceAbsentsService {
   /**
    * create
    */
-  public async create(item: ApplianceAbsents, userWorkspaceId: number, workspaceId: number) {
+  public async create(item: ApplianceAbsentsDto, userWorkspaceId: number, workspaceId: number) {
     console.log('chh_log ---> create ---> item:', item.applianceAbsentTimetables);
     const timetableData = await Timetables.find({
       where: {
@@ -81,7 +82,7 @@ export class ApplianceAbsentsService {
         await queryRunner.release();
       }
     }
-    return results;
+    return true;
   }
 
   /**
