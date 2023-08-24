@@ -448,3 +448,9 @@ Table user_workspace_permissions {
   expires_date date
   workspace_id integer
 }
+Table appliance_absent_timetables {
+ id integer [pk] 
+ timetable_id integer
+ appliance_absent_id integer
+ workspace_id integer
+}

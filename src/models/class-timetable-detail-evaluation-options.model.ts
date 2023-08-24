@@ -7,7 +7,6 @@ import {
   BaseEntity,
   UpdateDateColumn,
   ManyToOne,
-  OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
@@ -47,7 +46,7 @@ export class ClassTimetableDetailEvaluationOptions extends BaseEntity {
   @JoinColumn({ name: 'class_timetable_detail_evaluation_id' })
   classTimetableDetailEvaluation: ClassTimetableDetailEvaluations;
 
-  @OneToOne(() => EvaluationOptionValues)
+  @ManyToOne(() => EvaluationOptionValues)
   @JoinColumn({ name: 'evaluation_option_value_id' })
   evaluationOptionValue: EvaluationOptionValues;
 

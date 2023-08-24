@@ -1,6 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { ApplianceAbsentTimetables } from './appliance-absent-timetables.model';
+import { UserWorkspaces } from './user-workspaces.model';
 
+export enum AbsentStatus {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  CANCEL = 'CANCEL',
+  NOT_APPROVED = 'NOT_APPROVED',
+}
 @Entity('appliance_absents')
 export class ApplianceAbsents extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -9,20 +28,17 @@ export class ApplianceAbsents extends BaseEntity {
   @Column({ name: 'user_workspace_id' })
   userWorkspaceId: number;
 
-  @Column({ name: 'from_time' })
-  fromTime: Date;
-
-  @Column({ name: 'to_time' })
-  toTime: Date;
-
   @Column({ name: 'note' })
   note: string;
+
+  @Column({ name: 'status', default: AbsentStatus.NOT_APPROVED })
+  status: AbsentStatus;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
-  @Column({ name: 'class_id' })
-  classId: number;
+  @Column({ name: 'update_by_user_workspace_id' })
+  updateByUserWorkspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -38,6 +54,13 @@ export class ApplianceAbsents extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @OneToMany(() => ApplianceAbsentTimetables, item => item.applianceAbsent)
+  public applianceAbsentTimetables: ApplianceAbsentTimetables[];
+
+  @ManyToOne(() => UserWorkspaces)
+  @JoinColumn({ name: 'update_by_user_workspace_id' })
+  userWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('appliance_absents');
