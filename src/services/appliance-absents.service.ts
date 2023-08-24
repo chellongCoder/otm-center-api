@@ -42,10 +42,10 @@ export class ApplianceAbsentsService {
    * create
    */
   public async create(item: ApplianceAbsentsDto, userWorkspaceId: number, workspaceId: number) {
-    console.log('chh_log ---> create ---> item:', item.applianceAbsentTimetables);
+    console.log('chh_log ---> create ---> item:', item.timetableIds);
     const timetableData = await Timetables.find({
       where: {
-        id: In(item.applianceAbsentTimetables),
+        id: In(item.timetableIds),
       },
     });
     if (!timetableData.length) {
