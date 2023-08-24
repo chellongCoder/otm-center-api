@@ -87,3 +87,13 @@ export const calculateNextStepCycle = (dayOfWeek: number, startDate: string): st
 
   return nextStepCycleDate;
 };
+export const convertToURL = (str: string) => {
+  const newStr = str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    // .replace(/[\\.]/g, '-')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .replace(/\s+/g, '-');
+  return newStr;
+};
