@@ -326,8 +326,6 @@ Table events {
 Table appliance_absents {
   id integer [pk]
   user_workspace_id integer
-  from_time timestamp
-  to_time timestamp
   note varchar
   workspace_id integer
   class_id integer
@@ -440,5 +438,13 @@ Table class_timetable_detail_evaluation_options {
   class_timetable_detail_evaluation_id integer
   evaluation_option_value_id integer
 
+  workspace_id integer
+}
+Table user_workspace_permissions {
+  id integer [pk]
+  user_workspace_id integer
+  permission_id integer
+  valid_date date
+  expires_date date
   workspace_id integer
 }

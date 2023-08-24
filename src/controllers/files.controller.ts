@@ -1,8 +1,11 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Files } from '@/models/files.model';
+import { SingleUpload } from '@/schema-interfaces/upload/single-upload';
+import { UploadFileResponse } from '@/schema-interfaces/upload/upload-file';
 import { FilesService } from '@/services/files.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
+import { Express } from 'express';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res, UploadedFile } from 'routing-controllers';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
@@ -34,6 +37,15 @@ export class FilesController {
   @OpenAPI({ summary: 'Create files' })
   async create(@Body({ required: true }) body: Files, @Res() res: any) {
     const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Post('/upload')
+  @OpenAPI({ summary: 'Upload a single file' })
+  @ResponseSchema(UploadFileResponse)
+  @SingleUpload('file')
+  async uploadImage(@UploadedFile('file') file: any, @Res() res: any) {
+    const data = await this.service.uploadFile(file);
     return successResponse({ res, data, status_code: 201 });
   }
 

@@ -1,6 +1,8 @@
 import { Files } from '@/models/files.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { MinioClient } from '@/utils/minio';
 
 @Service()
 export class FilesService {
@@ -52,5 +54,25 @@ export class FilesService {
    */
   public async delete(id: number) {
     return Files.delete(id);
+  }
+  public async uploadFile(file: any) {
+    try {
+      if (!file) {
+        throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+      }
+      const uploadedFile = await MinioClient.getInstance().upload(file);
+      const result = {
+        originalFile: file.originalname,
+        url: uploadedFile?.url,
+      };
+      const newFile = new Files();
+      newFile.originalName = file.originalname;
+      newFile.name = uploadedFile ? uploadedFile.fileName : '';
+      newFile.url = uploadedFile ? uploadedFile.url : '';
+      await newFile.save();
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 }
