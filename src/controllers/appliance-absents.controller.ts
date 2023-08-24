@@ -1,7 +1,10 @@
+import { MobileContext } from '@/auth/authorizationChecker';
+import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ApplianceAbsents } from '@/models/appliance-absents.model';
+import { PermissionKeys } from '@/models/permissions.model';
 import { ApplianceAbsentsService } from '@/services/appliance-absents.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -31,9 +34,12 @@ export class ApplianceAbsentsController {
   }
 
   @Post('/')
-  @OpenAPI({ summary: 'Create appliance_absents' })
-  async create(@Body({ required: true }) body: ApplianceAbsents, @Res() res: any) {
-    const data = await this.service.create(body);
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Gửi đơn báo nghỉ' })
+  async create(@Body({ required: true }) body: ApplianceAbsentsDto, @Res() res: any, @Req() req: any) {
+    console.log('chh_log ---> create ---> body:', body);
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

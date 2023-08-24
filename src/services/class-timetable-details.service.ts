@@ -246,6 +246,7 @@ export class ClassTimetableDetailsService {
             evaluationByUserWorkspaceId: userWorkspaceId,
             evaluationPublish: isPublishEvaluation,
           });
+
           for (const updateEvaluationCriteria of item.evaluationDetails) {
             const evaluationCriteriaDataCurrent = evaluationCriteriaData.find(el => el.id === updateEvaluationCriteria.evaluationCriteriaId);
             if (!evaluationCriteriaDataCurrent) {
