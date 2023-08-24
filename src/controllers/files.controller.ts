@@ -3,7 +3,6 @@ import { Files } from '@/models/files.model';
 import { SingleUpload } from '@/schema-interfaces/upload/single-upload';
 import { UploadFileResponse } from '@/schema-interfaces/upload/upload-file';
 import { FilesService } from '@/services/files.service';
-import { Express } from 'express';
 import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res, UploadedFile } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
