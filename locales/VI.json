@@ -30,5 +30,6 @@
 	"SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau",
 	"SCORE_INVALID": "Điểm không hợp lệ, vui lòng thử lại",
 	"EVALUATION_NOT_FOUND": "Không tìm thấy tiêu chí đánh giá",
-	"EVALUATION_OPTION_NOT_FOUND": "Không tìm thấy lựa chọn hình thức đánh giá "
+	"EVALUATION_OPTION_NOT_FOUND": "Không tìm thấy lựa chọn hình thức đánh giá",
+	"SERVICE_CONNECT_FAIL": "Kết nối dịch vụ tích hợp lỗi"
 }

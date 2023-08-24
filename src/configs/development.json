@@ -30,6 +30,11 @@
     "authToken": "5597a7efc6942993df02815569851b63",
     "verifySid": "VA2987083a7995d5031e067b897877a9e2"
   },
+  "minio": {
+    "endPoint": "minio.2soft.top",
+    "accessKey": "IgvcxPeDyJ81IZy1",
+    "secretKey": "1Qq5VfQHPEwx1jVgpVluzSdxAhZyH9Ti"
+  },
   "redis": {
     "host": "localhost",
     "port": 6380,

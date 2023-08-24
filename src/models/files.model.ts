@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { IsFQDN, IsString } from 'class-validator';
 
 @Entity('files')
 export class Files extends BaseEntity {
@@ -7,15 +8,18 @@ export class Files extends BaseEntity {
   id: number;
 
   @Column({ name: 'url' })
+  @IsFQDN()
   url: string;
 
-  @Column({ name: 'lecture_id' })
-  lectureId: number;
+  @Column({ name: 'name', nullable: true })
+  @IsString()
+  name: string;
 
-  @Column({ name: 'post_id' })
-  postId: number;
+  @Column({ name: 'original_name', nullable: true })
+  @IsString()
+  originalName: string;
 
-  @Column({ name: 'workspace_id' })
+  @Column({ name: 'workspace_id', nullable: true })
   workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
