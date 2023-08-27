@@ -218,6 +218,9 @@ export class TimetablesService {
       where: {
         workspaceId,
         date: Between(moment(fromDate, 'YYYYMMDD').toDate(), moment(toDate, 'YYYYMMDD').toDate()),
+        classTimetableDetails: {
+          userWorkspaceId: userWorkspaceId,
+        },
       },
       relations: [
         'class',
