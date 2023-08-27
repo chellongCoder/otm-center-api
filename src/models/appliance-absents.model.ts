@@ -15,10 +15,10 @@ import { ApplianceAbsentTimetables } from './appliance-absent-timetables.model';
 import { UserWorkspaces } from './user-workspaces.model';
 
 export enum AbsentStatus {
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  CANCEL = 'CANCEL',
-  NOT_APPROVED = 'NOT_APPROVED',
+  APPROVED = 'APPROVED', // đồng ý
+  REJECTED = 'REJECTED', // từ chối
+  CANCEL = 'CANCEL', // huỷ
+  NOT_APPROVED_YET = 'NOT_APPROVED_YET', // chưa đồng ý
 }
 @Entity('appliance_absents')
 export class ApplianceAbsents extends BaseEntity {
@@ -31,13 +31,13 @@ export class ApplianceAbsents extends BaseEntity {
   @Column({ name: 'note' })
   note: string;
 
-  @Column({ name: 'status', default: AbsentStatus.NOT_APPROVED })
+  @Column({ name: 'status', default: AbsentStatus.NOT_APPROVED_YET })
   status: AbsentStatus;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
-  @Column({ name: 'update_by_user_workspace_id' })
+  @Column({ name: 'update_by_user_workspace_id', nullable: true })
   updateByUserWorkspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })

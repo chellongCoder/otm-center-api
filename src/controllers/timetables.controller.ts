@@ -35,8 +35,15 @@ export class TimetablesController {
     @QueryParam('userWorkspaceId') userWorkspaceId: number,
     @QueryParam('workspaceId') workspaceId: number,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.findAllByDate(fromDate, toDate, userWorkspaceId, workspaceId);
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.findAllByDate(
+      fromDate,
+      toDate,
+      userWorkspaceId || user_workspace_context.id,
+      workspaceId || workspace_context.id,
+    );
     return successResponse({ res, data, status_code: 200 });
   }
 

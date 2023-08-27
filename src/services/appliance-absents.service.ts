@@ -42,7 +42,6 @@ export class ApplianceAbsentsService {
    * create
    */
   public async create(item: ApplianceAbsentsDto, userWorkspaceId: number, workspaceId: number) {
-    console.log('chh_log ---> create ---> item:', item.timetableIds);
     const timetableData = await Timetables.find({
       where: {
         id: In(item.timetableIds),
@@ -51,7 +50,19 @@ export class ApplianceAbsentsService {
     if (!timetableData.length) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
-    await DbConnection.createConnection();
+    const applianceAbsentDataExist = await ApplianceAbsents.find({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        workspaceId: workspaceId,
+        // status: In(AbsentStatus.APPROVED, AbsentStatus.NOT_APPROVED_YET, AbsentStatus.CANCEL),
+        applianceAbsentTimetables: {
+          timetableId: In(item.timetableIds),
+        },
+      },
+    });
+    if (applianceAbsentDataExist && applianceAbsentDataExist.length) {
+      throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
+    }
     const connection = await DbConnection.getConnection();
     if (connection) {
       const queryRunner = connection.createQueryRunner();
@@ -63,7 +74,6 @@ export class ApplianceAbsentsService {
           note: item.note,
           workspaceId: workspaceId,
         });
-        console.log('chh_log ---> newAppliance ---> newAppliance:', newAppliance);
         const bulkCreateApplianceAbsentTimetables: ApplianceAbsentTimetables[] = [];
         for (const timetableItem of timetableData) {
           const newApplianceTimetable = new ApplianceAbsentTimetables();
@@ -72,7 +82,6 @@ export class ApplianceAbsentsService {
           newApplianceTimetable.workspaceId = workspaceId;
           bulkCreateApplianceAbsentTimetables.push(newApplianceTimetable);
         }
-        console.log('chh_log ---> create ---> bulkCreateApplianceAbsentTimetables:', bulkCreateApplianceAbsentTimetables);
         await queryRunner.manager.getRepository(ApplianceAbsentTimetables).insert(bulkCreateApplianceAbsentTimetables);
         await queryRunner.commitTransaction();
       } catch (error) {
@@ -80,9 +89,9 @@ export class ApplianceAbsentsService {
         throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
       } finally {
         await queryRunner.release();
+        return true;
       }
-    }
-    return true;
+    } else throw new Exception(ExceptionName.SERVICE_CONNECT_FAIL, ExceptionCode.SERVICE_CONNECT_FAIL);
   }
 
   /**
