@@ -229,6 +229,11 @@ export class TimetablesService {
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'classTimetableDetails',
+        'classTimetableDetails.classTimetableDetailEvaluations',
+        'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
+        'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
+        'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions.evaluationOptionValue',
       ],
       order: {
         sessionNumberOrder: 'ASC',

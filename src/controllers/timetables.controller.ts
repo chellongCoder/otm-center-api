@@ -1,6 +1,7 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { GenerateTimetableDto } from '@/dtos/generate-timetable.dto';
 import { successResponse } from '@/helpers/response.helper';
+import { PermissionKeys } from '@/models/permissions.model';
 import { Timetables } from '@/models/timetables.model';
 import { TimetablesService } from '@/services/timetables.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
@@ -27,7 +28,7 @@ export class TimetablesController {
   }
 
   @Get('/by_date')
-  @Authorized()
+  @Authorized([PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Get timetables list' })
   async findAllByDate(
     @QueryParam('fromDate') fromDate: number,
