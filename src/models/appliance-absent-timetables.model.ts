@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { ApplianceAbsents } from './appliance-absents.model';
+import { Timetables } from './timetables.model';
 
 @Entity('appliance_absent_timetables')
 export class ApplianceAbsentTimetables extends BaseEntity {
@@ -44,6 +45,10 @@ export class ApplianceAbsentTimetables extends BaseEntity {
   @ManyToOne(() => ApplianceAbsents, item => item.applianceAbsentTimetables)
   @JoinColumn({ name: 'appliance_absent_id' })
   applianceAbsent: ApplianceAbsents;
+
+  @ManyToOne(() => Timetables)
+  @JoinColumn({ name: 'timetable_id' })
+  timetable: Timetables;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('appliance_absent_timetables');

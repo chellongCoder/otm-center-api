@@ -27,6 +27,16 @@ export class ApplianceAbsentsService {
     };
   }
 
+  public async getListStudentApplianceAbsents(userWorkspaceId: number, workspaceId: number) {
+    return await ApplianceAbsents.find({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        workspaceId: workspaceId,
+      },
+      relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable', 'applianceAbsentTimetables.timetable.class'],
+    });
+  }
+
   /**
    * findById
    */
