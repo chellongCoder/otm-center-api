@@ -33,6 +33,15 @@ export class ApplianceAbsentsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/detail/list')
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Get appliance_absents list of student' })
+  async getListStudentApplianceAbsents(@Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getListStudentApplianceAbsents(user_workspace_context.id, workspace_context.id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Post('/')
   @Authorized([PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Gửi đơn báo nghỉ' })
