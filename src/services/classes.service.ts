@@ -234,16 +234,20 @@ export class ClassesService {
       },
     });
   }
-  public async checkExistClass(classId: number, workspaceId: number) {
+  public async checkExistClass(classId: number, workspaceId: number, relations?: string[]) {
+    if (!classId) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
+    }
     const classData = await Classes.findOne({
       where: {
         id: classId,
         workspaceId,
       },
+      relations: relations,
     });
     if (!classData?.id) {
       throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
-    return true;
+    return classData;
   }
 }
