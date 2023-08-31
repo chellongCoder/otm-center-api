@@ -58,6 +58,9 @@ export class ClassesService {
       pages: Math.ceil(filteredData[1] / limit),
     };
   }
+  public async GetClassTimetableByDate(page = 1, limit = 10, order = 'id:asc', search: string, status: StatusClasses) {
+    return true;
+  }
 
   /**
    * findById
@@ -207,5 +210,40 @@ export class ClassesService {
         sessionNumberOrder: 'ASC',
       },
     });
+  }
+  public async getClassStudentSchedule(classId: number, userWorkspaceId: number, workspaceId: number) {
+    await this.checkExistClass(classId, workspaceId);
+    return await Timetables.find({
+      where: {
+        classId: classId,
+        classTimetableDetails: {
+          userWorkspaceId: userWorkspaceId,
+        },
+      },
+      relations: [
+        'class',
+        'classLesson',
+        'shift',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'classShiftsClassroom.classroom',
+        'classTimetableDetails',
+      ],
+      order: {
+        sessionNumberOrder: 'ASC',
+      },
+    });
+  }
+  public async checkExistClass(classId: number, workspaceId: number) {
+    const classData = await Classes.findOne({
+      where: {
+        id: classId,
+        workspaceId,
+      },
+    });
+    if (!classData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
+    }
+    return true;
   }
 }
