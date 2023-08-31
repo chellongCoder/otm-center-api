@@ -83,7 +83,7 @@ export function authMiddleware(): (action: Action, roles: any[]) => Promise<bool
     if (user_workspace_data.isOwner) {
       mobileContext['is_owner'] = true;
     }
-    if (roles) {
+    if (roles && roles.length) {
       const permissionData = await UserWorkspacePermissions.findOne({
         where: [
           {

@@ -1,8 +1,9 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { CreateClassScheduleDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceShiftScopesService } from '@/services/user-workspace-shift-scopes.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -38,8 +39,19 @@ export class UserWorkspaceShiftScopesController {
     @QueryParam('fromDate') fromDate: number,
     @QueryParam('toDate') toDate: number,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.getTeachingSchedule(page, limit, order, search, userWorkspaceId, workspaceId, fromDate, toDate);
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getTeachingSchedule(
+      page,
+      limit,
+      order,
+      search,
+      userWorkspaceId || user_workspace_context.id,
+      workspaceId || workspace_context.id,
+      fromDate,
+      toDate,
+    );
     return successResponse({ res, data, status_code: 200 });
   }
 

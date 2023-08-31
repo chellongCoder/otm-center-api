@@ -1,7 +1,8 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -49,8 +50,15 @@ export class UserWorkspaceClassesController {
     @QueryParam('classId') classId: number,
     @QueryParam('status') status: string,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.getHomeworkOfClass({ userWorkspaceId, workspaceId, status: status as HomeworkStatus, classId });
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getHomeworkOfClass({
+      userWorkspaceId: userWorkspaceId || user_workspace_context.id,
+      workspaceId: workspaceId || workspace_context.id,
+      status: status as HomeworkStatus,
+      classId,
+    });
     return successResponse({ res, data, status_code: 200 });
   }
 
