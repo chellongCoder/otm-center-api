@@ -139,7 +139,7 @@ export class ApplianceAbsentsService {
   /**
    * updateStatus
    */
-  public async updateStatus(id: number, item: UpdateStatusApplianceAbsentsDto, userWorkspaceId) {
+  public async updateStatus(id: number, item: UpdateStatusApplianceAbsentsDto, userWorkspaceId: number) {
     return ApplianceAbsents.update(id, {
       status: item.status,
       updateByUserWorkspaceId: userWorkspaceId,
