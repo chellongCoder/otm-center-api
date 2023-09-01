@@ -7,9 +7,12 @@ import { Timetables } from '@/models/timetables.model';
 import { In } from 'typeorm';
 import { ApplianceAbsentTimetables } from '@/models/appliance-absent-timetables.model';
 import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
+import { ClassesService } from './classes.service';
+import { UpdateStatusApplianceAbsentsDto } from '@/dtos/update-status-appliance-absent.dto';
 
 @Service()
 export class ApplianceAbsentsService {
+  constructor(public classesService: ClassesService) {}
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
     const filteredData = await ApplianceAbsents.findByCond({
@@ -27,6 +30,37 @@ export class ApplianceAbsentsService {
     };
   }
 
+  public async getListStudentApplianceAbsents(userWorkspaceId: number, workspaceId: number) {
+    return await ApplianceAbsents.find({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        workspaceId: workspaceId,
+      },
+      relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable', 'applianceAbsentTimetables.timetable.class'],
+    });
+  }
+
+  public async getListTeacherApplianceAbsents(userWorkspaceId: number, workspaceId: number, classId: number) {
+    const classData = await this.classesService.checkExistClass(classId, workspaceId, ['timetables']);
+    const timetableIds = classData.timetables.map(el => el.id);
+    return await ApplianceAbsents.find({
+      where: {
+        workspaceId: workspaceId,
+        applianceAbsentTimetables: {
+          timetableId: In(timetableIds),
+        },
+      },
+      relations: [
+        'userWorkspace',
+        'applianceAbsentTimetables',
+        'applianceAbsentTimetables.timetable',
+        'applianceAbsentTimetables.timetable.class',
+        'applianceAbsentTimetables.timetable.classShiftsClassroom',
+        'applianceAbsentTimetables.timetable.classShiftsClassroom.classroom',
+      ],
+    });
+  }
+
   /**
    * findById
    */
@@ -35,6 +69,14 @@ export class ApplianceAbsentsService {
       where: {
         id,
       },
+      relations: [
+        'userWorkspace',
+        'applianceAbsentTimetables',
+        'applianceAbsentTimetables.timetable',
+        'applianceAbsentTimetables.timetable.class',
+        'applianceAbsentTimetables.timetable.classShiftsClassroom',
+        'applianceAbsentTimetables.timetable.classShiftsClassroom.classroom',
+      ],
     });
   }
 
@@ -95,10 +137,13 @@ export class ApplianceAbsentsService {
   }
 
   /**
-   * update
+   * updateStatus
    */
-  public async update(id: number, item: ApplianceAbsents) {
-    return ApplianceAbsents.update(id, item);
+  public async updateStatus(id: number, item: UpdateStatusApplianceAbsentsDto, userWorkspaceId: number) {
+    return ApplianceAbsents.update(id, {
+      status: item.status,
+      updateByUserWorkspaceId: userWorkspaceId,
+    });
   }
 
   /**
