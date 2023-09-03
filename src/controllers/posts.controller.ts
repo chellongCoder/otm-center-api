@@ -1,7 +1,10 @@
+import { MobileContext } from '@/auth/authorizationChecker';
+import { CreatePostDto } from '@/dtos/create-post.dto';
 import { successResponse } from '@/helpers/response.helper';
+import { PermissionKeys } from '@/models/permissions.model';
 import { Posts } from '@/models/posts.model';
 import { PostsService } from '@/services/posts.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -31,12 +34,28 @@ export class PostsController {
   }
 
   @Post('/')
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Create posts' })
-  async create(@Body({ required: true }) body: Posts, @Res() res: any) {
-    const data = await this.service.create(body);
+  async create(@Body({ required: true }) body: CreatePostDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
+  @Get('/newsfeed/list')
+  @Authorized([PermissionKeys.TEACHER, PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Get posts by id' })
+  async getNewsfeed(@Res() res: any, @QueryParam('isPin') isPin: boolean, @Req() req: any) {
+    const { user_workspace_context, user_workspace_permission, workspace_context }: MobileContext = req.mobile_context;
+    let data: any;
+    if (user_workspace_permission === PermissionKeys.TEACHER) {
+      data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id);
+    } else {
+      data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id);
+    }
+
+    return successResponse({ res, data, status_code: 200 });
+  }
   @Put('/:id')
   @OpenAPI({ summary: 'Update posts' })
   async update() {

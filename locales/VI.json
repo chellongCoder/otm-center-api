@@ -27,6 +27,7 @@
 	"COURSE_NOT_FOUND": "Không tìm thấy khoá học",
 	"CLASSROOM_NOT_FOUND": "Không tìm thấy phòng học",
 	"CLASS_NOT_FOUND": "Không tìm thấy lớp học",
+	"CLASS_NOT_FOUND_STUDENT": "Không tìm thấy học sinh trong lớp học",
 	"SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau",
 	"SCORE_INVALID": "Điểm không hợp lệ, vui lòng thử lại",
 	"EVALUATION_NOT_FOUND": "Không tìm thấy tiêu chí đánh giá",
