@@ -1,5 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { successResponse } from '@/helpers/response.helper';
+import { PermissionKeys } from '@/models/permissions.model';
 import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
@@ -26,10 +27,12 @@ export class UserWorkspaceClassesController {
   }
 
   @Get('/list')
-  @Authorized()
+  @Authorized([PermissionKeys.STUDENT, PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Get user_workspace_classes list by userWorkspaceId and status' })
-  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any) {
-    const data = await this.service.findByFilter(userWorkspaceId, status as UserWorkspaceClassTypes);
+  async findByFilter(@QueryParam('userWorkspaceId') userWorkspaceId: number, @QueryParam('status') status: string, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, user_workspace_permission }: MobileContext = req.mobile_context;
+    const userWorkspaceIdStudent = user_workspace_permission === PermissionKeys.STAFF ? userWorkspaceId : user_workspace_context.id;
+    const data = await this.service.findByFilter(userWorkspaceIdStudent, status as UserWorkspaceClassTypes);
     return successResponse({ res, data, status_code: 200 });
   }
 
@@ -38,6 +41,14 @@ export class UserWorkspaceClassesController {
   @OpenAPI({ summary: 'Get user_workspace_classes by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/class/:classId')
+  @Authorized([PermissionKeys.TEACHER, PermissionKeys.STAFF])
+  @OpenAPI({ summary: 'Get danh sách học sinh trong lớp học' })
+  async getUserWorkspaceByClassId(@Param('classId') classId: number, @QueryParam('search') search: string, @Res() res: any) {
+    const data = await this.service.getUserWorkspaceByClassId(classId, search);
     return successResponse({ res, data, status_code: 200 });
   }
 

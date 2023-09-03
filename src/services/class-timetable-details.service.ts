@@ -184,7 +184,7 @@ export class ClassTimetableDetailsService {
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
-        throw new Exception(ExceptionName.SERVER_ERROR, ExceptionCode.SERVER_ERROR);
+        throw error;
       } finally {
         await queryRunner.release();
       }

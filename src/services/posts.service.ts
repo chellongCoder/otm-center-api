@@ -1,9 +1,17 @@
 import { Posts } from '@/models/posts.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { CreatePostDto } from '@/dtos/create-post.dto';
+import { DbConnection } from '@/database/dbConnection';
+import { PostUserWorkspaces } from '@/models/post-user-workspaces.model';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { UserWorkspaceClassesService } from './user-workspace-classes.service';
+import { PostMedias } from '@/models/post-medias.model';
+import { In } from 'typeorm';
 
 @Service()
 export class PostsService {
+  constructor(public userWorkspaceClassesService: UserWorkspaceClassesService) {}
   public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
     const orderCond = QueryParser.toOrderCond(order);
     const filteredData = await Posts.findByCond({
@@ -35,9 +43,64 @@ export class PostsService {
   /**
    * create
    */
-  public async create(item: Posts) {
-    const results = await Posts.insert(item);
-    return results;
+  public async create(item: CreatePostDto, userWorkspaceId: number, workspaceId: number) {
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const postCreate = await queryRunner.manager.getRepository(Posts).insert({
+          content: item.content,
+          isPin: item.isPin,
+          classId: item.classId,
+          byUserWorkspaceId: userWorkspaceId,
+          workspaceId: workspaceId,
+        });
+        /**
+         * Create scope students can view post
+         */
+        if (!item.userWorkspaceIdScopes) {
+          throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
+        }
+        const userWorkspaceClassesData = await this.userWorkspaceClassesService.getUserWorkspaceByClassId(item.classId);
+        const studentIdsInClass = userWorkspaceClassesData.map(el => el.userWorkspaceId);
+        if (item.userWorkspaceIdScopes.filter(el => !studentIdsInClass.includes(el)).length) {
+          throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
+        }
+        const bulkUpdatePostUserWorkspaces: Partial<PostUserWorkspaces>[] = [];
+        for (const userWorkspaceIdScopeItem of item.userWorkspaceIdScopes) {
+          const postUserWorkspaceCreate = new PostUserWorkspaces();
+          postUserWorkspaceCreate.userWorkspaceId = userWorkspaceIdScopeItem;
+          postUserWorkspaceCreate.postId = postCreate.identifiers[0].id;
+          postUserWorkspaceCreate.workspaceId = workspaceId;
+          bulkUpdatePostUserWorkspaces.push(postUserWorkspaceCreate);
+        }
+        await queryRunner.manager.getRepository(PostUserWorkspaces).insert(bulkUpdatePostUserWorkspaces);
+        /**
+         * create media link with post
+         */
+        if (item?.linkMediaPosts && item.linkMediaPosts.length) {
+          const bulkUpdatePostMedias: Partial<PostMedias>[] = [];
+          for (const linkMediaPostItem of item.linkMediaPosts) {
+            const postMediaCreate = new PostMedias();
+            postMediaCreate.link = linkMediaPostItem.link;
+            postMediaCreate.type = linkMediaPostItem.type;
+            postMediaCreate.postId = postCreate.identifiers[0].id;
+            postMediaCreate.workspaceId = workspaceId;
+            bulkUpdatePostMedias.push(postMediaCreate);
+          }
+          await queryRunner.manager.getRepository(PostMedias).insert(bulkUpdatePostMedias);
+        }
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+    return true;
   }
 
   /**
@@ -52,5 +115,27 @@ export class PostsService {
    */
   public async delete(id: number) {
     return Posts.delete(id);
+  }
+  public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
+    return Posts.find({
+      where: {
+        isPin: Boolean(!!isPin),
+        workspaceId,
+        byUserWorkspaceId: userWorkspaceId,
+      },
+      relations: ['postMedias', 'byUserWorkspace'],
+    });
+  }
+  public async getNewsfeed(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
+    return Posts.find({
+      where: {
+        isPin: Boolean(!!isPin),
+        postUserWorkspaces: {
+          userWorkspaceId: userWorkspaceId,
+        },
+        workspaceId,
+      },
+      relations: ['postMedias', 'byUserWorkspace'],
+    });
   }
 }

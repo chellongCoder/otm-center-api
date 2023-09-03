@@ -11,6 +11,7 @@ import Container from 'typedi';
 import { UserWorkspacePermissions } from '@/models/user-workspace-permissions.model';
 import { IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import moment from 'moment-timezone';
+import { PermissionKeys } from '@/models/permissions.model';
 
 export interface Request extends ExpressRequest {
   headers: {
@@ -38,6 +39,7 @@ export interface MobileContext {
   access_token: string;
   is_super_admin: boolean;
   is_owner: boolean;
+  user_workspace_permission: PermissionKeys;
   // hook_context: IHookContext;
 }
 export function authMiddleware(): (action: Action, roles: any[]) => Promise<boolean> | boolean {
@@ -101,9 +103,10 @@ export function authMiddleware(): (action: Action, roles: any[]) => Promise<bool
         ],
         relations: ['permission'],
       });
-      if (permissionData && roles.find(role => permissionData.permission.key.indexOf(role) === -1)) {
+      if (permissionData && !roles.find(role => permissionData.permission.key.indexOf(role) !== -1)) {
         throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
       }
+      mobileContext['user_workspace_permission'] = permissionData?.permission.key;
     }
     // /**
     //  * Because we need to validate access token expired

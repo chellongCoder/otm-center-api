@@ -454,3 +454,16 @@ Table appliance_absent_timetables {
  appliance_absent_id integer
  workspace_id integer
 }
+Table post_medias {
+ id integer [pk] 
+ post_id integer
+ link varchar
+ type varchar
+ workspace_id integer
+}
+Table post_user_workspaces {
+ id integer [pk] 
+ post_id integer
+ user_workspace_id integer
+ workspace_id integer
+}
