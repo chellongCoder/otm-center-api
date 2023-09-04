@@ -6,37 +6,26 @@ import {
   DeleteDateColumn,
   BaseEntity,
   UpdateDateColumn,
-  OneToMany,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
-import { PostUserWorkspaces } from './post-user-workspaces.model';
-import { PostMedias } from './post-medias.model';
 import { UserWorkspaces } from './user-workspaces.model';
+import { Posts } from './posts.model';
 
-@Entity('posts')
-export class Posts extends BaseEntity {
+@Entity('post_user_workspaces')
+export class PostUserWorkspaces extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'content' })
-  content: string;
+  @Column({ name: 'post_id' })
+  postId: number;
 
-  @Column({ name: 'class_id' })
-  classId: number;
-
-  @Column({ name: 'allow_comment', default: true })
-  allowComment: boolean;
-
-  @Column({ name: 'is_pin', default: false })
-  isPin: boolean;
+  @Column({ name: 'user_workspace_id' })
+  userWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;
-
-  @Column({ name: 'by_user_workspace_id' })
-  byUserWorkspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -53,25 +42,23 @@ export class Posts extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => PostUserWorkspaces, item => item.post)
-  public postUserWorkspaces: PostUserWorkspaces[];
-
-  @OneToMany(() => PostMedias, item => item.post)
-  public postMedias: PostMedias[];
-
   @ManyToOne(() => UserWorkspaces)
-  @JoinColumn({ name: 'by_user_workspace_id' })
-  byUserWorkspace: UserWorkspaces;
+  @JoinColumn({ name: 'user_workspace_id' })
+  userWorkspace: UserWorkspaces;
+
+  @ManyToOne(() => Posts, item => item.postUserWorkspaces)
+  @JoinColumn({ name: 'post_id' })
+  post: Posts;
 
   static findByCond(query: any) {
-    const queryBuilder = this.createQueryBuilder('posts');
+    const queryBuilder = this.createQueryBuilder('post_user_workspaces');
     if (query.search && query.search.length > 0) {
       for (let i = 0; i < query.search.length; i++) {
         const element = query.search[i];
         if (i === 0) {
-          queryBuilder.where(`posts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.where(`post_user_workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         } else {
-          queryBuilder.andWhere(`posts.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
+          queryBuilder.andWhere(`post_user_workspaces.${element.key} ${element.opt} :${i}`).setParameter(i.toString(), element.value);
         }
       }
     }

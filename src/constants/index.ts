@@ -19,3 +19,6 @@ export enum LANGUAGES {
   VI = 'VI',
   EN = 'EN',
 }
+export enum WorkerConstant {
+  WORKING_SEND_NOTIFICATION_SETUP = 'WORKING_SEND_NOTIFICATION_SETUP',
+}

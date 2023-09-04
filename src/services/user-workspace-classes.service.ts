@@ -2,7 +2,7 @@ import moment from 'moment-timezone';
 import { UserWorkspaceClassTypes, UserWorkspaceClasses, ClassScheduleTypes, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
-import { In, IsNull, MoreThanOrEqual, Not } from 'typeorm';
+import { In, IsNull, Like, MoreThanOrEqual, Not } from 'typeorm';
 import { Classes } from '@/models/classes.model';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
@@ -209,5 +209,33 @@ export class UserWorkspaceClassesService {
       data: results,
       total: results.length,
     };
+  }
+  public async getUserWorkspaceByClassId(classId: number, search?: string) {
+    let conditionUserWorkspaceClass: any = {
+      classId,
+    };
+    if (search) {
+      conditionUserWorkspaceClass = {
+        ...conditionUserWorkspaceClass,
+        userWorkspace: [
+          {
+            fullname: Like(`%${search}%`),
+          },
+          {
+            nickname: Like(`%${search}%`),
+          },
+          {
+            phoneNumber: Like(`%${search}%`),
+          },
+          {
+            email: Like(`%${search}%`),
+          },
+        ],
+      };
+    }
+    return UserWorkspaceClasses.find({
+      where: conditionUserWorkspaceClass,
+      relations: ['class', 'userWorkspace'],
+    });
   }
 }
