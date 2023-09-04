@@ -1,10 +1,11 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { ClassLessons } from '@/models/class-lessons.model';
 import { PermissionKeys } from '@/models/permissions.model';
 import { ClassLessonsService } from '@/services/class-lessons.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -29,8 +30,9 @@ export class ClassLessonsController {
   @Get('/:id')
   @Authorized()
   @OpenAPI({ summary: 'Get class_lessons by id' })
-  async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any) {
-    const data = await this.service.findById(id, userWorkspaceId);
+  async findById(@Param('id') id: number, @QueryParam('userWorkspaceId') userWorkspaceId: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.findById(id, userWorkspaceId || user_workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
   /**
@@ -44,8 +46,10 @@ export class ClassLessonsController {
     @QueryParam('workspaceId') workspaceId: number,
     @QueryParam('search') search: string,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.getHomeworkByClassId(classId, workspaceId, search);
+    const { workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getHomeworkByClassId(classId, workspace_context.id, search);
     return successResponse({ res, data, status_code: 200 });
   }
   /**
@@ -68,7 +72,7 @@ export class ClassLessonsController {
   }
 
   @Put('/exercise/:id')
-  @Authorized()
+  @Authorized([PermissionKeys.TEACHER, PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Update class_lessons in class' })
   async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any) {
     const data = await this.service.updateExercise(id, body);

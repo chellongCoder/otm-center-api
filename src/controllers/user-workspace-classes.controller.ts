@@ -52,8 +52,8 @@ export class UserWorkspaceClassesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
-  @Get('/class/homework')
-  @Authorized()
+  @Get('/class/homework/list')
+  @Authorized([PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Get homework of class by status are DONE or NOT_DONE' })
   async getHomeworkOfClass(
     @QueryParam('userWorkspaceId') userWorkspaceId: number,

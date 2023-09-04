@@ -1,5 +1,6 @@
 import { successResponse } from '@/helpers/response.helper';
 import { Courses } from '@/models/courses.model';
+import { PermissionKeys } from '@/models/permissions.model';
 import { CoursesService } from '@/services/courses.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -32,7 +33,7 @@ export class CoursesController {
   }
 
   @Post('/')
-  @Authorized()
+  @Authorized([PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Create courses' })
   async create(@Body({ required: true }) body: Courses, @Res() res: any) {
     const data = await this.service.create(body);
