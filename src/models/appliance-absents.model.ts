@@ -59,8 +59,12 @@ export class ApplianceAbsents extends BaseEntity {
   public applianceAbsentTimetables: ApplianceAbsentTimetables[];
 
   @ManyToOne(() => UserWorkspaces)
-  @JoinColumn({ name: 'update_by_user_workspace_id' })
+  @JoinColumn({ name: 'user_workspace_id' })
   userWorkspace: UserWorkspaces;
+
+  @ManyToOne(() => UserWorkspaces)
+  @JoinColumn({ name: 'update_by_user_workspace_id' })
+  updateByUserWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('appliance_absents');

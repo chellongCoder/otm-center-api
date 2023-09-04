@@ -52,6 +52,7 @@ export class ApplianceAbsentsService {
       },
       relations: [
         'userWorkspace',
+        'updateByUserWorkspace',
         'applianceAbsentTimetables',
         'applianceAbsentTimetables.timetable',
         'applianceAbsentTimetables.timetable.class',
@@ -71,6 +72,7 @@ export class ApplianceAbsentsService {
       },
       relations: [
         'userWorkspace',
+        'updateByUserWorkspace',
         'applianceAbsentTimetables',
         'applianceAbsentTimetables.timetable',
         'applianceAbsentTimetables.timetable.class',
