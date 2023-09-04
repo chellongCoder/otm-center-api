@@ -57,7 +57,7 @@ export class UserWorkspaceClassesService {
   public async create(item: UserWorkspaceClasses) {
     const userWorkspaceData = await UserWorkspaces.findOne({
       where: {
-        id: item.id,
+        id: item.userWorkspaceId,
         workspaceId: item.workspaceId,
       },
     });
