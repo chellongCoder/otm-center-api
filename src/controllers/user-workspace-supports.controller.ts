@@ -2,7 +2,7 @@ import { MobileContext } from '@/auth/authorizationChecker';
 import { UserWorkspaceSupportDto } from '@/dtos/create-user-workspace-support.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
-import { UserWorkspaceSupports } from '@/models/user-workspace-supports.model';
+import { SupportTypes } from '@/models/user-workspace-supports.model';
 import { UserWorkspaceSupportsService } from '@/services/user-workspace-supports.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -47,7 +47,11 @@ export class UserWorkspaceSupportsController {
   @OpenAPI({ summary: 'Create user_workspace_supports' })
   async create(@Body({ required: true }) body: UserWorkspaceSupportDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context, user_workspace_permission }: MobileContext = req.mobile_context;
-    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id, user_workspace_permission as SupportTypes);
+    let supportType: SupportTypes = SupportTypes.STUDENT;
+    if (user_workspace_permission === PermissionKeys.TEACHER) {
+      supportType = SupportTypes.TEACHER;
+    }
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id, supportType);
     return successResponse({ res, data, status_code: 201 });
   }
 

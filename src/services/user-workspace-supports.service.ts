@@ -1,8 +1,7 @@
-import { UserWorkspaceSupports } from '@/models/user-workspace-supports.model';
+import { SupportStudentTypes, SupportTypes, UserWorkspaceSupports } from '@/models/user-workspace-supports.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UserWorkspaceSupportDto } from '@/dtos/create-user-workspace-support.dto';
-import { PermissionKeys } from '@/models/permissions.model';
 import { DbConnection } from '@/database/dbConnection';
 import { UserWorkspaceSupportImages } from '@/models/user-workspace-support-images.model';
 
@@ -39,7 +38,7 @@ export class UserWorkspaceSupportsService {
   /**
    * create
    */
-  public async create(item: UserWorkspaceSupportDto, userWorkspaceId: number, workspaceId: number, type: PermissionKeys) {
+  public async create(item: UserWorkspaceSupportDto, userWorkspaceId: number, workspaceId: number, type: SupportTypes) {
     const connection = await DbConnection.getConnection();
     if (connection) {
       const queryRunner = connection.createQueryRunner();
