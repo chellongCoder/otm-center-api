@@ -1,7 +1,8 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import { UserWorkspaceDevicesService } from '@/services/user-workspace-devices.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -31,9 +32,11 @@ export class UserWorkspaceDevicesController {
   }
 
   @Post('/')
+  @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_devices' })
-  async create(@Body({ required: true }) body: UserWorkspaceDevices, @Res() res: any) {
-    const data = await this.service.create(body);
+  async create(@Body({ required: true }) body: UserWorkspaceDevices, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

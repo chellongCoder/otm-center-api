@@ -6,19 +6,22 @@ export class UserWorkspaceDevices extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'device_name' })
+  @Column({ name: 'device_name', nullable: true })
   deviceName: string;
 
-  @Column({ name: 'device_id' })
-  deviceId: number;
+  @Column({ name: 'device_id', nullable: true })
+  deviceId: string;
 
-  @Column({ name: 'fcm_push_token' })
+  @Column({ name: 'fcm_push_token', nullable: true })
   fcmPushToken: string;
 
-  @Column({ name: 'device_platform' })
+  @Column({ name: 'player_id', nullable: true })
+  playerId: string;
+
+  @Column({ name: 'device_platform', nullable: true })
   devicePlatform: string;
 
-  @Column({ name: 'is_emulator' })
+  @Column({ name: 'is_emulator', nullable: true })
   isEmulator: boolean;
 
   @Column({ name: 'user_workspace_id' })
@@ -27,7 +30,7 @@ export class UserWorkspaceDevices extends BaseEntity {
   @Column({ name: 'workspace_id' })
   workspaceId: number;
 
-  @Column({ name: 'is_active' })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
