@@ -10,7 +10,6 @@ export class RabbitClient {
   static getInstanceForQueue(queue: string) {
     const instance = RabbitClient.instances.get(queue);
     if (!instance) {
-      console.log('vao if --> new instace for queue ', queue);
       const newInstance = new RabbitClient();
       this.instances.set(queue, newInstance);
       return newInstance;
