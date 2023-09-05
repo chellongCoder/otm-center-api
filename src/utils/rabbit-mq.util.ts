@@ -2,9 +2,9 @@ import { WorkerConstant } from '@/constants';
 import { logger } from '@utils/logger';
 import { RabbitClient } from '@utils/rabbit';
 export enum AppType {
-  User = 'User',
-  Driver = 'Driver',
-  Admin = 'Admin',
+  teacher = 'teacher',
+  student = 'student',
+  admin = 'admin',
 }
 export enum SendNotificationOrderTypeEnum {
   SMS = 'SMS',
@@ -31,15 +31,22 @@ export type SendProcessOrderWithRabbit = {
   type: SendProcessOrderType;
   data: object;
 };
-export const sendNotificationToRabbitMQ = async (msg: SendProcessOrderWithRabbit | SendNotificationWithRabbit) => {
+export type DataMessageNotificationRabbit = {
+  content: string;
+  playerIds: string[];
+};
+export type SendMessageNotificationRabbit = {
+  type: AppType;
+  data: DataMessageNotificationRabbit;
+};
+// { "type": "teacher", "data": {"content": "Hello Test", "playerIds": ["d0699965-b886-4aa5-a5a0-abc106a451ab"] } }
+export const sendNotificationToRabbitMQ = async (msg: SendMessageNotificationRabbit) => {
   try {
     logger.info(`Send: ${JSON.stringify(msg)}`);
-    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_NAME = 'thanhhung-noti' } = process.env;
+    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_NAME = '' } = process.env;
     const rabbitClient = RabbitClient.getInstanceForQueue(QUEUE_ORDER_SEND_NOTI_NAME);
     await rabbitClient.connect(AMQBSERVER_LINK, QUEUE_ORDER_SEND_NOTI_NAME);
     await rabbitClient.send(msg);
-
-    console.log('line 26');
   } catch (error) {
     throw error;
   }
@@ -48,12 +55,10 @@ export const sendNotificationToRabbitMQ = async (msg: SendProcessOrderWithRabbit
 export const sendNotificationToRabbitMQProcessService = async (msg: SendProcessOrderWithRabbit | SendNotificationWithRabbit) => {
   try {
     logger.info(`Send: ${JSON.stringify(msg)}`);
-    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_PROCESS_NAME = 'thanhhung-noti' } = process.env;
+    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_PROCESS_NAME = '' } = process.env;
     const rabbitClient = RabbitClient.getInstanceForQueue(QUEUE_ORDER_SEND_NOTI_PROCESS_NAME);
     await rabbitClient.connect(AMQBSERVER_LINK, QUEUE_ORDER_SEND_NOTI_PROCESS_NAME);
     await rabbitClient.send(msg);
-
-    console.log('line 26');
   } catch (error) {
     throw error;
   }

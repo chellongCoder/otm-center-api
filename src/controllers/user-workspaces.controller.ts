@@ -1,3 +1,4 @@
+import { BodyPushNotificationDtoDto } from '@/dtos/body-push-notification.dto';
 import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
@@ -35,6 +36,13 @@ export class UserWorkspacesController {
   @OpenAPI({ summary: 'Create user_workspaces' })
   async create(@Body({ required: true }) body: UserWorkspaces, @Res() res: any) {
     const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Post('/push_notification')
+  @OpenAPI({ summary: 'api manual push notification' })
+  async pushNotification(@Body({ required: true }) body: BodyPushNotificationDtoDto, @Res() res: any) {
+    const data = await this.service.pushNotification(body);
     return successResponse({ res, data, status_code: 201 });
   }
 

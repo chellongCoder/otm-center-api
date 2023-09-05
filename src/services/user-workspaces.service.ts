@@ -7,6 +7,8 @@ import { DbConnection } from '@/database/dbConnection';
 import { PermissionKeys, Permissions } from '@/models/permissions.model';
 import { UserWorkspacePermissions } from '@/models/user-workspace-permissions.model';
 import moment from 'moment-timezone';
+import { BodyPushNotificationDtoDto } from '@/dtos/body-push-notification.dto';
+import { SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
 
 @Service()
 export class UserWorkspacesService {
@@ -104,5 +106,15 @@ export class UserWorkspacesService {
    */
   public async delete(id: number) {
     return UserWorkspaces.delete(id);
+  }
+  public async pushNotification(item: BodyPushNotificationDtoDto) {
+    const data: SendMessageNotificationRabbit = {
+      type: item.type,
+      data: {
+        content: item.content,
+        playerIds: item.playerIds,
+      },
+    };
+    await sendNotificationToRabbitMQ(data);
   }
 }
