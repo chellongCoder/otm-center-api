@@ -467,3 +467,18 @@ Table post_user_workspaces {
  user_workspace_id integer
  workspace_id integer
 }
+Table user_workspace_supports {
+ id integer [pk] 
+ content varchar
+ type varchar
+ status varchar
+ response_status varchar
+ user_workspace_id integer
+ workspace_id integer
+}
+Table user_workspace_support_images {
+ id integer [pk] 
+ user_workspace_support_id integer
+ url varchar
+ workspace_id integer
+}
