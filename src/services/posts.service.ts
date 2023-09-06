@@ -8,6 +8,7 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaceClassesService } from './user-workspace-classes.service';
 import { PostMedias } from '@/models/post-medias.model';
 import { In } from 'typeorm';
+import _ from 'lodash';
 
 @Service()
 export class PostsService {
@@ -126,15 +127,18 @@ export class PostsService {
       relations: ['postMedias', 'byUserWorkspace'],
     });
   }
-  public async getNewsfeed(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
+  public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number) {
     return Posts.find({
-      where: {
-        isPin: Boolean(!!isPin),
-        postUserWorkspaces: {
-          userWorkspaceId: userWorkspaceId,
+      where: _.omitBy(
+        {
+          isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
+          postUserWorkspaces: {
+            userWorkspaceId: userWorkspaceId,
+          },
+          workspaceId,
         },
-        workspaceId,
-      },
+        _.isNil,
+      ),
       relations: ['postMedias', 'byUserWorkspace'],
     });
   }

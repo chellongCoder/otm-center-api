@@ -215,6 +215,13 @@ Table cities{
   description varchar
   is_active boolean [default: true]
 }
+Table config{
+  id integer [pk]
+  name varchar
+  value varchar
+  platform varchar
+  description varchar
+}
 Table countries{
   id integer [pk]
   name varchar
