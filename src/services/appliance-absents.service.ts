@@ -159,28 +159,31 @@ export class ApplianceAbsentsService {
         /**
          * push notification
          */
-        const contentNotify = `${workspaceData.name} Đơn xin nghỉ của học viên ${userWorkspaceData.fullname} ${messageNotification} chờ duyệt`;
-        const msg: SendMessageNotificationRabbit = {
-          type: AppType.TEACHER,
-          data: {
-            category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
-            content: contentNotify,
-            id: newAppliance.identifiers[0]?.id,
-            playerIds: _.uniq(playerIds),
-          },
-        };
-        await sendNotificationToRabbitMQ(msg);
+        if (playerIds.length) {
+          const contentNotify = `${workspaceData.name} Đơn xin nghỉ của học viên ${userWorkspaceData.fullname} ${messageNotification} chờ duyệt`;
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.TEACHER,
+            data: {
+              category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+              content: contentNotify,
+              id: newAppliance.identifiers[0]?.id,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
 
-        const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
-        for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
-          const newUserWorkspaceNotification = new UserWorkspaceNotifications();
-          newUserWorkspaceNotification.content = contentNotify;
-          newUserWorkspaceNotification.appType = AppType.TEACHER;
-          newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
-          newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
-          newUserWorkspaceNotification.workspaceId = workspaceId;
+          const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+          for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = contentNotify;
+            newUserWorkspaceNotification.appType = AppType.TEACHER;
+            newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = workspaceId;
+          }
+          await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
-        await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();

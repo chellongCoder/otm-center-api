@@ -117,6 +117,7 @@ export class PostsService {
         /**
          * push notification
          */
+
         const userWorkspaceDeviceData = await UserWorkspaceDevices.find({
           where: {
             userWorkspaceId: In(receiveUserWorkspaceIds),
@@ -125,27 +126,31 @@ export class PostsService {
         for (const userWorkspaceDeviceItem of userWorkspaceDeviceData) {
           playerIds.push(userWorkspaceDeviceItem.playerId);
         }
-        const msg: SendMessageNotificationRabbit = {
-          type: AppType.STUDENT,
-          data: {
-            category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
-            content: messageNotification,
-            id: postCreate.identifiers[0].id,
-            playerIds: _.uniq(playerIds),
-          },
-        };
-        await sendNotificationToRabbitMQ(msg);
 
-        const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
-        for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
-          const newUserWorkspaceNotification = new UserWorkspaceNotifications();
-          newUserWorkspaceNotification.content = messageNotification;
-          newUserWorkspaceNotification.appType = AppType.STUDENT;
-          newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
-          newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
-          newUserWorkspaceNotification.workspaceId = workspaceId;
+        if (playerIds.length) {
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.STUDENT,
+            data: {
+              category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+              content: messageNotification,
+              id: postCreate.identifiers[0].id,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
+
+          const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+          for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = messageNotification;
+            newUserWorkspaceNotification.appType = AppType.STUDENT;
+            newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = workspaceId;
+          }
+          await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
-        await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
