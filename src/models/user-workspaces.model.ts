@@ -15,6 +15,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { Workspaces } from './workspaces.model';
 import { UserWorkspaceShiftScopes } from './user-workspace-shift-scopes.model';
 import { UserWorkspaceClasses } from './user-workspace-classes.model';
+import { UserWorkspaceDevices } from './user-workspace-devices.model';
 
 export enum UserWorkspaceTypes {
   PARENT = 'PARENT',
@@ -154,6 +155,9 @@ export class UserWorkspaces extends BaseEntity {
 
   @OneToMany(() => UserWorkspaceClasses, item => item.userWorkspace)
   public userWorkspaceClasses: UserWorkspaceClasses[];
+
+  @OneToMany(() => UserWorkspaceDevices, item => item.userWorkspace)
+  public userWorkspaceDevices: UserWorkspaceDevices[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspaces');

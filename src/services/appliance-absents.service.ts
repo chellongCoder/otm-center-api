@@ -9,6 +9,12 @@ import { ApplianceAbsentTimetables } from '@/models/appliance-absent-timetables.
 import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
 import { ClassesService } from './classes.service';
 import { UpdateStatusApplianceAbsentsDto } from '@/dtos/update-status-appliance-absent.dto';
+import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
+import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
+import { Workspaces } from '@/models/workspaces.model';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import moment from 'moment-timezone';
+import _ from 'lodash';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -85,11 +91,22 @@ export class ApplianceAbsentsService {
   /**
    * create
    */
-  public async create(item: ApplianceAbsentsDto, userWorkspaceId: number, workspaceId: number) {
+  public async create(item: ApplianceAbsentsDto, userWorkspaceData: UserWorkspaces, workspaceData: Workspaces) {
+    const workspaceId = workspaceData.id;
+    const userWorkspaceId = userWorkspaceData.id;
+    let messageNotification = ``;
+    const playerIds: string[] = [];
+    const receiveUserWorkspaceIds: number[] = [];
     const timetableData = await Timetables.find({
       where: {
         id: In(item.timetableIds),
       },
+      relations: [
+        'classShiftsClassroom',
+        'classShiftsClassroom.userWorkspaceShiftScopes',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace.userWorkspaceDevices',
+      ],
     });
     if (!timetableData.length) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
@@ -125,8 +142,48 @@ export class ApplianceAbsentsService {
           newApplianceTimetable.applianceAbsentId = newAppliance.identifiers[0]?.id;
           newApplianceTimetable.workspaceId = workspaceId;
           bulkCreateApplianceAbsentTimetables.push(newApplianceTimetable);
+
+          messageNotification = `${!messageNotification ? messageNotification : `${messageNotification}, `}ca ${moment(timetableItem.fromTime).format(
+            'HH:ss',
+          )} - ${moment(timetableItem.toTime).format('HH:ss')} ngày ${moment(timetableItem.date).format('DD/MM/YYYY')}`;
+          const userWorkspaceShiftScopesData = timetableItem.classShiftsClassroom.userWorkspaceShiftScopes;
+          for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
+            const userWorkspaceDevicesData = userWorkspaceShiftScopeItem.userWorkspace.userWorkspaceDevices;
+            for (const userWorkspaceDeviceItem of userWorkspaceDevicesData) {
+              playerIds.push(userWorkspaceDeviceItem.playerId);
+              receiveUserWorkspaceIds.push(userWorkspaceDeviceItem.userWorkspaceId);
+            }
+          }
         }
         await queryRunner.manager.getRepository(ApplianceAbsentTimetables).insert(bulkCreateApplianceAbsentTimetables);
+        /**
+         * push notification
+         */
+        if (playerIds.length) {
+          const contentNotify = `${workspaceData.name} Đơn xin nghỉ của học viên ${userWorkspaceData.fullname} ${messageNotification} chờ duyệt`;
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.TEACHER,
+            data: {
+              category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+              content: contentNotify,
+              id: newAppliance.identifiers[0]?.id,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
+
+          const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+          for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = contentNotify;
+            newUserWorkspaceNotification.appType = AppType.TEACHER;
+            newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = workspaceId;
+          }
+          await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+        }
+
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();

@@ -1,38 +1,23 @@
-import { WorkerConstant } from '@/constants';
+import { AppType } from '@/models/user-workspace-notifications.model';
 import { logger } from '@utils/logger';
 import { RabbitClient } from '@utils/rabbit';
-export enum AppType {
-  teacher = 'teacher',
-  student = 'student',
-  admin = 'admin',
-}
-export enum SendNotificationOrderTypeEnum {
-  SMS = 'SMS',
-  EMAIL = 'EMAIL',
+import config from 'config';
+export enum CategoriesNotificationEnum {
+  APPLIANCE_ABSENT = 'APPLIANCE_ABSENT',
+  EVALUATION = 'EVALUATION',
+  HOMEWORK = 'HOMEWORK',
+  SCHEDULE_CLASS = 'SCHEDULE_CLASS',
+  NEW_POST = 'NEW_POST',
+  COMMENT = 'COMMENT',
+  REGISTER_STUDENT = 'REGISTER_STUDENT',
+  REGISTER_TEACHER = 'REGISTER_TEACHER',
   NOTIFICATION = 'NOTIFICATION',
 }
-export enum SendProcessOrderType {
-  FIND_DRIVER = 'FIND_DRIVER',
-}
-export type SendNotificationWithRabbit = {
-  app: AppType;
-  type: SendNotificationOrderTypeEnum;
-  to: string | string[]; // email hoặc phone, phone phai bat dau bang +84
-  template?: string; // phai co 1 trong 2 template hoac message
-  message?: string;
-  params?: object;
-};
-
-export type SendMessageExecuteNotiSetup = {
-  id: number;
-};
-
-export type SendProcessOrderWithRabbit = {
-  type: SendProcessOrderType;
-  data: object;
-};
 export type DataMessageNotificationRabbit = {
   content: string;
+  category: CategoriesNotificationEnum;
+  id?: number;
+  detail?: object;
   playerIds: string[];
 };
 export type SendMessageNotificationRabbit = {
@@ -40,37 +25,28 @@ export type SendMessageNotificationRabbit = {
   data: DataMessageNotificationRabbit;
 };
 // { "type": "teacher", "data": {"content": "Hello Test", "playerIds": ["d0699965-b886-4aa5-a5a0-abc106a451ab"] } }
+// const msg = {
+//   type: 'teacher',
+//   data: {
+//     content: 'noi dung bai viet123',
+//     category: 'EVALUATION',
+//     id: 143,
+//     detail: {},
+//     playerIds: ['57369201-585f-4a94-98c4-a63a91f781b9'],
+//   },
+// };
 export const sendNotificationToRabbitMQ = async (msg: SendMessageNotificationRabbit) => {
   try {
     logger.info(`Send: ${JSON.stringify(msg)}`);
-    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_NAME = '' } = process.env;
+    let { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_NAME = '' } = process.env;
+    if (!AMQBSERVER_LINK) {
+      AMQBSERVER_LINK = config.get('notification.AMQBSERVER_LINK');
+    }
+    if (!QUEUE_ORDER_SEND_NOTI_NAME) {
+      QUEUE_ORDER_SEND_NOTI_NAME = config.get('notification.QUEUE_ORDER_SEND_NOTI_NAME');
+    }
     const rabbitClient = RabbitClient.getInstanceForQueue(QUEUE_ORDER_SEND_NOTI_NAME);
     await rabbitClient.connect(AMQBSERVER_LINK, QUEUE_ORDER_SEND_NOTI_NAME);
-    await rabbitClient.send(msg);
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const sendNotificationToRabbitMQProcessService = async (msg: SendProcessOrderWithRabbit | SendNotificationWithRabbit) => {
-  try {
-    logger.info(`Send: ${JSON.stringify(msg)}`);
-    const { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_PROCESS_NAME = '' } = process.env;
-    const rabbitClient = RabbitClient.getInstanceForQueue(QUEUE_ORDER_SEND_NOTI_PROCESS_NAME);
-    await rabbitClient.connect(AMQBSERVER_LINK, QUEUE_ORDER_SEND_NOTI_PROCESS_NAME);
-    await rabbitClient.send(msg);
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const sendMessageExecuteNotificationSetupToRabbitMQ = async (msg: any) => {
-  try {
-    logger.info(`Send: ${JSON.stringify(msg)}`);
-    const { AMQBSERVER_LINK = '' } = process.env;
-    const rabbitClient = RabbitClient.getInstanceForQueue(WorkerConstant.WORKING_SEND_NOTIFICATION_SETUP);
-
-    await rabbitClient.connect(AMQBSERVER_LINK, WorkerConstant.WORKING_SEND_NOTIFICATION_SETUP);
     await rabbitClient.send(msg);
   } catch (error) {
     throw error;

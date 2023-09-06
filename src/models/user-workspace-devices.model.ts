@@ -1,5 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { UserWorkspaces } from './user-workspaces.model';
 
 @Entity('user_workspace_devices')
 export class UserWorkspaceDevices extends BaseEntity {
@@ -47,6 +58,10 @@ export class UserWorkspaceDevices extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => UserWorkspaces, item => item.userWorkspaceDevices)
+  @JoinColumn({ name: 'user_workspace_id' })
+  userWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_devices');

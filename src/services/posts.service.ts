@@ -9,6 +9,12 @@ import { UserWorkspaceClassesService } from './user-workspace-classes.service';
 import { PostMedias } from '@/models/post-medias.model';
 import { In } from 'typeorm';
 import _ from 'lodash';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { Workspaces } from '@/models/workspaces.model';
+import { Classes } from '@/models/classes.model';
+import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
+import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
+import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 
 @Service()
 export class PostsService {
@@ -44,7 +50,21 @@ export class PostsService {
   /**
    * create
    */
-  public async create(item: CreatePostDto, userWorkspaceId: number, workspaceId: number) {
+  public async create(item: CreatePostDto, userWorkspaceData: UserWorkspaces, workspaceData: Workspaces) {
+    const userWorkspaceId = userWorkspaceData.id;
+    const workspaceId = workspaceData.id;
+    const classData = await Classes.findOne({
+      where: {
+        id: item.classId,
+      },
+    });
+    if (!classData) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
+    }
+
+    const receiveUserWorkspaceIds: number[] = [];
+    const playerIds: string[] = [];
+    const messageNotification = `Lớp ${classData.name} có bài viết mới`;
     const connection = await DbConnection.getConnection();
     if (connection) {
       const queryRunner = connection.createQueryRunner();
@@ -56,7 +76,7 @@ export class PostsService {
           isPin: item.isPin,
           classId: item.classId,
           byUserWorkspaceId: userWorkspaceId,
-          workspaceId: workspaceId,
+          workspaceId,
         });
         /**
          * Create scope students can view post
@@ -76,6 +96,7 @@ export class PostsService {
           postUserWorkspaceCreate.postId = postCreate.identifiers[0].id;
           postUserWorkspaceCreate.workspaceId = workspaceId;
           bulkUpdatePostUserWorkspaces.push(postUserWorkspaceCreate);
+          receiveUserWorkspaceIds.push(userWorkspaceIdScopeItem);
         }
         await queryRunner.manager.getRepository(PostUserWorkspaces).insert(bulkUpdatePostUserWorkspaces);
         /**
@@ -93,6 +114,43 @@ export class PostsService {
           }
           await queryRunner.manager.getRepository(PostMedias).insert(bulkUpdatePostMedias);
         }
+        /**
+         * push notification
+         */
+
+        const userWorkspaceDeviceData = await UserWorkspaceDevices.find({
+          where: {
+            userWorkspaceId: In(receiveUserWorkspaceIds),
+          },
+        });
+        for (const userWorkspaceDeviceItem of userWorkspaceDeviceData) {
+          playerIds.push(userWorkspaceDeviceItem.playerId);
+        }
+
+        if (playerIds.length) {
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.STUDENT,
+            data: {
+              category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+              content: messageNotification,
+              id: postCreate.identifiers[0].id,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
+
+          const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+          for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = messageNotification;
+            newUserWorkspaceNotification.appType = AppType.STUDENT;
+            newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = workspaceId;
+          }
+          await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+        }
+
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();

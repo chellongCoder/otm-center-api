@@ -56,7 +56,7 @@ export class ApplianceAbsentsController {
   @OpenAPI({ summary: 'Gửi đơn báo nghỉ' })
   async create(@Body({ required: true }) body: ApplianceAbsentsDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
+    const data = await this.service.create(body, user_workspace_context, workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 

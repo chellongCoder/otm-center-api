@@ -1,34 +1,37 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
-
+export enum AppType {
+  TEACHER = 'teacher',
+  STUDENT = 'student',
+}
 @Entity('user_workspace_notifications')
 export class UserWorkspaceNotifications extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'title' })
-  title: string;
+  @Column({ name: 'content', nullable: true })
+  content: string;
 
-  @Column({ name: 'platform' })
-  platform: string;
-
-  @Column({ name: 'status' })
+  @Column({ name: 'status', nullable: true })
   status: string;
 
-  @Column({ name: 'firebase_push_type' })
+  @Column({ name: 'firebase_push_type', nullable: true })
   firebasePushType: string;
 
   @Column({ name: 'date' })
   date: Date;
 
-  @Column({ name: 'push_type' })
-  pushType: string;
+  @Column({ name: 'app_type' })
+  appType: AppType;
 
-  @Column({ name: 'notification_message_id' })
-  notificationMessageId: number;
+  @Column({ name: 'notification_content_id', nullable: true })
+  notificationContentId: number;
 
   @Column({ name: 'receiver_user_workspace_id' })
   receiverUserWorkspaceId: number;
+
+  @Column({ name: 'sender_user_workspace_id', nullable: true })
+  senderUserWorkspaceId: number;
 
   @Column({ name: 'workspace_id' })
   workspaceId: number;

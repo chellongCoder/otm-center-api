@@ -1,16 +1,29 @@
-import { AppType } from '@/utils/rabbit-mq.util';
-import { IsArray, IsIn, IsString } from 'class-validator';
+import { AppType } from '@/models/user-workspace-notifications.model';
+import { CategoriesNotificationEnum } from '@/utils/rabbit-mq.util';
+import { IsArray, IsIn, IsNumber, IsObject, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export class BodyPushNotificationDtoDto {
   @IsString()
-  @IsIn([AppType.student, AppType.teacher, AppType.admin], { each: true })
+  @IsIn([AppType.STUDENT, AppType.TEACHER], { each: true })
   @JSONSchema({ description: 'type app', example: 'teacher' })
   type: AppType;
 
   @IsString()
   @JSONSchema({ description: 'content', example: 'noi dung bai viet' })
   content: string;
+
+  @IsString()
+  @JSONSchema({ description: 'category', example: CategoriesNotificationEnum.APPLIANCE_ABSENT })
+  category: any;
+
+  @IsNumber()
+  @JSONSchema({ description: 'content', example: 1 })
+  id: number;
+
+  @IsObject()
+  @JSONSchema({ description: 'object', example: {} })
+  detail: object;
 
   @IsArray()
   @JSONSchema({
