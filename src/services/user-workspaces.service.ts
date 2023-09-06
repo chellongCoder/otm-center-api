@@ -111,6 +111,9 @@ export class UserWorkspacesService {
     const data: SendMessageNotificationRabbit = {
       type: item.type,
       data: {
+        category: item.category,
+        id: item.id,
+        detail: item.detail,
         content: item.content,
         playerIds: item.playerIds,
       },
