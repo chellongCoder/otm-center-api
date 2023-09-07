@@ -12,7 +12,7 @@ export default {
   password: process.env.DB_PASS || config.get('dbConfig.password'),
   database: process.env.DB_DBNAME || config.get('dbConfig.database'),
   synchronize: config.get('dbConfig.synchronize') || false,
-  logging: config.get('dbConfig.logging') || false,
+  logging: false,
   // // COMMENT FOR SEED
   // host: process.env.DB_HOST,
   // port: process.env.DB_PORT,
@@ -32,4 +32,5 @@ export default {
     migrationsDir: 'database/migrations',
     subscribersDir: 'src/subscriber',
   },
+  logger: 'advanced-console',
 } as DataSourceOptions;
