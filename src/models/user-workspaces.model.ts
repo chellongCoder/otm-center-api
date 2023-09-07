@@ -131,6 +131,12 @@ export class UserWorkspaces extends BaseEntity {
   @Column({ name: 'user_workspace_type' })
   userWorkspaceType: UserWorkspaceTypes;
 
+  @Column({ name: 'parent_id', nullable: true })
+  parentId: string;
+
+  @Column({ name: 'parent_name', nullable: true })
+  parentName: string;
+
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
   @Expose({ name: 'created_at' })
