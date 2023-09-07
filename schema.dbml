@@ -489,3 +489,11 @@ Table user_workspace_support_images {
  url varchar
  workspace_id integer
 }
+Table class_timetable_detail_assignments {
+  id integer [pk]
+  class_timetable_detail_id integer
+  type varchar
+  link varchar
+  note varchar
+  workspace_id integer
+}

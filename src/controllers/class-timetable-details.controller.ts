@@ -4,6 +4,7 @@ import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetabl
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
+import { PermissionKeys } from '@/models/permissions.model';
 import { ClassTimetableDetailsService } from '@/services/class-timetable-details.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -45,11 +46,11 @@ export class ClassTimetableDetailsController {
   }
 
   @Post('/finish_assignment')
-  @Authorized()
+  @Authorized([PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any, @Req() req: any) {
-    const { user_workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.finishAssignment(body, user_workspace_context.id);
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.finishAssignment(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

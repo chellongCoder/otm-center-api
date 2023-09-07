@@ -20,14 +20,6 @@ export class UpdateFinishAssignmentDto extends Repository<ClassLessons> {
   @JSONSchema({ description: 'timetable id', example: 100 })
   timetableId: number;
 
-  @IsNumber()
-  @JSONSchema({ description: 'user_workspace_id', example: 1 })
-  userWorkspaceId: number;
-
-  @IsNumber()
-  @JSONSchema({ description: 'workspace_id', example: 1 })
-  workspaceId: number;
-
   @IsString()
   @JSONSchema({ description: 'assignment content', example: '1 + 1 = 2' })
   assignment: string;
