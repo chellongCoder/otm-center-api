@@ -17,6 +17,9 @@ export class Workspaces extends BaseEntity {
   @Column({ name: 'name' })
   name: string;
 
+  @Column({ name: 'address', nullable: true })
+  address: string;
+
   @Column({ name: 'phone_number', nullable: true })
   phoneNumber: string;
 
@@ -25,6 +28,9 @@ export class Workspaces extends BaseEntity {
 
   @Column({ name: 'parent_id', nullable: true })
   parentId: number;
+
+  @Column({ name: 'owner_user_workspace_id', nullable: true })
+  ownerUserWorkspaceId: number;
 
   @Column({ name: 'hierarchy_level' })
   hierarchyLevel: number;

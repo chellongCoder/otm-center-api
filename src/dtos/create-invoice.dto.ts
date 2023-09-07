@@ -1,20 +1,5 @@
 import { PaymentMethodInvoices } from '@/models/invoices.model';
-import { PostMediaTypes } from '@/models/post-medias.model';
-import { IsArrayOfNumbersConstraint } from '@/utils/validateDto';
-import { Type } from 'class-transformer';
-import {
-  ArrayMinSize,
-  ArrayNotEmpty,
-  IsArray,
-  IsBoolean,
-  IsISO8601,
-  IsIn,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Validate,
-  ValidateNested,
-} from 'class-validator';
+import { IsISO8601, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export class CreateInvoiceDto {
