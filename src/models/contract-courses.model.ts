@@ -1,10 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Contracts } from './contracts.model';
+import { Courses } from './courses.model';
 
 @Entity('contract_courses')
 export class ContractCourses extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ name: 'contract_id' })
+  contractId: number;
 
   @Column({ name: 'course_id' })
   courseId: number;
@@ -14,6 +29,9 @@ export class ContractCourses extends BaseEntity {
 
   @Column({ name: 'discount' })
   discount: number;
+
+  @Column({ name: 'workspace_id' })
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -29,6 +47,14 @@ export class ContractCourses extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Contracts, item => item.contractCourses)
+  @JoinColumn({ name: 'contract_id' })
+  public contract: Contracts;
+
+  @ManyToOne(() => Courses)
+  @JoinColumn({ name: 'course_id' })
+  public course: Courses;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('contract_courses');

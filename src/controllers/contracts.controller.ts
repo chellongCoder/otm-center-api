@@ -1,7 +1,10 @@
+import { MobileContext } from '@/auth/authorizationChecker';
+import { CreateContractDto } from '@/dtos/create-contract.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Contracts } from '@/models/contracts.model';
+import { PermissionKeys } from '@/models/permissions.model';
 import { ContractsService } from '@/services/contracts.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -31,9 +34,11 @@ export class ContractsController {
   }
 
   @Post('/')
+  @Authorized([PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Create contracts' })
-  async create(@Body({ required: true }) body: Contracts, @Res() res: any) {
-    const data = await this.service.create(body);
+  async create(@Body({ required: true }) body: CreateContractDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

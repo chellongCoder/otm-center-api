@@ -143,9 +143,10 @@ export class ApplianceAbsentsService {
           newApplianceTimetable.workspaceId = workspaceId;
           bulkCreateApplianceAbsentTimetables.push(newApplianceTimetable);
 
-          messageNotification = `${!messageNotification ? messageNotification : `${messageNotification}, `}ca ${moment(timetableItem.fromTime).format(
-            'HH:ss',
-          )} - ${moment(timetableItem.toTime).format('HH:ss')} ngày ${moment(timetableItem.date).format('DD/MM/YYYY')}`;
+          messageNotification = `${!messageNotification ? messageNotification : `${messageNotification}, `}ca ${moment(
+            timetableItem.fromTime,
+            'HH:mm:ss',
+          ).format('HH:mm')} - ${moment(timetableItem.toTime, 'HH:mm:ss').format('HH:mm')} ngày ${moment(timetableItem.date).format('DD/MM/YYYY')}`;
           const userWorkspaceShiftScopesData = timetableItem.classShiftsClassroom.userWorkspaceShiftScopes;
           for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
             const userWorkspaceDevicesData = userWorkspaceShiftScopeItem.userWorkspace.userWorkspaceDevices;
@@ -177,22 +178,23 @@ export class ApplianceAbsentsService {
             const newUserWorkspaceNotification = new UserWorkspaceNotifications();
             newUserWorkspaceNotification.content = contentNotify;
             newUserWorkspaceNotification.appType = AppType.TEACHER;
+            newUserWorkspaceNotification.date = moment().toDate();
             newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
             newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
             newUserWorkspaceNotification.workspaceId = workspaceId;
+            bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
           }
           await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
-
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
         throw error;
       } finally {
         await queryRunner.release();
-        return true;
       }
-    } else throw new Exception(ExceptionName.SERVICE_CONNECT_FAIL, ExceptionCode.SERVICE_CONNECT_FAIL);
+    }
+    return true;
   }
 
   /**
