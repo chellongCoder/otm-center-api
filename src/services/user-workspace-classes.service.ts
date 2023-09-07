@@ -189,6 +189,9 @@ export class UserWorkspaceClassesService {
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.classTimetableDetailAssignments',
       ],
       order: {
         sessionNumberOrder: 'ASC',

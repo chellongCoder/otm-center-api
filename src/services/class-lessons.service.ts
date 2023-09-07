@@ -48,6 +48,7 @@ export class ClassLessonsService {
           },
         },
       },
+      relations: ['classTimetableDetailAssignments'],
     });
     return {
       ...classTimetableDetail,
@@ -89,7 +90,13 @@ export class ClassLessonsService {
     }
     return Timetables.find({
       where: whereCondition,
-      relations: ['classLecture', 'classLesson', 'classTimetableDetails', 'classTimetableDetails.userWorkspace'],
+      relations: [
+        'classLecture',
+        'classLesson',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.classTimetableDetailAssignments',
+      ],
       order: {
         date: 'ASC',
         fromTime: 'ASC',
@@ -102,7 +109,13 @@ export class ClassLessonsService {
         id: timetableId,
         workspaceId,
       },
-      relations: ['classLecture', 'classLesson', 'classTimetableDetails', 'classTimetableDetails.userWorkspace'],
+      relations: [
+        'classLecture',
+        'classLesson',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.classTimetableDetailAssignments',
+      ],
       order: {
         date: 'ASC',
         fromTime: 'ASC',

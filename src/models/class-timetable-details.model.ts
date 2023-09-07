@@ -14,6 +14,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { Timetables } from './timetables.model';
 import { UserWorkspaces } from './user-workspaces.model';
 import { ClassTimetableDetailEvaluations } from './class-timetable-detail-evaluations.model';
+import { ClassTimetableDetailAssignments } from './class-timetable-detail-assignments.model';
 
 export enum AttendanceStatus {
   ON_TIME = 'ON_TIME', // ĐÚNG GIỜ
@@ -101,6 +102,9 @@ export class ClassTimetableDetails extends BaseEntity {
 
   @OneToMany(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetail)
   public classTimetableDetailEvaluations: ClassTimetableDetailEvaluations[];
+
+  @OneToMany(() => ClassTimetableDetailAssignments, item => item.classTimetableDetail)
+  public classTimetableDetailAssignments: ClassTimetableDetailAssignments[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_timetable_details');

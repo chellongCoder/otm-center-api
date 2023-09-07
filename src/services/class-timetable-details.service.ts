@@ -14,6 +14,7 @@ import { DailyEvaluations } from '@/models/daily-evaluations.model';
 import { EvaluationTypes } from '@/models/evaluation-criterias.model';
 import { ClassTimetableDetailEvaluations } from '@/models/class-timetable-detail-evaluations.model';
 import { ClassTimetableDetailEvaluationOptions } from '@/models/class-timetable-detail-evaluation-options.model';
+import { AssignmentTypes, ClassTimetableDetailAssignments } from '@/models/class-timetable-detail-assignments.model';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -66,27 +67,60 @@ export class ClassTimetableDetailsService {
   public async delete(id: number) {
     return ClassTimetableDetails.delete(id);
   }
-  public async finishAssignment(item: UpdateFinishAssignmentDto, userWorkspaceId: number) {
-    const classTimetableDetail = await ClassTimetableDetails.findOne({
+  public async finishAssignment(item: UpdateFinishAssignmentDto, userWorkspaceId: number, workspaceId: number) {
+    const classTimetableDetailData = await ClassTimetableDetails.findOne({
       where: {
         userWorkspaceId: userWorkspaceId,
-        workspaceId: item.workspaceId,
+        workspaceId: workspaceId,
         timetableId: item.timetableId,
       },
     });
-    if (!classTimetableDetail?.id) {
-      const classTimetableDetailCreate = new ClassTimetableDetails();
-      classTimetableDetailCreate.timetableId = item.timetableId;
-      classTimetableDetailCreate.userWorkspaceId = userWorkspaceId;
-      classTimetableDetailCreate.homeworkAssignment = item.assignment;
-      classTimetableDetailCreate.workspaceId = item.workspaceId;
-      return await ClassTimetableDetails.insert(classTimetableDetailCreate);
+    if (!classTimetableDetailData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
     }
-    return await ClassTimetableDetails.update(classTimetableDetail.id, {
-      ...classTimetableDetail,
-      homeworkAssignment: item.assignment,
-      homeworkAssignmentTime: moment().toDate(),
-    });
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await queryRunner.manager.getRepository(ClassTimetableDetails).update(classTimetableDetailData.id, {
+          homeworkAssignment: item.assignment,
+          homeworkAssignmentTime: moment().toDate(),
+        });
+        const bulkUpdateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
+        for (const linkImageItem of item.assignmentLinkImages) {
+          if (linkImageItem.link) {
+            const itemCreate = new ClassTimetableDetailAssignments();
+            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+            itemCreate.type = AssignmentTypes.IMAGE;
+            itemCreate.link = linkImageItem.link;
+            itemCreate.note = linkImageItem.note;
+            itemCreate.workspaceId = workspaceId;
+            bulkUpdateAssignmentDetail.push(itemCreate);
+          }
+        }
+        for (const linkNoteItem of item.assignmentLinkNotes) {
+          if (linkNoteItem.link) {
+            const itemCreate = new ClassTimetableDetailAssignments();
+            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+            itemCreate.type = AssignmentTypes.LINK;
+            itemCreate.link = linkNoteItem.link;
+            itemCreate.note = linkNoteItem.note;
+            itemCreate.workspaceId = workspaceId;
+            bulkUpdateAssignmentDetail.push(itemCreate);
+          }
+        }
+        await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).insert(bulkUpdateAssignmentDetail);
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+      return true;
+    }
   }
 
   public async getAttendances(timetableId: number, search?: string) {
