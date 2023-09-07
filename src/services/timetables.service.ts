@@ -81,6 +81,7 @@ export class TimetablesService {
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.classTimetableDetailAssignments',
         'classTimetableDetails.classTimetableDetailEvaluations',
         'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
