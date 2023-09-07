@@ -15,6 +15,7 @@ import { Classes } from '@/models/classes.model';
 import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
+import moment from 'moment-timezone';
 
 @Service()
 export class PostsService {
@@ -144,9 +145,11 @@ export class PostsService {
             const newUserWorkspaceNotification = new UserWorkspaceNotifications();
             newUserWorkspaceNotification.content = messageNotification;
             newUserWorkspaceNotification.appType = AppType.STUDENT;
+            newUserWorkspaceNotification.date = moment().toDate();
             newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
             newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
             newUserWorkspaceNotification.workspaceId = workspaceId;
+            bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
           }
           await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }

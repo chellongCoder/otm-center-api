@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { ContractCourses } from './contract-courses.model';
 
 @Entity('contracts')
 export class Contracts extends BaseEntity {
@@ -12,8 +13,11 @@ export class Contracts extends BaseEntity {
   @Column({ name: 'code' })
   code: string;
 
-  @Column({ name: 'paid_money' })
-  paidMoney: number;
+  @Column({ name: 'paid_money', default: 0 })
+  paidMoney: number; // tiền đã đóng
+
+  @Column({ name: 'workspace_id' })
+  workspaceId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   @Exclude()
@@ -29,6 +33,9 @@ export class Contracts extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @OneToMany(() => ContractCourses, item => item.contract)
+  public contractCourses: ContractCourses[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('contracts');

@@ -497,3 +497,27 @@ Table class_timetable_detail_assignments {
   note varchar
   workspace_id integer
 }
+Table invoices {
+  id integer [pk]
+  code varchar
+  user_workspace_id integer
+  date timestamp
+  due_date_payment timestamp
+  total_payment integer
+  paid_money integer
+  discount integer
+  current_paid integer
+  payment_method varchar
+}
+Table contracts {
+  id integer [pk]
+  user_workspace_id integer
+  code varchar
+  paid_money integer
+}
+Table contract_courses {
+  id integer [pk]
+  course_id integer
+  price integer
+  discount integer
+}
