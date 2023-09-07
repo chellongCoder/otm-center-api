@@ -37,7 +37,7 @@ jobs:
         ENV_DB_PORT: 5432
         ENV_DB_USER: "postgres"
         ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
-        ENV_DB_DBNAME: "otmdb"
+        ENV_DB_DBNAME: "otmdb2"
         ENV_AUTH_TWILLO: "8399e57efbcf4ac4e422d6a5d6f6b897"
         AMQBSERVER_LINK: "amqp://admin:HH223344@rabbit.2soft.top"
         QUEUE_ORDER_SEND_NOTI_NAME: "otm-noti-queue"
