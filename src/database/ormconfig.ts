@@ -11,7 +11,7 @@ export default {
   username: process.env.DB_USER || config.get('dbConfig.user'),
   password: process.env.DB_PASS || config.get('dbConfig.password'),
   database: process.env.DB_DBNAME || config.get('dbConfig.database'),
-  synchronize: true,
+  synchronize: config.get('dbConfig.synchronize') || false,
   logging: false,
   // // COMMENT FOR SEED
   // host: process.env.DB_HOST,
