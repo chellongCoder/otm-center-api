@@ -3,6 +3,10 @@ import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { CreateContractDto } from '@/dtos/create-contract.dto';
 import { DbConnection } from '@/database/dbConnection';
+import { ContractCourses } from '@/models/contract-courses.model';
+import { Courses } from '@/models/courses.model';
+import { In } from 'typeorm';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 
 @Service()
 export class ContractsService {
@@ -31,6 +35,7 @@ export class ContractsService {
       where: {
         id,
       },
+      relations: ['contractCourses', 'contractCourses.course', 'contractCourses.contract'],
     });
   }
 
@@ -38,39 +43,47 @@ export class ContractsService {
    * create
    */
   public async create(item: CreateContractDto, userWorkspaceId: number, workspaceId: number) {
-    // WIP - 02:11 08/09/2023
-    // const connection = await DbConnection.getConnection();
-    // if (connection) {
-    //   const queryRunner = connection.createQueryRunner();
-    //   await queryRunner.connect();
-    //   await queryRunner.startTransaction();
-    //   try {
-    //     const evaluationCriteriaCreate = await queryRunner.manager.getRepository(EvaluationCriterias).insert({
-    //       name: item.name,
-    //       type: item.type,
-    //       isActive: item.isActive,
-    //       dailyEvaluationId: item.dailyEvaluationId,
-    //       workspaceId: item.workspaceId,
-    //     });
-    //     const bulkUpdateEvaluationOptionValues: Partial<EvaluationOptionValues>[] = [];
-    //     for (const evaluationOptionValueItem of item.evaluationOptionValues) {
-    //       if (evaluationOptionValueItem.value) {
-    //         const evaluationOptionValueCreate = new EvaluationOptionValues();
-    //         evaluationOptionValueCreate.value = evaluationOptionValueItem.value;
-    //         evaluationOptionValueCreate.evaluationCriteriaId = evaluationCriteriaCreate.identifiers[0].id;
-    //         evaluationOptionValueCreate.workspaceId = item.workspaceId;
-    //         bulkUpdateEvaluationOptionValues.push(evaluationOptionValueCreate);
-    //       }
-    //     }
-    //     await queryRunner.manager.getRepository(EvaluationOptionValues).insert(bulkUpdateEvaluationOptionValues);
-    //     await queryRunner.commitTransaction();
-    //   } catch (error) {
-    //     await queryRunner.rollbackTransaction();
-    //     throw error;
-    //   } finally {
-    //     await queryRunner.release();
-    //   }
-    // }
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const contractCreate = await queryRunner.manager.getRepository(Contracts).insert({
+          userWorkspaceId: item.userWorkspaceId,
+          code: item.code,
+          paidMoney: item.paidMoney,
+          workspaceId: workspaceId,
+          createdByUserWorkspaceId: userWorkspaceId,
+        });
+        const courseData = await Courses.find({
+          where: {
+            id: In(item.contractCourses.map(el => el.courseId)),
+          },
+        });
+        const bulkUpdateContractCourses: Partial<ContractCourses>[] = [];
+        for (const contractCourseItem of item.contractCourses) {
+          const courseItem = courseData.find(el => el.id === contractCourseItem.courseId);
+          if (!courseItem?.id) {
+            throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
+          }
+          const contractCourseCreate = new ContractCourses();
+          contractCourseCreate.contractId = contractCreate.identifiers[0].id;
+          contractCourseCreate.courseId = courseItem.id;
+          contractCourseCreate.price = courseItem.price;
+          contractCourseCreate.discount = contractCourseItem.discount;
+          contractCourseCreate.workspaceId = workspaceId;
+          bulkUpdateContractCourses.push(contractCourseCreate);
+        }
+        await queryRunner.manager.getRepository(ContractCourses).insert(bulkUpdateContractCourses);
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
     return true;
   }
 

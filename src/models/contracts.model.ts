@@ -10,6 +10,9 @@ export class Contracts extends BaseEntity {
   @Column({ name: 'user_workspace_id' })
   userWorkspaceId: number;
 
+  @Column({ name: 'created_by_user_workspace_id' })
+  createdByUserWorkspaceId: number;
+
   @Column({ name: 'code' })
   code: string;
 
