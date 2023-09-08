@@ -1,8 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { UserWorkspaces } from './user-workspaces.model';
 export enum AppType {
   TEACHER = 'teacher',
   STUDENT = 'student',
+}
+export enum NotificationStatus {
+  NEW = 'NEW',
+  SEEN = 'SEEN',
 }
 @Entity('user_workspace_notifications')
 export class UserWorkspaceNotifications extends BaseEntity {
@@ -12,8 +27,8 @@ export class UserWorkspaceNotifications extends BaseEntity {
   @Column({ name: 'content', nullable: true })
   content: string;
 
-  @Column({ name: 'status', nullable: true })
-  status: string;
+  @Column({ name: 'status', default: NotificationStatus.NEW })
+  status: NotificationStatus;
 
   @Column({ name: 'firebase_push_type', nullable: true })
   firebasePushType: string;
@@ -50,6 +65,14 @@ export class UserWorkspaceNotifications extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => UserWorkspaces)
+  @JoinColumn({ name: 'receiver_user_workspace_id' })
+  receiverUserWorkspace: UserWorkspaces;
+
+  @ManyToOne(() => UserWorkspaces)
+  @JoinColumn({ name: 'sender_user_workspace_id' })
+  senderUserWorkspace: UserWorkspaces;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('user_workspace_notifications');

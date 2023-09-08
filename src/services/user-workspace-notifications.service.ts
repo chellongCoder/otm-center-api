@@ -1,6 +1,7 @@
-import { UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
+import { NotificationStatus, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 
 @Service()
 export class UserWorkspaceNotificationsService {
@@ -43,8 +44,20 @@ export class UserWorkspaceNotificationsService {
   /**
    * update
    */
-  public async update(id: number, item: UserWorkspaceNotifications) {
-    return UserWorkspaceNotifications.update(id, item);
+  public async update(id: number, userWorkspaceId: number, workspaceId: number) {
+    const userWorkspaceNotificationData = await UserWorkspaceNotifications.findOne({
+      where: {
+        id,
+        receiverUserWorkspaceId: userWorkspaceId,
+        workspaceId,
+      },
+    });
+    if (!userWorkspaceNotificationData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    return UserWorkspaceNotifications.update(id, {
+      status: NotificationStatus.SEEN,
+    });
   }
 
   /**
@@ -52,5 +65,14 @@ export class UserWorkspaceNotificationsService {
    */
   public async delete(id: number) {
     return UserWorkspaceNotifications.delete(id);
+  }
+  public async getListNotification(userWorkspaceId: number, workspaceId: number) {
+    return UserWorkspaceNotifications.find({
+      where: {
+        receiverUserWorkspaceId: userWorkspaceId,
+        workspaceId,
+      },
+      relations: ['senderUserWorkspace', 'receiverUserWorkspace'],
+    });
   }
 }

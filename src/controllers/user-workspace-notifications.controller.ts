@@ -1,7 +1,8 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { successResponse } from '@/helpers/response.helper';
 import { UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import { UserWorkspaceNotificationsService } from '@/services/user-workspace-notifications.service';
-import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res, Authorized } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -23,10 +24,19 @@ export class UserWorkspaceNotificationsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
-  @Get('/:id')
+  @Get('/detail/:id')
   @OpenAPI({ summary: 'Get user_workspace_notifications by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/list')
+  @Authorized()
+  @OpenAPI({ summary: 'Get user_workspace_notifications list' })
+  async getListNotification(@Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getListNotification(user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
 
@@ -38,12 +48,12 @@ export class UserWorkspaceNotificationsController {
   }
 
   @Put('/:id')
-  @OpenAPI({ summary: 'Update user_workspace_notifications' })
-  async update() {
-    try {
-    } catch (error) {
-      return { error };
-    }
+  @Authorized()
+  @OpenAPI({ summary: 'Update status user_workspace_notifications' })
+  async update(@Param('id') id: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.update(id, user_workspace_context.id, workspace_context.id);
+    return successResponse({ res, data, status_code: 201 });
   }
 
   @Delete('/:id')
