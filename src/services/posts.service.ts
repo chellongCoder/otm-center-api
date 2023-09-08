@@ -145,6 +145,8 @@ export class PostsService {
             const newUserWorkspaceNotification = new UserWorkspaceNotifications();
             newUserWorkspaceNotification.content = messageNotification;
             newUserWorkspaceNotification.appType = AppType.STUDENT;
+            newUserWorkspaceNotification.msg = JSON.stringify(msg);
+            newUserWorkspaceNotification.detailId = postCreate.identifiers[0].id;
             newUserWorkspaceNotification.date = moment().toDate();
             newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
             newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;

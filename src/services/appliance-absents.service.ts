@@ -178,6 +178,8 @@ export class ApplianceAbsentsService {
             const newUserWorkspaceNotification = new UserWorkspaceNotifications();
             newUserWorkspaceNotification.content = contentNotify;
             newUserWorkspaceNotification.appType = AppType.TEACHER;
+            newUserWorkspaceNotification.msg = JSON.stringify(msg);
+            newUserWorkspaceNotification.detailId = newAppliance.identifiers[0]?.id;
             newUserWorkspaceNotification.date = moment().toDate();
             newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
             newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;

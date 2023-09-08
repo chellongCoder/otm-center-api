@@ -27,6 +27,12 @@ export class UserWorkspaceNotifications extends BaseEntity {
   @Column({ name: 'content', nullable: true })
   content: string;
 
+  @Column({ name: 'detail_id', nullable: true })
+  detailId: string;
+
+  @Column({ name: 'msg', nullable: true })
+  msg: string;
+
   @Column({ name: 'status', default: NotificationStatus.NEW })
   status: NotificationStatus;
 
