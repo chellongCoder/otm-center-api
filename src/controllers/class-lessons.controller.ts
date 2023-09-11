@@ -74,8 +74,9 @@ export class ClassLessonsController {
   @Put('/exercise/:id')
   @Authorized([PermissionKeys.TEACHER, PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Update class_lessons in class' })
-  async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any) {
-    const data = await this.service.updateExercise(id, body);
+  async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateExercise(id, body, user_workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

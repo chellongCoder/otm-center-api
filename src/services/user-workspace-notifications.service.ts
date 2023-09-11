@@ -73,6 +73,9 @@ export class UserWorkspaceNotificationsService {
         workspaceId,
       },
       relations: ['senderUserWorkspace', 'receiverUserWorkspace'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 }

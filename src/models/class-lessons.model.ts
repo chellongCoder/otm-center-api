@@ -1,5 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, BaseEntity, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BaseEntity,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import { Classes } from './classes.model';
 
 @Entity('class_lessons')
 export class ClassLessons extends BaseEntity {
@@ -38,6 +49,10 @@ export class ClassLessons extends BaseEntity {
   @Exclude()
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Classes)
+  @JoinColumn({ name: 'class_id' })
+  class: Classes;
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_lessons');
