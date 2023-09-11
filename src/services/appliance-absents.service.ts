@@ -15,6 +15,7 @@ import { Workspaces } from '@/models/workspaces.model';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import { TimeFormat } from '@/constants';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -43,6 +44,9 @@ export class ApplianceAbsentsService {
         workspaceId: workspaceId,
       },
       relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable', 'applianceAbsentTimetables.timetable.class'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 
@@ -65,6 +69,9 @@ export class ApplianceAbsentsService {
         'applianceAbsentTimetables.timetable.classShiftsClassroom',
         'applianceAbsentTimetables.timetable.classShiftsClassroom.classroom',
       ],
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 
@@ -146,7 +153,9 @@ export class ApplianceAbsentsService {
           messageNotification = `${!messageNotification ? messageNotification : `${messageNotification}, `}ca ${moment(
             timetableItem.fromTime,
             'HH:mm:ss',
-          ).format('HH:mm')} - ${moment(timetableItem.toTime, 'HH:mm:ss').format('HH:mm')} ngày ${moment(timetableItem.date).format('DD/MM/YYYY')}`;
+          ).format('HH:mm')} - ${moment(timetableItem.toTime, 'HH:mm:ss').format('HH:mm')} ngày ${moment(timetableItem.date).format(
+            TimeFormat.date,
+          )}`;
           const userWorkspaceShiftScopesData = timetableItem.classShiftsClassroom.userWorkspaceShiftScopes;
           for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
             const userWorkspaceDevicesData = userWorkspaceShiftScopeItem.userWorkspace.userWorkspaceDevices;

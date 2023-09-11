@@ -22,3 +22,6 @@ export enum LANGUAGES {
 export enum WorkerConstant {
   WORKING_SEND_NOTIFICATION_SETUP = 'WORKING_SEND_NOTIFICATION_SETUP',
 }
+export enum TimeFormat {
+  date = 'DD/MM/YYYY',
+}

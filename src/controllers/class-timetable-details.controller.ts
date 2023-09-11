@@ -50,7 +50,7 @@ export class ClassTimetableDetailsController {
   @OpenAPI({ summary: 'Trả bài tập về nhà' })
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.finishAssignment(body, user_workspace_context.id, workspace_context.id);
+    const data = await this.service.finishAssignment(body, user_workspace_context, workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 

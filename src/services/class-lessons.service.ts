@@ -2,11 +2,19 @@ import { ClassLessons } from '@/models/class-lessons.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Timetables } from '@/models/timetables.model';
-import { Like } from 'typeorm';
+import { In, Like } from 'typeorm';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 import { UpdateClassLessonDto } from '@/dtos/update-class-lesson.dto';
+import { UserWorkspaceClasses } from '@/models/user-workspace-classes.model';
+import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
+import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
+import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
+import moment from 'moment-timezone';
+import { TimeFormat } from '@/constants';
+import _ from 'lodash';
+import { DbConnection } from '@/database/dbConnection';
 
 @Service()
 export class ClassLessonsService {
@@ -140,16 +148,89 @@ export class ClassLessonsService {
   /**
    * update
    */
-  public async updateExercise(id: number, item: UpdateExerciseClassLessonDto) {
-    const classLessonData = await ClassLessons.findOne({ where: { id } });
-    if (!classLessonData) {
+  public async updateExercise(id: number, item: UpdateExerciseClassLessonDto, userWorkspaceId: number) {
+    const timetableData = await Timetables.findOne({
+      where: {
+        classLesson: {
+          id,
+        },
+      },
+      relations: ['classLesson', 'class'],
+    });
+    if (!timetableData || !timetableData.classLesson) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
     const updateClassLesson: Partial<ClassLessons> = {
-      ...classLessonData,
       exercise: item.exercise,
     };
-    return await ClassLessons.update(id, updateClassLesson);
+    const userWorkspaceClassData = await UserWorkspaceClasses.find({
+      where: {
+        classId: timetableData.class.id,
+      },
+      relations: ['class', 'userWorkspace'],
+    });
+
+    const receiveUserWorkspaceIds: number[] = userWorkspaceClassData?.length ? userWorkspaceClassData.map(el => el.userWorkspaceId) : [];
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await ClassLessons.update(id, updateClassLesson);
+        /**
+         * push notification
+         */
+        if (userWorkspaceClassData && userWorkspaceClassData.length) {
+          const userWorkspaceDeviceData = await UserWorkspaceDevices.find({
+            where: {
+              userWorkspaceId: In(receiveUserWorkspaceIds),
+            },
+          });
+          if (userWorkspaceDeviceData.length) {
+            const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+            for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+              const userWorkspaceData = userWorkspaceClassData.find(el => el.userWorkspaceId === receiveUserWorkspaceId);
+              const playerIdsPush = userWorkspaceDeviceData.filter(el => el.userWorkspaceId === receiveUserWorkspaceId)?.map(el => el.playerId) || [];
+              if (userWorkspaceData && userWorkspaceData.userWorkspace) {
+                const messageNotification = `Học viên ${userWorkspaceData.userWorkspace.fullname} lớp ${timetableData.class.name} có BTVN buổi ${
+                  timetableData.sessionNumberOrder
+                } ngày ${moment(timetableData.date).format(TimeFormat.date)}`;
+
+                const msg: SendMessageNotificationRabbit = {
+                  type: AppType.STUDENT,
+                  data: {
+                    category: CategoriesNotificationEnum.HOMEWORK,
+                    content: messageNotification,
+                    id: id,
+                    playerIds: _.uniq(playerIdsPush),
+                  },
+                };
+                await sendNotificationToRabbitMQ(msg);
+                const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+                newUserWorkspaceNotification.content = messageNotification;
+                newUserWorkspaceNotification.appType = AppType.STUDENT;
+                newUserWorkspaceNotification.msg = JSON.stringify(msg);
+                newUserWorkspaceNotification.detailId = `${id}`;
+                newUserWorkspaceNotification.date = moment().toDate();
+                newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+                newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+                newUserWorkspaceNotification.workspaceId = timetableData.workspaceId;
+                bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
+              }
+            }
+            await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+          }
+        }
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+    return true;
   }
 
   /**

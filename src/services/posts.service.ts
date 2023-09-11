@@ -132,7 +132,7 @@ export class PostsService {
           const msg: SendMessageNotificationRabbit = {
             type: AppType.STUDENT,
             data: {
-              category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+              category: CategoriesNotificationEnum.NEW_POST,
               content: messageNotification,
               id: postCreate.identifiers[0].id,
               playerIds: _.uniq(playerIds),

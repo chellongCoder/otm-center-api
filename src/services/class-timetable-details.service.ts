@@ -15,6 +15,12 @@ import { EvaluationTypes } from '@/models/evaluation-criterias.model';
 import { ClassTimetableDetailEvaluations } from '@/models/class-timetable-detail-evaluations.model';
 import { ClassTimetableDetailEvaluationOptions } from '@/models/class-timetable-detail-evaluation-options.model';
 import { AssignmentTypes, ClassTimetableDetailAssignments } from '@/models/class-timetable-detail-assignments.model';
+import { Workspaces } from '@/models/workspaces.model';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { TimeFormat } from '@/constants';
+import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
+import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
+import _ from 'lodash';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -67,13 +73,23 @@ export class ClassTimetableDetailsService {
   public async delete(id: number) {
     return ClassTimetableDetails.delete(id);
   }
-  public async finishAssignment(item: UpdateFinishAssignmentDto, userWorkspaceId: number, workspaceId: number) {
+  public async finishAssignment(item: UpdateFinishAssignmentDto, userWorkspaceData: UserWorkspaces, workspaceData: Workspaces) {
+    const userWorkspaceId = userWorkspaceData.id;
+    const workspaceId = workspaceData.id;
     const classTimetableDetailData = await ClassTimetableDetails.findOne({
       where: {
         userWorkspaceId: userWorkspaceId,
         workspaceId: workspaceId,
         timetableId: item.timetableId,
       },
+      relations: [
+        'timetable',
+        'timetable.classShiftsClassroom',
+        'timetable.classShiftsClassroom.userWorkspaceShiftScopes',
+        'timetable.classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+        'timetable.classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace.userWorkspaceDevices',
+        'timetable.class',
+      ],
     });
     if (!classTimetableDetailData?.id) {
       throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
@@ -110,6 +126,50 @@ export class ClassTimetableDetailsService {
             itemCreate.workspaceId = workspaceId;
             bulkUpdateAssignmentDetail.push(itemCreate);
           }
+        }
+        /**
+         * push notification
+         */
+
+        const playerIds: string[] = [];
+        const receiveUserWorkspaceIds: number[] = [];
+        const userWorkspaceShiftScopesData = classTimetableDetailData.timetable.classShiftsClassroom.userWorkspaceShiftScopes;
+        for (const userWorkspaceShiftScopeItem of userWorkspaceShiftScopesData) {
+          const userWorkspaceDevicesData = userWorkspaceShiftScopeItem.userWorkspace.userWorkspaceDevices;
+          for (const userWorkspaceDeviceItem of userWorkspaceDevicesData) {
+            playerIds.push(userWorkspaceDeviceItem.playerId);
+            receiveUserWorkspaceIds.push(userWorkspaceDeviceItem.userWorkspaceId);
+          }
+        }
+        if (playerIds.length) {
+          const contentNotify = `${workspaceData.name} Học viên ${userWorkspaceData.fullname} trả lời bài tập về nhà buổi thứ ${
+            classTimetableDetailData.timetable.sessionNumberOrder
+          } ngày ${moment(classTimetableDetailData.timetable.date).format(TimeFormat.date)} lớp ${classTimetableDetailData.timetable.class.name}`;
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.TEACHER,
+            data: {
+              category: CategoriesNotificationEnum.HOMEWORK,
+              content: contentNotify,
+              id: classTimetableDetailData.timetable.id,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
+
+          const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+          for (const receiveUserWorkspaceId of _.uniq(receiveUserWorkspaceIds)) {
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = contentNotify;
+            newUserWorkspaceNotification.appType = AppType.TEACHER;
+            newUserWorkspaceNotification.msg = JSON.stringify(msg);
+            newUserWorkspaceNotification.detailId = `${classTimetableDetailData.timetable.id}`;
+            newUserWorkspaceNotification.date = moment().toDate();
+            newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = workspaceId;
+            bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
+          }
+          await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
         await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).insert(bulkUpdateAssignmentDetail);
         await queryRunner.commitTransaction();
