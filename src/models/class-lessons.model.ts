@@ -8,9 +8,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Classes } from './classes.model';
+import { ClassLessonImages } from './class-lesson-images.model';
 
 @Entity('class_lessons')
 export class ClassLessons extends BaseEntity {
@@ -53,6 +55,9 @@ export class ClassLessons extends BaseEntity {
   @ManyToOne(() => Classes)
   @JoinColumn({ name: 'class_id' })
   class: Classes;
+
+  @OneToMany(() => ClassLessonImages, item => item.classLesson)
+  public classLessonImages: ClassLessonImages[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('class_lessons');

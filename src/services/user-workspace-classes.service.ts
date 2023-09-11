@@ -186,6 +186,7 @@ export class UserWorkspaceClassesService {
       where: conditionTimetable,
       relations: [
         'classLesson',
+        'classLesson.classLessonImages',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
