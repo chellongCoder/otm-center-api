@@ -183,7 +183,7 @@ export class PostsService {
   public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
     return Posts.find({
       where: {
-        isPin: Boolean(!!isPin),
+        isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
         workspaceId,
         byUserWorkspaceId: userWorkspaceId,
       },
