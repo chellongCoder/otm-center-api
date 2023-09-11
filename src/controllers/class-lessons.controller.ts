@@ -56,7 +56,7 @@ export class ClassLessonsController {
    * For Teacher
    */
   @Get('/timetable/:timetableId')
-  @Authorized([PermissionKeys.TEACHER])
+  @Authorized()
   @OpenAPI({ summary: 'Get homework by timetableId' })
   async getHomeworkByTimetableId(@Param('timetableId') timetableId: number, @QueryParam('workspaceId') workspaceId: number, @Res() res: any) {
     const data = await this.service.getHomeworkByTimetableId(timetableId, workspaceId);
@@ -75,8 +75,8 @@ export class ClassLessonsController {
   @Authorized([PermissionKeys.TEACHER, PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Update class_lessons in class' })
   async updateExercise(@Param('id') id: number, @Body({ required: true }) body: UpdateExerciseClassLessonDto, @Res() res: any, @Req() req: any) {
-    const { user_workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.updateExercise(id, body, user_workspace_context.id);
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateExercise(id, body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 

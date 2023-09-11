@@ -51,6 +51,7 @@ export class TimetablesService {
       relations: [
         'class',
         'classLesson',
+        'classLesson.classLessonImages',
         'classLecture',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
@@ -74,6 +75,7 @@ export class TimetablesService {
       relations: [
         'class',
         'classLesson',
+        'classLesson.classLessonImages',
         'classLecture',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
@@ -153,6 +155,7 @@ export class TimetablesService {
         workspaceId: item.workspaceId,
         classId: classData.id,
       },
+      relations: ['classLessonImages'],
     });
     if (classLecturesData.length !== numberOfLesson || classLessonsData.length !== numberOfLesson) {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
@@ -226,6 +229,7 @@ export class TimetablesService {
       relations: [
         'class',
         'classLesson',
+        'classLesson.classLessonImages',
         'shift',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',

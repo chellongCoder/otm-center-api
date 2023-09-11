@@ -15,6 +15,7 @@ import moment from 'moment-timezone';
 import { TimeFormat } from '@/constants';
 import _ from 'lodash';
 import { DbConnection } from '@/database/dbConnection';
+import { ClassLessonImages } from '@/models/class-lesson-images.model';
 
 @Service()
 export class ClassLessonsService {
@@ -43,6 +44,7 @@ export class ClassLessonsService {
       where: {
         id,
       },
+      relations: ['classLessonImages'],
     });
     if (!userWorkspaceId) {
       return classLessonData;
@@ -101,6 +103,7 @@ export class ClassLessonsService {
       relations: [
         'classLecture',
         'classLesson',
+        'classLesson.classLessonImages',
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
         'classTimetableDetails.classTimetableDetailAssignments',
@@ -120,6 +123,7 @@ export class ClassLessonsService {
       relations: [
         'classLecture',
         'classLesson',
+        'classLesson.classLessonImages',
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
         'classTimetableDetails.classTimetableDetailAssignments',
@@ -148,14 +152,14 @@ export class ClassLessonsService {
   /**
    * update
    */
-  public async updateExercise(id: number, item: UpdateExerciseClassLessonDto, userWorkspaceId: number) {
+  public async updateExercise(id: number, item: UpdateExerciseClassLessonDto, userWorkspaceId: number, workspaceId: number) {
     const timetableData = await Timetables.findOne({
       where: {
         classLesson: {
           id,
         },
       },
-      relations: ['classLesson', 'class'],
+      relations: ['classLesson', 'class', 'classLesson.classLessonImages'],
     });
     if (!timetableData || !timetableData.classLesson) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
@@ -177,7 +181,20 @@ export class ClassLessonsService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       try {
-        await ClassLessons.update(id, updateClassLesson);
+        await queryRunner.manager.getRepository(ClassLessons).update(id, updateClassLesson);
+        // WIP 23:08 11/09
+        if (item.exerciseLinkImages.length) {
+          const bulkCreateClassLessonImages: ClassLessonImages[] = [];
+          for (const exerciseLinkImageItem of item.exerciseLinkImages) {
+            const newClassLessonImage = new ClassLessonImages();
+            newClassLessonImage.classLessonId = id;
+            newClassLessonImage.url = exerciseLinkImageItem.link;
+            newClassLessonImage.userWorkspaceId = userWorkspaceId;
+            newClassLessonImage.workspaceId = workspaceId;
+            bulkCreateClassLessonImages.push(newClassLessonImage);
+          }
+          await queryRunner.manager.getRepository(ClassLessonImages).insert(bulkCreateClassLessonImages);
+        }
         /**
          * push notification
          */
@@ -241,7 +258,7 @@ export class ClassLessonsService {
       where: {
         id: timetableId,
       },
-      relations: ['classLesson'],
+      relations: ['classLesson', 'classLesson.classLessonImages'],
     });
     const classLessonData = await ClassLessons.findOne({ where: { id: timetableData?.classLessonId } });
     if (!classLessonData) {

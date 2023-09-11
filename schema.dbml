@@ -521,3 +521,10 @@ Table contract_courses {
   price integer
   discount integer
 }
+Table class_lesson_images {
+ id integer [pk] 
+ class_lesson_id integer
+ url varchar
+ user_workspace_id integer
+ workspace_id integer
+}
