@@ -16,6 +16,7 @@ import { UserWorkspaces } from '@/models/user-workspaces.model';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import { TimeFormat } from '@/constants';
+import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -211,11 +212,59 @@ export class ApplianceAbsentsService {
   /**
    * updateStatus
    */
-  public async updateStatus(id: number, item: UpdateStatusApplianceAbsentsDto, userWorkspaceId: number) {
-    return ApplianceAbsents.update(id, {
+  public async updateStatus(id: number, item: UpdateStatusApplianceAbsentsDto, userWorkspaceData: UserWorkspaces) {
+    const userWorkspaceId = userWorkspaceData.id;
+    const applianceAbsentData = await ApplianceAbsents.findOne({
+      where: {
+        id,
+      },
+      relations: ['userWorkspace', 'userWorkspace.userWorkspaceDevices', 'applianceAbsentTimetables', 'applianceAbsentTimetables.timetable'],
+    });
+    if (!applianceAbsentData) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    await ApplianceAbsents.update(id, {
       status: item.status,
       updateByUserWorkspaceId: userWorkspaceId,
     });
+    let shiftMessages = '';
+    const applianceAbsentTimetableData = applianceAbsentData.applianceAbsentTimetables;
+    for (const applianceAbsentTimetableItem of applianceAbsentTimetableData) {
+      shiftMessages = `${shiftMessages ? `${shiftMessages}, ca` : ''} ${moment(
+        applianceAbsentTimetableItem.timetable.fromTime,
+        TimeFormat.time,
+      ).format(TimeFormat.hours)} - ${moment(applianceAbsentTimetableItem.timetable.toTime, TimeFormat.time).format(TimeFormat.hours)} ngày ${moment(
+        applianceAbsentTimetableItem.timetable.date,
+      ).format(TimeFormat.date)}`;
+    }
+    const contentNotify = `Đơn xin nghỉ của học viên ${applianceAbsentData.userWorkspace.fullname} ca${shiftMessages} đã được phê duyệt`;
+
+    const playerIds: string[] = [];
+    for (const userWorkspaceDeviceItem of applianceAbsentData.userWorkspace.userWorkspaceDevices) {
+      playerIds.push(userWorkspaceDeviceItem.playerId);
+    }
+
+    const msg: SendMessageNotificationRabbit = {
+      type: AppType.STUDENT,
+      data: {
+        category: CategoriesNotificationEnum.APPLIANCE_ABSENT,
+        content: contentNotify,
+        id: id,
+        playerIds: _.uniq(playerIds),
+      },
+    };
+    await sendNotificationToRabbitMQ(msg);
+    const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+    newUserWorkspaceNotification.content = contentNotify;
+    newUserWorkspaceNotification.appType = AppType.STUDENT;
+    newUserWorkspaceNotification.msg = JSON.stringify(msg);
+    newUserWorkspaceNotification.detailId = `${id}`;
+    newUserWorkspaceNotification.date = moment().toDate();
+    newUserWorkspaceNotification.receiverUserWorkspaceId = applianceAbsentData.userWorkspaceId;
+    newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+    newUserWorkspaceNotification.workspaceId = userWorkspaceData.workspaceId;
+    await UserWorkspaceNotifications.insert(newUserWorkspaceNotification);
+    return true;
   }
 
   /**
