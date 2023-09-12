@@ -38,6 +38,18 @@ export class ContractsService {
       relations: ['contractCourses', 'contractCourses.course', 'contractCourses.contract'],
     });
   }
+  public async getListContracts(userWorkspaceId: number, workspaceId: number) {
+    return Contracts.find({
+      where: {
+        userWorkspaceId,
+        workspaceId,
+      },
+      relations: ['contractCourses', 'contractCourses.course', 'contractCourses.contract'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
 
   /**
    * create
