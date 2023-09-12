@@ -24,4 +24,6 @@ export enum WorkerConstant {
 }
 export enum TimeFormat {
   date = 'DD/MM/YYYY',
+  hours = 'HH:mm',
+  time = 'HH:mm:ss',
 }

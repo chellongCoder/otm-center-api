@@ -65,7 +65,7 @@ export class ApplianceAbsentsController {
   @OpenAPI({ summary: 'Xác nhận đơn xin nghỉ' })
   async updateStatus(@Param('id') id: number, @Body({ required: true }) body: UpdateStatusApplianceAbsentsDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.updateStatus(id, body, user_workspace_context.id);
+    const data = await this.service.updateStatus(id, body, user_workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 
