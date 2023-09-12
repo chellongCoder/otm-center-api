@@ -1,7 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { CreateContractDto } from '@/dtos/create-contract.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { Contracts } from '@/models/contracts.model';
 import { PermissionKeys } from '@/models/permissions.model';
 import { ContractsService } from '@/services/contracts.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
@@ -30,6 +29,15 @@ export class ContractsController {
   @OpenAPI({ summary: 'Get contracts by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.findById(id);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
+  @Get('/detail/list')
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Get contracts' })
+  async getListContracts(@QueryParam('search') search: string, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getListContracts(user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
 
