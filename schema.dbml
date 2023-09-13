@@ -528,3 +528,13 @@ Table class_lesson_images {
  user_workspace_id integer
  workspace_id integer
 }
+Table comments {
+ id integer [pk]
+ user_workspace_id integer
+ category varchar
+ detail_id integer
+ parent_id integer
+ content varchar
+ url varchar
+ workspace_id integer
+}

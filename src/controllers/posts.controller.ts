@@ -2,7 +2,6 @@ import { MobileContext } from '@/auth/authorizationChecker';
 import { CreatePostDto } from '@/dtos/create-post.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
-import { Posts } from '@/models/posts.model';
 import { PostsService } from '@/services/posts.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
