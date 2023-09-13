@@ -1,5 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
+import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
 import { UpdateStatusApplianceAbsentsDto } from '@/dtos/update-status-appliance-absent.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
@@ -69,7 +70,17 @@ export class ApplianceAbsentsController {
     return successResponse({ res, data, status_code: 201 });
   }
 
+  @Put('/note/:id')
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'update note đơn xin nghỉ' })
+  async updateNote(@Param('id') id: number, @Body({ required: true }) body: UpdateNoteApplianceAbsentsDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateNote(id, body, user_workspace_context);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
   @Delete('/:id')
+  @Authorized([PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Delete appliance_absents' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

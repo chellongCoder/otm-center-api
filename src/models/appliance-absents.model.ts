@@ -55,7 +55,9 @@ export class ApplianceAbsents extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => ApplianceAbsentTimetables, item => item.applianceAbsent)
+  @OneToMany(() => ApplianceAbsentTimetables, item => item.applianceAbsent, {
+    cascade: true,
+  })
   public applianceAbsentTimetables: ApplianceAbsentTimetables[];
 
   @ManyToOne(() => UserWorkspaces)

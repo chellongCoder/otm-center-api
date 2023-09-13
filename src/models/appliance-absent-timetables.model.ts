@@ -42,7 +42,9 @@ export class ApplianceAbsentTimetables extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @ManyToOne(() => ApplianceAbsents, item => item.applianceAbsentTimetables)
+  @ManyToOne(() => ApplianceAbsents, item => item.applianceAbsentTimetables, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'appliance_absent_id' })
   applianceAbsent: ApplianceAbsents;
 

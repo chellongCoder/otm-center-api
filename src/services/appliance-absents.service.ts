@@ -17,6 +17,7 @@ import moment from 'moment-timezone';
 import _ from 'lodash';
 import { TimeFormat } from '@/constants';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
+import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -209,6 +210,20 @@ export class ApplianceAbsentsService {
     return true;
   }
 
+  public async updateNote(id: number, item: UpdateNoteApplianceAbsentsDto, userWorkspaceData: UserWorkspaces) {
+    const applianceAbsentData = await ApplianceAbsents.findOne({
+      where: {
+        id,
+        userWorkspaceId: userWorkspaceData.id,
+      },
+    });
+    if (!applianceAbsentData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    return await ApplianceAbsents.update(id, {
+      note: item.note,
+    });
+  }
   /**
    * updateStatus
    */
