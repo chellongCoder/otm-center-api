@@ -1,0 +1,88 @@
+import { Comments } from '@/models/comments.model';
+import { Service } from 'typedi';
+import { QueryParser } from '@/utils/query-parser';
+import { CreateCommentsDto } from '@/dtos/create-comments.dto';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
+import { UpdateCommentsDto } from '@/dtos/update-comments.dto';
+import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+
+@Service()
+export class CommentsService {
+  public async findAll(page = 1, limit = 10, order = 'id:asc', search: string) {
+    const orderCond = QueryParser.toOrderCond(order);
+    const filteredData = await Comments.findByCond({
+      sort: orderCond.sort,
+      order: orderCond.order,
+      skip: (page - 1) * limit,
+      take: limit,
+      cache: false,
+      search: QueryParser.toFilters(search),
+    });
+    return {
+      data: filteredData[0],
+      total: filteredData[1],
+      pages: Math.ceil(filteredData[1] / limit),
+    };
+  }
+
+  /**
+   * getListComments
+   */
+  public async getListComments(targetKey: string, category: CategoriesCommentsEnum, workspaceId: number) {
+    return Comments.find({
+      where: {
+        targetKey,
+        workspaceId,
+        category,
+      },
+      relations: ['rootComment', 'subComments', 'userWorkspace'],
+    });
+  }
+
+  /**
+   * findById
+   */
+  public async findById(id: number) {
+    return Comments.findOne({
+      where: {
+        id,
+      },
+      relations: ['rootComment', 'subComments', 'userWorkspace'],
+    });
+  }
+
+  /**
+   * create
+   */
+  public async create(item: CreateCommentsDto, userWorkspaceData: UserWorkspaces) {
+    const results = await Comments.insert({
+      ...item,
+      userWorkspaceId: userWorkspaceData.id,
+      workspaceId: userWorkspaceData.workspaceId,
+    });
+    return results;
+  }
+
+  /**
+   * update
+   */
+  public async update(id: number, item: UpdateCommentsDto, userWorkspaceData: UserWorkspaces) {
+    const commentData = await Comments.findOne({
+      where: {
+        id,
+        userWorkspaceId: userWorkspaceData.id,
+      },
+    });
+    if (!commentData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    return Comments.update(id, item);
+  }
+
+  /**
+   * delete
+   */
+  public async delete(id: number) {
+    return Comments.delete(id);
+  }
+}
