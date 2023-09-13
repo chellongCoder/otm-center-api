@@ -45,6 +45,7 @@ export class PostsService {
       where: {
         id,
       },
+      relations: ['postMedias', 'byUserWorkspace'],
     });
   }
 

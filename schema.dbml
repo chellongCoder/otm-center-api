@@ -530,11 +530,26 @@ Table class_lesson_images {
 }
 Table comments {
  id integer [pk]
+ workspace_id integer
  user_workspace_id integer
  category varchar
  detail_id integer
  parent_id integer
  content varchar
  url varchar
+}
+Table announcements {
+ id integer [pk]
  workspace_id integer
+ created_by_user_workspace_id integer
+ title varchar
+ content varchar
+ is_important boolean
+ allow_comment boolean
+}
+Table announcement_user_workspaces {
+ id integer [pk]
+ workspace_id integer
+ announcement_id integer
+ user_workspace_id integer
 }
