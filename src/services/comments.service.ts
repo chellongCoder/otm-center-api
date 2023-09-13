@@ -35,7 +35,7 @@ export class CommentsService {
         workspaceId,
         category,
       },
-      relations: ['rootComment', 'subComments', 'userWorkspace'],
+      relations: ['rootComment', 'subComments', 'userWorkspace', 'subComments.userWorkspace'],
     });
   }
 
