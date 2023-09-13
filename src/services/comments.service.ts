@@ -1,4 +1,4 @@
-import { Comments } from '@/models/comments.model';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { CreateCommentsDto } from '@/dtos/create-comments.dto';
