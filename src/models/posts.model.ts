@@ -53,10 +53,14 @@ export class Posts extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @OneToMany(() => PostUserWorkspaces, item => item.post)
+  @OneToMany(() => PostUserWorkspaces, item => item.post, {
+    cascade: true,
+  })
   public postUserWorkspaces: PostUserWorkspaces[];
 
-  @OneToMany(() => PostMedias, item => item.post)
+  @OneToMany(() => PostMedias, item => item.post, {
+    cascade: true,
+  })
   public postMedias: PostMedias[];
 
   @ManyToOne(() => UserWorkspaces)

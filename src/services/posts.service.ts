@@ -46,7 +46,7 @@ export class PostsService {
       where: {
         id,
       },
-      relations: ['postMedias', 'byUserWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
     });
   }
 
@@ -268,7 +268,23 @@ export class PostsService {
    * delete
    */
   public async delete(id: number) {
-    return Posts.delete(id);
+    const postData = await Posts.findOne({
+      where: {
+        id,
+      },
+      relations: ['postMedias', 'postUserWorkspaces'],
+    });
+    if (!postData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    await Posts.softRemove(postData);
+    if (postData?.postMedias?.length) {
+      await PostMedias.softRemove(postData.postMedias);
+    }
+    if (postData?.postUserWorkspaces?.length) {
+      await PostUserWorkspaces.softRemove(postData.postUserWorkspaces);
+    }
+    return true;
   }
   public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
     return Posts.find({
@@ -277,7 +293,7 @@ export class PostsService {
         workspaceId,
         byUserWorkspaceId: userWorkspaceId,
       },
-      relations: ['postMedias', 'byUserWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
     });
   }
   public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number) {
@@ -292,7 +308,7 @@ export class PostsService {
         },
         _.isNil,
       ),
-      relations: ['postMedias', 'byUserWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
     });
   }
 }

@@ -46,7 +46,9 @@ export class PostUserWorkspaces extends BaseEntity {
   @JoinColumn({ name: 'user_workspace_id' })
   userWorkspace: UserWorkspaces;
 
-  @ManyToOne(() => Posts, item => item.postUserWorkspaces)
+  @ManyToOne(() => Posts, item => item.postUserWorkspaces, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'post_id' })
   post: Posts;
 

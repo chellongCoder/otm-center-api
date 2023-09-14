@@ -66,6 +66,7 @@ export class PostsController {
   }
 
   @Delete('/:id')
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Delete posts' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);

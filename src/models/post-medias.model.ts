@@ -53,7 +53,9 @@ export class PostMedias extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @ManyToOne(() => Posts, item => item.postMedias)
+  @ManyToOne(() => Posts, item => item.postMedias, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'post_id' })
   post: Posts;
 
