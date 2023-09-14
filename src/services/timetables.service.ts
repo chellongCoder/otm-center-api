@@ -46,19 +46,15 @@ export class TimetablesService {
    */
   public async findByIdTeacher(id: number) {
     let status: LearningStatus;
-    const unlearnedStudent = await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
-      .where('class_timetable_details.timetableId = :id', { id })
-      .andWhere('class_timetable_details.learningStatus = :status', { status: LearningStatus.UNLEARNED })
-      .getManyAndCount();
     const learnedStudent = await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
       .where('class_timetable_details.timetableId = :id', { id })
       .andWhere('class_timetable_details.learningStatus = :status', { status: LearningStatus.LEARNED })
       .getManyAndCount();
 
-    if (unlearnedStudent[1] > learnedStudent[1]) {
-      status = LearningStatus.UNLEARNED;
-    } else {
+    if (learnedStudent[1] > 0) {
       status = LearningStatus.LEARNED;
+    } else {
+      status = LearningStatus.UNLEARNED;
     }
     const timetable = await Timetables.findOne({
       where: {
