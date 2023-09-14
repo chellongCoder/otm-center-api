@@ -1,5 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { CreatePostDto } from '@/dtos/create-post.dto';
+import { UpdatePostDto } from '@/dtos/update-post.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
 import { PostsService } from '@/services/posts.service';
@@ -56,15 +57,16 @@ export class PostsController {
     return successResponse({ res, data, status_code: 200 });
   }
   @Put('/:id')
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Update posts' })
-  async update() {
-    try {
-    } catch (error) {
-      return { error };
-    }
+  async update(@Param('id') id: number, @Body({ required: true }) body: UpdatePostDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.update(id, body, user_workspace_context);
+    return successResponse({ res, data, status_code: 201 });
   }
 
   @Delete('/:id')
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Delete posts' })
   async delete(@Param('id') id: number, @Res() res: any) {
     const data = await this.service.delete(id);
