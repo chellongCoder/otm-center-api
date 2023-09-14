@@ -16,6 +16,7 @@ import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-not
 import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import moment from 'moment-timezone';
+import { UpdatePostDto } from '@/dtos/update-post.dto';
 
 @Service()
 export class PostsService {
@@ -171,8 +172,96 @@ export class PostsService {
   /**
    * update
    */
-  public async update(id: number, item: Posts) {
-    return Posts.update(id, item);
+  public async update(id: number, item: UpdatePostDto, userWorkspaceData: UserWorkspaces) {
+    const userWorkspaceId = userWorkspaceData.id;
+    const postData = await Posts.findOne({
+      where: {
+        id,
+      },
+      relations: ['postMedias', 'postUserWorkspaces'],
+    });
+    if (!postData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await queryRunner.manager.getRepository(Posts).update(id, {
+          content: item.content,
+          isPin: item.isPin,
+          byUserWorkspaceId: userWorkspaceId,
+        });
+        /**
+         * Update scope students can view post
+         */
+        if (!item.userWorkspaceIdScopes) {
+          throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
+        }
+        const userWorkspaceIdScopesCurrent = postData.postUserWorkspaces.map(el => el.userWorkspaceId);
+        const addUserWorkspaceIds = item.userWorkspaceIdScopes.filter(el => !userWorkspaceIdScopesCurrent.includes(el));
+        const removeUserWorkspaceIds = userWorkspaceIdScopesCurrent.filter(el => !item.userWorkspaceIdScopes.includes(el));
+        if (addUserWorkspaceIds.length) {
+          const userWorkspaceClassesData = await this.userWorkspaceClassesService.getUserWorkspaceByClassId(postData.classId);
+          const studentIdsInClass = userWorkspaceClassesData.map(el => el.userWorkspaceId);
+          if (addUserWorkspaceIds.filter(el => !studentIdsInClass.includes(el)).length) {
+            throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
+          }
+          const bulkUpdatePostUserWorkspaces: Partial<PostUserWorkspaces>[] = [];
+          for (const userWorkspaceIdScopeItem of addUserWorkspaceIds) {
+            const postUserWorkspaceCreate = new PostUserWorkspaces();
+            postUserWorkspaceCreate.userWorkspaceId = userWorkspaceIdScopeItem;
+            postUserWorkspaceCreate.postId = postData.id;
+            postUserWorkspaceCreate.workspaceId = userWorkspaceData.workspaceId;
+            bulkUpdatePostUserWorkspaces.push(postUserWorkspaceCreate);
+          }
+          await queryRunner.manager.getRepository(PostUserWorkspaces).insert(bulkUpdatePostUserWorkspaces);
+        }
+        if (removeUserWorkspaceIds.length) {
+          const postUserWorkspaceDelete = postData.postUserWorkspaces.filter(el => removeUserWorkspaceIds.includes(el.userWorkspaceId));
+          await queryRunner.manager.getRepository(PostUserWorkspaces).softDelete(postUserWorkspaceDelete.map(el => el.id));
+        }
+        /**
+         * update media link with post
+         */
+        if (item?.linkMediaPosts && item.linkMediaPosts.length) {
+          const postMediaCurrent = postData.postMedias;
+          const bulkUpdatePostMedias: Partial<PostMedias>[] = [];
+          const postMediaDuplicate: number[] = [];
+
+          for (const linkMediaPostItem of item.linkMediaPosts) {
+            const existPostMedia = postMediaCurrent.find(el => el.link === linkMediaPostItem.link && el.type === linkMediaPostItem.type);
+            if (existPostMedia?.id) {
+              postMediaDuplicate.push(existPostMedia.id);
+              continue;
+            }
+            const postMediaCreate = new PostMedias();
+            postMediaCreate.link = linkMediaPostItem.link;
+            postMediaCreate.type = linkMediaPostItem.type;
+            postMediaCreate.postId = postData.id;
+            postMediaCreate.workspaceId = userWorkspaceData.workspaceId;
+            bulkUpdatePostMedias.push(postMediaCreate);
+          }
+          const postMediaDelete: number[] = postMediaCurrent.map(el => el.id).filter(el => !postMediaDuplicate.includes(el));
+          if (bulkUpdatePostMedias.length) {
+            await queryRunner.manager.getRepository(PostMedias).insert(bulkUpdatePostMedias);
+          }
+          if (postMediaDelete.length) {
+            await queryRunner.manager.getRepository(PostMedias).softDelete(postMediaDelete);
+          }
+        }
+
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+    return true;
   }
 
   /**
