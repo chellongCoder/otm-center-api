@@ -12,6 +12,7 @@ import { calculateNextStepCycle } from '@/utils/util';
 import { Between } from 'typeorm';
 import { ClassLectures } from '@/models/class-lectures.model';
 import { ClassLessons } from '@/models/class-lessons.model';
+import { ClassTimetableDetails, LearningStatus } from '@/models/class-timetable-details.model';
 
 interface ShiftApplyTimetables extends Partial<Shifts> {
   id: number;
@@ -44,7 +45,22 @@ export class TimetablesService {
    * findById
    */
   public async findByIdTeacher(id: number) {
-    return Timetables.findOne({
+    let status: LearningStatus;
+    const unlearnedStudent = await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
+      .where('class_timetable_details.timetableId = :id', { id })
+      .andWhere('class_timetable_details.learningStatus = :status', { status: LearningStatus.UNLEARNED })
+      .getManyAndCount();
+    const learnedStudent = await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
+      .where('class_timetable_details.timetableId = :id', { id })
+      .andWhere('class_timetable_details.learningStatus = :status', { status: LearningStatus.LEARNED })
+      .getManyAndCount();
+
+    if (unlearnedStudent[1] > learnedStudent[1]) {
+      status = LearningStatus.UNLEARNED;
+    } else {
+      status = LearningStatus.LEARNED;
+    }
+    const timetable = await Timetables.findOne({
       where: {
         id,
       },
@@ -54,11 +70,13 @@ export class TimetablesService {
         'classLesson.classLessonImages',
         'classLecture',
         'shift',
+        'classTimetableDetails',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
       ],
     });
+    return { ...timetable, learningStatus: status };
   }
 
   /**
