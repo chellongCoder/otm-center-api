@@ -189,6 +189,7 @@ export class ClassLessonsService {
             const newClassLessonImage = new ClassLessonImages();
             newClassLessonImage.classLessonId = id;
             newClassLessonImage.url = exerciseLinkImageItem.link;
+            newClassLessonImage.type = exerciseLinkImageItem.type;
             newClassLessonImage.userWorkspaceId = userWorkspaceId;
             newClassLessonImage.workspaceId = workspaceId;
             bulkCreateClassLessonImages.push(newClassLessonImage);
