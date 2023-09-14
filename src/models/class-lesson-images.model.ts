@@ -12,6 +12,10 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { ClassLessons } from './class-lessons.model';
 
+export enum ClassLessonImageTypes {
+  VIDEO = 'VIDEO',
+  IMAGE = 'IMAGE',
+}
 @Entity('class_lesson_images')
 export class ClassLessonImages extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -22,6 +26,9 @@ export class ClassLessonImages extends BaseEntity {
 
   @Column({ name: 'url' })
   url: string;
+
+  @Column({ name: 'type', default: ClassLessonImageTypes.IMAGE, nullable: true })
+  type: ClassLessonImageTypes;
 
   @Column({ name: 'user_workspace_id', nullable: true })
   userWorkspaceId: number;
