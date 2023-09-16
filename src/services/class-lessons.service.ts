@@ -63,6 +63,7 @@ export class ClassLessonsService {
     return {
       ...classTimetableDetail,
       ...classLessonData,
+      classTimetableDetailId: classTimetableDetail?.id,
     };
   }
 

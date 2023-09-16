@@ -1,6 +1,7 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { UpdateEvaluationInLessonDto } from '@/dtos/update-evaluation-student-in-lesson.dto';
 import { UpdateClassTimetableDetailMarkingDto } from '@/dtos/updateClassTimetableDetailMarking.dto';
+import { UpdateContentAssignmentDto } from '@/dtos/updateContentAssignment.dto';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { successResponse } from '@/helpers/response.helper';
@@ -51,6 +52,20 @@ export class ClassTimetableDetailsController {
   async finishAssignment(@Body({ required: true }) body: UpdateFinishAssignmentDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
     const data = await this.service.finishAssignment(body, user_workspace_context, workspace_context);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Put('/update_assignment/:timetableId')
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Cập nhật tập về nhà' })
+  async updateAssignment(
+    @Param('timetableId') timetableId: number,
+    @Body({ required: true }) body: UpdateContentAssignmentDto,
+    @Res() res: any,
+    @Req() req: any,
+  ) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateAssignment(timetableId, body, user_workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 
