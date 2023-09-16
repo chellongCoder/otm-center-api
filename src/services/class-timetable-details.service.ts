@@ -21,6 +21,7 @@ import { TimeFormat } from '@/constants';
 import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
 import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import _ from 'lodash';
+import { UpdateContentAssignmentDto } from '@/dtos/updateContentAssignment.dto';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -104,7 +105,7 @@ export class ClassTimetableDetailsService {
           homeworkAssignment: item.assignment,
           homeworkAssignmentTime: moment().toDate(),
         });
-        const bulkUpdateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
+        const bulkCreateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
         for (const linkImageItem of item.assignmentLinkImages) {
           if (linkImageItem.link) {
             const itemCreate = new ClassTimetableDetailAssignments();
@@ -113,7 +114,7 @@ export class ClassTimetableDetailsService {
             itemCreate.link = linkImageItem.link;
             itemCreate.note = linkImageItem.note;
             itemCreate.workspaceId = workspaceId;
-            bulkUpdateAssignmentDetail.push(itemCreate);
+            bulkCreateAssignmentDetail.push(itemCreate);
           }
         }
         for (const linkNoteItem of item.assignmentLinkNotes) {
@@ -124,9 +125,11 @@ export class ClassTimetableDetailsService {
             itemCreate.link = linkNoteItem.link;
             itemCreate.note = linkNoteItem.note;
             itemCreate.workspaceId = workspaceId;
-            bulkUpdateAssignmentDetail.push(itemCreate);
+            bulkCreateAssignmentDetail.push(itemCreate);
           }
         }
+        await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).insert(bulkCreateAssignmentDetail);
+
         /**
          * push notification
          */
@@ -171,7 +174,6 @@ export class ClassTimetableDetailsService {
           }
           await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
-        await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).insert(bulkUpdateAssignmentDetail);
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
@@ -181,6 +183,103 @@ export class ClassTimetableDetailsService {
       }
       return true;
     }
+  }
+  public async updateAssignment(timetableId: number, item: UpdateContentAssignmentDto, userWorkspaceData: UserWorkspaces) {
+    const userWorkspaceId = userWorkspaceData.id;
+    const workspaceId = userWorkspaceData.workspaceId;
+    const classTimetableDetailData = await ClassTimetableDetails.findOne({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        workspaceId: workspaceId,
+        timetableId,
+      },
+      relations: ['classTimetableDetailAssignments', 'timetable', 'timetable.class'],
+    });
+    if (!classTimetableDetailData?.id) {
+      throw new Exception(ExceptionName.CLASS_NOT_FOUND_STUDENT, ExceptionCode.CLASS_NOT_FOUND_STUDENT);
+    }
+    /**
+     * Update assignment
+     */
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await queryRunner.manager.getRepository(ClassTimetableDetails).update(classTimetableDetailData.id, {
+          homeworkAssignment: item.assignment,
+          homeworkAssignmentTime: moment().toDate(),
+        });
+        const classTimetableDetailAssignmentData = classTimetableDetailData.classTimetableDetailAssignments;
+        const assignmentLinkImageCurrent = classTimetableDetailAssignmentData.filter(el => el.type === AssignmentTypes.IMAGE);
+        const assignmentLinkLinkCurrent = classTimetableDetailAssignmentData.filter(el => el.type === AssignmentTypes.LINK);
+
+        const bulkCreateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
+        const bulkUpdateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
+        const assignmentDetailExist: number[] = [];
+        for (const linkImageItem of item.assignmentLinkImages) {
+          if (!linkImageItem.link) {
+            continue;
+          }
+          const existLinkImageItem = assignmentLinkImageCurrent.find(el => el.link === linkImageItem.link);
+          if (existLinkImageItem && existLinkImageItem.note === linkImageItem.note) {
+            assignmentDetailExist.push(existLinkImageItem.id);
+            continue;
+          } else if (existLinkImageItem) {
+            bulkUpdateAssignmentDetail.push({
+              ...existLinkImageItem,
+              note: linkImageItem.note,
+            });
+            assignmentDetailExist.push(existLinkImageItem.id);
+          } else {
+            const itemCreate = new ClassTimetableDetailAssignments();
+            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+            itemCreate.type = AssignmentTypes.IMAGE;
+            itemCreate.link = linkImageItem.link;
+            itemCreate.note = linkImageItem.note;
+            itemCreate.workspaceId = workspaceId;
+            bulkCreateAssignmentDetail.push(itemCreate);
+          }
+        }
+        for (const linkNoteItem of item.assignmentLinkNotes) {
+          if (!linkNoteItem.link) {
+            continue;
+          }
+          const existLinkNoteItem = assignmentLinkLinkCurrent.find(el => el.link === linkNoteItem.link);
+          if (existLinkNoteItem && existLinkNoteItem.note === linkNoteItem.note) {
+            assignmentDetailExist.push(existLinkNoteItem.id);
+            continue;
+          } else if (existLinkNoteItem) {
+            bulkUpdateAssignmentDetail.push({
+              ...existLinkNoteItem,
+              note: linkNoteItem.note,
+            });
+            assignmentDetailExist.push(existLinkNoteItem.id);
+          } else {
+            const itemCreate = new ClassTimetableDetailAssignments();
+            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+            itemCreate.type = AssignmentTypes.LINK;
+            itemCreate.link = linkNoteItem.link;
+            itemCreate.note = linkNoteItem.note;
+            itemCreate.workspaceId = workspaceId;
+            bulkCreateAssignmentDetail.push(itemCreate);
+          }
+        }
+        const bulkDeleteAssignmentDetail = classTimetableDetailAssignmentData.map(el => el.id).filter(el => !assignmentDetailExist.includes(el));
+        await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).save([...bulkCreateAssignmentDetail, ...bulkUpdateAssignmentDetail]);
+        if (bulkDeleteAssignmentDetail.length) {
+          await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).softDelete(bulkDeleteAssignmentDetail);
+        }
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+    return true;
   }
 
   public async getAttendances(timetableId: number, search?: string) {
