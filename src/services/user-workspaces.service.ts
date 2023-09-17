@@ -9,6 +9,9 @@ import { UserWorkspacePermissions } from '@/models/user-workspace-permissions.mo
 import moment from 'moment-timezone';
 import { BodyPushNotificationDtoDto } from '@/dtos/body-push-notification.dto';
 import { SendMessageNotificationRabbit, sendNotificationToRabbitMQ } from '@/utils/rabbit-mq.util';
+import { AbsentStatus, ApplianceAbsents } from '@/models/appliance-absents.model';
+import { Posts } from '@/models/posts.model';
+import { Announcements } from '@/models/announcements.model';
 
 @Service()
 export class UserWorkspacesService {
@@ -119,5 +122,42 @@ export class UserWorkspacesService {
       },
     };
     await sendNotificationToRabbitMQ(data);
+  }
+  public async getNotification(userWorkspaceData: UserWorkspaces) {
+    /**
+     * Note: response:
+     * absentAppliance: tổng đơn chưa được duyệt
+     * post: tổng bài viết
+     * announcement: tổng tin tức
+     */
+    const userWorkspaceId = userWorkspaceData.id;
+    const workspaceId = userWorkspaceData.workspaceId;
+    const absentAppliance = await ApplianceAbsents.count({
+      where: {
+        userWorkspaceId: userWorkspaceId,
+        workspaceId: workspaceId,
+        status: AbsentStatus.NOT_APPROVED_YET,
+      },
+    });
+    const post = await Posts.count({
+      where: {
+        postUserWorkspaces: {
+          userWorkspaceId,
+        },
+        workspaceId,
+      },
+    });
+    const announcement = await Announcements.count({
+      where: {
+        announcementUserWorkspaces: {
+          userWorkspaceId: userWorkspaceData.id,
+        },
+      },
+    });
+    return {
+      absentAppliance: absentAppliance || 0,
+      post: post || 0,
+      announcement: announcement || 0,
+    };
   }
 }
