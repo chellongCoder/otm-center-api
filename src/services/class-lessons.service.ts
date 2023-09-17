@@ -212,7 +212,7 @@ export class ClassLessonsService {
               const userWorkspaceData = userWorkspaceClassData.find(el => el.userWorkspaceId === receiveUserWorkspaceId);
               const playerIdsPush = userWorkspaceDeviceData.filter(el => el.userWorkspaceId === receiveUserWorkspaceId)?.map(el => el.playerId) || [];
               if (userWorkspaceData && userWorkspaceData.userWorkspace) {
-                const messageNotification = `Học viên ${userWorkspaceData.userWorkspace.fullname} lớp ${timetableData.class.name} có BTVN buổi ${
+                const messageNotification = `Học viên ${userWorkspaceData.userWorkspace.fullname} lớp ${timetableData.class.name} có BTVN buổi thứ ${
                   timetableData.sessionNumberOrder
                 } ngày ${moment(timetableData.date).format(TimeFormat.date)}`;
 
