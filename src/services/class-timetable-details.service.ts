@@ -461,12 +461,18 @@ export class ClassTimetableDetailsService {
       where: {
         id: item.timetableId,
       },
-      relations: ['class', 'classTimetableDetails'],
+      relations: [
+        'class',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.userWorkspace.userWorkspaceDevices',
+      ],
     });
     if (!timetableData?.id) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
     const userWorkspaceIds: number[] = timetableData.classTimetableDetails.map(el => el.userWorkspaceId);
+
     if (!userWorkspaceIds.length) {
       throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND);
     }
@@ -496,6 +502,30 @@ export class ClassTimetableDetailsService {
       const queryRunner = connection.createQueryRunner();
       await queryRunner.connect();
       await queryRunner.startTransaction();
+
+      /**
+       * push notification to student
+       */
+      const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+      const playerIdsPush: string[] = timetableData.classTimetableDetails
+        .map(el => el.userWorkspace.userWorkspaceDevices.map(element => element.playerId))
+        .flat();
+      const messageNotification = `Học viên đã được đánh giá ở lớp ${timetableData.class.name} buổi thứ ${
+        timetableData.sessionNumberOrder
+      } ca học ${moment(timetableData.fromTime, TimeFormat.time).format(TimeFormat.hours)} - ${moment(timetableData.toTime, TimeFormat.time).format(
+        TimeFormat.hours,
+      )} ngày ${moment(timetableData.date).format(TimeFormat.date)}`;
+
+      const msg: SendMessageNotificationRabbit = {
+        type: AppType.STUDENT,
+        data: {
+          category: CategoriesNotificationEnum.EVALUATION,
+          content: messageNotification,
+          id: timetableData.id,
+          playerIds: _.uniq(playerIdsPush),
+        },
+      };
+
       try {
         const bulkCreateEvaluationTimetable: ClassTimetableDetailEvaluations[] = [];
         const bulkCreateEvaluationOptionTimetable: ClassTimetableDetailEvaluationOptions[] = [];
@@ -565,6 +595,19 @@ export class ClassTimetableDetailsService {
               }
             }
           }
+          /**
+           * push notification to student
+           */
+          const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+          newUserWorkspaceNotification.content = messageNotification;
+          newUserWorkspaceNotification.appType = AppType.STUDENT;
+          newUserWorkspaceNotification.msg = JSON.stringify(msg);
+          newUserWorkspaceNotification.detailId = `${timetableData.id}`;
+          newUserWorkspaceNotification.date = moment().toDate();
+          newUserWorkspaceNotification.receiverUserWorkspaceId = classTimetableDetailItem.userWorkspaceId;
+          newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+          newUserWorkspaceNotification.workspaceId = classTimetableDetailItem.workspaceId;
+          bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
         }
 
         if (bulkCreateEvaluationTimetable.length) {
@@ -573,6 +616,9 @@ export class ClassTimetableDetailsService {
         if (bulkCreateEvaluationOptionTimetable.length) {
           await queryRunner.manager.getRepository(ClassTimetableDetailEvaluationOptions).insert(bulkCreateEvaluationOptionTimetable);
         }
+
+        await sendNotificationToRabbitMQ(msg);
+        await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
