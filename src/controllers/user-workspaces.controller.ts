@@ -1,9 +1,11 @@
+import { MobileContext } from '@/auth/authorizationChecker';
 import { BodyPushNotificationDtoDto } from '@/dtos/body-push-notification.dto';
 import { UpdateUserWorkspaceDto } from '@/dtos/update-user-workspace.dto';
 import { successResponse } from '@/helpers/response.helper';
+import { PermissionKeys } from '@/models/permissions.model';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { UserWorkspacesService } from '@/services/user-workspaces.service';
-import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Res } from 'routing-controllers';
+import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -25,6 +27,14 @@ export class UserWorkspacesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/notification')
+  @Authorized([PermissionKeys.STUDENT])
+  @OpenAPI({ summary: 'Get user_workspaces by id' })
+  async getNotification(@Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getNotification(user_workspace_context);
+    return successResponse({ res, data, status_code: 200 });
+  }
   @Get('/:id')
   @OpenAPI({ summary: 'Get user_workspaces by id' })
   async findById(@Param('id') id: number, @Res() res: any) {
