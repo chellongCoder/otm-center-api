@@ -375,6 +375,12 @@ export class ClassTimetableDetailsService {
       where: {
         id: item.timetableId,
       },
+      relations: [
+        'class',
+        'classTimetableDetails',
+        'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.userWorkspace.userWorkspaceDevices',
+      ],
     });
     if (!timeTableData?.id) {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
@@ -392,12 +398,27 @@ export class ClassTimetableDetailsService {
             attendanceNote: item.attendanceNote,
           });
         }
-        const classTimetableDetailData: ClassTimetableDetails[] = await ClassTimetableDetails.find({
-          where: {
-            timetableId: item.timetableId,
-          },
-        });
+        const classTimetableDetailData: ClassTimetableDetails[] = timeTableData.classTimetableDetails;
+
         const bulkUpdateClassTimetableDetail: Partial<ClassTimetableDetails>[] = [];
+        const bulkCreateUserWorkspaceNotifications: UserWorkspaceNotifications[] = [];
+
+        const playerIdsPush: string[] = [];
+        const messageNotification = `Học viên đã được điểm danh ở lớp ${timeTableData.class.name} buổi thứ ${
+          timeTableData.sessionNumberOrder
+        } ca học ${moment(timeTableData.fromTime, TimeFormat.time).format(TimeFormat.hours)} - ${moment(timeTableData.toTime, TimeFormat.time).format(
+          TimeFormat.hours,
+        )} ngày ${moment(timeTableData.date).format(TimeFormat.date)}`;
+
+        const msg: SendMessageNotificationRabbit = {
+          type: AppType.STUDENT,
+          data: {
+            category: CategoriesNotificationEnum.ATTENDANCE,
+            content: messageNotification,
+            id: timeTableData.id,
+            playerIds: _.uniq(playerIdsPush),
+          },
+        };
         for (const userWorkspaceAttendanceItem of item.userWorkspaceAttendances) {
           const classTimetableDetailItem = classTimetableDetailData.find(el => el.userWorkspaceId === userWorkspaceAttendanceItem.userWorkspaceId);
           if (classTimetableDetailItem?.id) {
@@ -408,9 +429,24 @@ export class ClassTimetableDetailsService {
               attendanceNote: userWorkspaceAttendanceItem.note,
               attendanceByUserWorkspaceId: userWorkspaceId,
             });
+            playerIdsPush.push(...classTimetableDetailItem.userWorkspace.userWorkspaceDevices.map(el => el.playerId));
+            const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+            newUserWorkspaceNotification.content = messageNotification;
+            newUserWorkspaceNotification.appType = AppType.STUDENT;
+            newUserWorkspaceNotification.msg = JSON.stringify(msg);
+            newUserWorkspaceNotification.detailId = `${timeTableData.id}`;
+            newUserWorkspaceNotification.date = moment().toDate();
+            newUserWorkspaceNotification.receiverUserWorkspaceId = classTimetableDetailItem.userWorkspaceId;
+            newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+            newUserWorkspaceNotification.workspaceId = classTimetableDetailItem.workspaceId;
+            bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
           }
         }
+        msg.data.playerIds = _.uniq(playerIdsPush);
+        await sendNotificationToRabbitMQ(msg);
+
         await queryRunner.manager.getRepository(ClassTimetableDetails).save(bulkUpdateClassTimetableDetail);
+        await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();

@@ -12,6 +12,7 @@ export enum CategoriesNotificationEnum {
   REGISTER_STUDENT = 'REGISTER_STUDENT',
   REGISTER_TEACHER = 'REGISTER_TEACHER',
   NOTIFICATION = 'NOTIFICATION',
+  ATTENDANCE = 'ATTENDANCE',
 }
 export type DataMessageNotificationRabbit = {
   content: string;
