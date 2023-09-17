@@ -1,4 +1,4 @@
-import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
+import { ClassTimetableDetails, LearningStatus } from '@/models/class-timetable-details.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
@@ -324,15 +324,51 @@ export class ClassTimetableDetailsService {
       where: {
         id,
       },
+      relations: ['userWorkspace', 'userWorkspace.userWorkspaceDevices', 'timetable'],
     });
     if (!classTimetableDetailData?.id) {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
-    return await ClassTimetableDetails.update(id, {
+    await ClassTimetableDetails.update(id, {
       homeworkAssessment: item.homeworkAssessment,
       homeworkScore: item.homeworkScore,
       homeworkByUserWorkspaceId: userWorkspaceId,
     });
+    /**
+     * push notification to student
+     */
+    const userWorkspaceDeviceData = classTimetableDetailData.userWorkspace.userWorkspaceDevices;
+    const playerIdsPush = userWorkspaceDeviceData.map(el => el.playerId);
+    if (userWorkspaceDeviceData && userWorkspaceDeviceData.length) {
+      const messageNotification = `BTVN buổi thứ ${classTimetableDetailData.timetable.sessionNumberOrder} ca học ${moment(
+        classTimetableDetailData.timetable.fromTime,
+        TimeFormat.time,
+      ).format(TimeFormat.hours)} - ${moment(classTimetableDetailData.timetable.toTime, TimeFormat.time).format(TimeFormat.hours)} ngày ${moment(
+        classTimetableDetailData.timetable.date,
+      ).format(TimeFormat.date)} của học viên ${classTimetableDetailData.userWorkspace.fullname} đã được chấm điểm.`;
+
+      const msg: SendMessageNotificationRabbit = {
+        type: AppType.STUDENT,
+        data: {
+          category: CategoriesNotificationEnum.HOMEWORK,
+          content: messageNotification,
+          id: classTimetableDetailData.timetable.id,
+          playerIds: _.uniq(playerIdsPush),
+        },
+      };
+      await sendNotificationToRabbitMQ(msg);
+      const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+      newUserWorkspaceNotification.content = messageNotification;
+      newUserWorkspaceNotification.appType = AppType.STUDENT;
+      newUserWorkspaceNotification.msg = JSON.stringify(msg);
+      newUserWorkspaceNotification.detailId = `${classTimetableDetailData.timetable.id}`;
+      newUserWorkspaceNotification.date = moment().toDate();
+      newUserWorkspaceNotification.receiverUserWorkspaceId = classTimetableDetailData.userWorkspaceId;
+      newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
+      newUserWorkspaceNotification.workspaceId = classTimetableDetailData.userWorkspaceId;
+      await UserWorkspaceNotifications.insert(newUserWorkspaceNotification);
+    }
+    return true;
   }
   public async updateStudentAttendance(item: UpdateStudentAttendanceDto, userWorkspaceId: number) {
     const timeTableData = await Timetables.findOne({
@@ -367,6 +403,7 @@ export class ClassTimetableDetailsService {
           if (classTimetableDetailItem?.id) {
             bulkUpdateClassTimetableDetail.push({
               id: classTimetableDetailItem.id,
+              learningStatus: LearningStatus.LEARNED,
               attendanceStatus: userWorkspaceAttendanceItem.status,
               attendanceNote: userWorkspaceAttendanceItem.note,
               attendanceByUserWorkspaceId: userWorkspaceId,

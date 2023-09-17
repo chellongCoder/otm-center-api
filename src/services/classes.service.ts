@@ -14,6 +14,7 @@ import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.m
 import _ from 'lodash';
 import { DbConnection } from '@/database/dbConnection';
 import { DailyEvaluations } from '@/models/daily-evaluations.model';
+import { UpdateStatusClassDto } from '@/dtos/updateStatusClass.dto';
 
 @Service()
 export class ClassesService {
@@ -249,5 +250,10 @@ export class ClassesService {
       throw new Exception(ExceptionName.CLASS_NOT_FOUND, ExceptionCode.CLASS_NOT_FOUND);
     }
     return classData;
+  }
+  public async updateDetail(id: number, item: UpdateStatusClassDto) {
+    return await Classes.update(id, {
+      status: item.status,
+    });
   }
 }

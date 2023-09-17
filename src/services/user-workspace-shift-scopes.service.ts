@@ -234,7 +234,6 @@ export class UserWorkspaceShiftScopesService {
   }
 
   public async getTeachingDashboard(page = 1, limit = 10, order = 'id:asc', userWorkspaceId: number, workspaceId: number, currentDate: number) {
-    console.log('chh_log ---> getTeachingDashboard ---> userWorkspaceId:', userWorkspaceId);
     const userWorkspaceShiftScopesData = await UserWorkspaceShiftScopes.find({
       where: {
         userWorkspaceId,
@@ -248,13 +247,6 @@ export class UserWorkspaceShiftScopesService {
     if (!currentDate) {
       throw new Exception(ExceptionName.SHIFT_TIME_INPUT_INVALID, ExceptionCode.SHIFT_TIME_INPUT_INVALID);
     }
-    // const classShiftsClassroomsData = await ClassShiftsClassrooms.find({
-    //   where: {
-    //     id: In(classShiftsClassroomsIds),
-    //     workspaceId,
-    //   },
-    // });
-    // const classShiftsClassroomsIds = classShiftsClassroomsData.map(el => el.id);
     const orderCond = QueryParser.toOrderCond(order);
     const [classesData, total] = await Classes.findAndCount({
       where: {

@@ -1,4 +1,5 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { UpdateStatusClassDto } from '@/dtos/updateStatusClass.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { Classes, StatusClasses } from '@/models/classes.model';
 import { PermissionKeys } from '@/models/permissions.model';
@@ -90,14 +91,12 @@ export class ClassesController {
     return successResponse({ res, data, status_code: 201 });
   }
 
-  @Put('/:id')
-  @Authorized()
-  @OpenAPI({ summary: 'Update classes' })
-  async update() {
-    try {
-    } catch (error) {
-      return { error };
-    }
+  @Put('/detail/:id')
+  @Authorized([PermissionKeys.TEACHER, PermissionKeys.STAFF])
+  @OpenAPI({ summary: 'Update classes status' })
+  async updateDetail(@Param('id') id: number, @Body({ required: true }) body: UpdateStatusClassDto, @Res() res: any) {
+    const data = await this.service.updateDetail(id, body);
+    return successResponse({ res, data, status_code: 201 });
   }
 
   @Delete('/:id')
