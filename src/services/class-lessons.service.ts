@@ -183,9 +183,11 @@ export class ClassLessonsService {
       await queryRunner.startTransaction();
       try {
         await queryRunner.manager.getRepository(ClassLessons).update(id, updateClassLesson);
-        // WIP 23:08 11/09
-        if (item.exerciseLinkImages.length) {
+        const classLessonImageCurrentData = timetableData.classLesson.classLessonImages;
+
+        if (item.exerciseLinkImages.length || classLessonImageCurrentData.length) {
           const bulkCreateClassLessonImages: ClassLessonImages[] = [];
+          const deleteClassLessonImageIds: number[] = classLessonImageCurrentData.map(el => el.id);
           for (const exerciseLinkImageItem of item.exerciseLinkImages) {
             const newClassLessonImage = new ClassLessonImages();
             newClassLessonImage.classLessonId = id;
@@ -195,7 +197,12 @@ export class ClassLessonsService {
             newClassLessonImage.workspaceId = workspaceId;
             bulkCreateClassLessonImages.push(newClassLessonImage);
           }
-          await queryRunner.manager.getRepository(ClassLessonImages).insert(bulkCreateClassLessonImages);
+          if (bulkCreateClassLessonImages.length) {
+            await queryRunner.manager.getRepository(ClassLessonImages).insert(bulkCreateClassLessonImages);
+          }
+          if (deleteClassLessonImageIds.length) {
+            await queryRunner.manager.getRepository(ClassLessonImages).softDelete(deleteClassLessonImageIds);
+          }
         }
         /**
          * push notification
