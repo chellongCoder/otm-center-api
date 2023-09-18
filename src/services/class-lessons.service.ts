@@ -221,7 +221,7 @@ export class ClassLessonsService {
                   data: {
                     category: CategoriesNotificationEnum.HOMEWORK,
                     content: messageNotification,
-                    id: id,
+                    id: timetableData.id,
                     playerIds: _.uniq(playerIdsPush),
                   },
                 };
@@ -230,7 +230,7 @@ export class ClassLessonsService {
                 newUserWorkspaceNotification.content = messageNotification;
                 newUserWorkspaceNotification.appType = AppType.STUDENT;
                 newUserWorkspaceNotification.msg = JSON.stringify(msg);
-                newUserWorkspaceNotification.detailId = `${id}`;
+                newUserWorkspaceNotification.detailId = `${timetableData.id}`;
                 newUserWorkspaceNotification.date = moment().toDate();
                 newUserWorkspaceNotification.receiverUserWorkspaceId = receiveUserWorkspaceId;
                 newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceId;
