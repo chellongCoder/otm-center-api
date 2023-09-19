@@ -466,6 +466,9 @@ export class ClassTimetableDetailsService {
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
         'classTimetableDetails.userWorkspace.userWorkspaceDevices',
+        'classTimetableDetails.classTimetableDetailEvaluations',
+        'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
+        'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
       ],
     });
     if (!timetableData?.id) {
@@ -529,6 +532,8 @@ export class ClassTimetableDetailsService {
       try {
         const bulkCreateEvaluationTimetable: ClassTimetableDetailEvaluations[] = [];
         const bulkCreateEvaluationOptionTimetable: ClassTimetableDetailEvaluationOptions[] = [];
+        const bulkUpdateClassTimetableDetail: Partial<ClassTimetableDetails>[] = [];
+        const bulkDeleteEvaluationIds: number[] = [];
         const classTimetableDetailsData = timetableData.classTimetableDetails;
         for (const classTimetableDetailItem of classTimetableDetailsData) {
           if (!updateUserWorkspaceIds.includes(classTimetableDetailItem.userWorkspaceId)) {
@@ -538,9 +543,15 @@ export class ClassTimetableDetailsService {
           if (item.userWorkspacePublishIds.includes(classTimetableDetailItem.userWorkspaceId)) {
             isPublishEvaluation = true;
           }
-          await queryRunner.manager.getRepository(ClassTimetableDetails).update(classTimetableDetailItem.id, {
+
+          const bulkDeleteUserWorkspaceEvaluationIds = classTimetableDetailItem.classTimetableDetailEvaluations.map(el => el.id);
+          bulkDeleteEvaluationIds.push(...bulkDeleteUserWorkspaceEvaluationIds);
+
+          bulkUpdateClassTimetableDetail.push({
+            id: classTimetableDetailItem.id,
             evaluationByUserWorkspaceId: userWorkspaceId,
             evaluationPublish: isPublishEvaluation,
+            learningStatus: LearningStatus.LEARNED,
           });
 
           for (const updateEvaluationCriteria of item.evaluationDetails) {
@@ -609,9 +620,13 @@ export class ClassTimetableDetailsService {
           newUserWorkspaceNotification.workspaceId = classTimetableDetailItem.workspaceId;
           bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
         }
+        await queryRunner.manager.getRepository(ClassTimetableDetails).save(bulkUpdateClassTimetableDetail);
 
         if (bulkCreateEvaluationTimetable.length) {
           await queryRunner.manager.getRepository(ClassTimetableDetailEvaluations).insert(bulkCreateEvaluationTimetable);
+        }
+        if (bulkDeleteEvaluationIds.length) {
+          await queryRunner.manager.getRepository(ClassTimetableDetailEvaluations).delete(bulkDeleteEvaluationIds);
         }
         if (bulkCreateEvaluationOptionTimetable.length) {
           await queryRunner.manager.getRepository(ClassTimetableDetailEvaluationOptions).insert(bulkCreateEvaluationOptionTimetable);

@@ -38,7 +38,6 @@ export type SendMessageNotificationRabbit = {
 // };
 export const sendNotificationToRabbitMQ = async (msg: SendMessageNotificationRabbit) => {
   try {
-    logger.info(`Send: ${JSON.stringify(msg)}`);
     let { AMQBSERVER_LINK = '', QUEUE_ORDER_SEND_NOTI_NAME = '' } = process.env;
     if (!AMQBSERVER_LINK) {
       AMQBSERVER_LINK = config.get('notification.AMQBSERVER_LINK');
