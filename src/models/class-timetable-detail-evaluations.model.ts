@@ -56,10 +56,16 @@ export class ClassTimetableDetailEvaluations extends BaseEntity {
   @JoinColumn({ name: 'class_timetable_detail_id' })
   classTimetableDetail: ClassTimetableDetails;
 
-  @OneToMany(() => ClassTimetableDetailEvaluationOptions, item => item.classTimetableDetailEvaluation)
+  @OneToMany(() => ClassTimetableDetailEvaluationOptions, item => item.classTimetableDetailEvaluation, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   public classTimetableDetailEvaluationOptions: ClassTimetableDetailEvaluationOptions[];
 
-  @ManyToOne(() => EvaluationCriterias)
+  @ManyToOne(() => EvaluationCriterias, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'evaluation_criteria_id' })
   evaluationCriteria: EvaluationCriterias;
 
