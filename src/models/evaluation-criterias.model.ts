@@ -62,7 +62,11 @@ export class EvaluationCriterias extends BaseEntity {
   @JoinColumn({ name: 'daily_evaluation_id' })
   public dailyEvaluation: DailyEvaluations;
 
-  @OneToMany(() => EvaluationOptionValues, item => item.evaluationCriteria)
+  @OneToMany(() => EvaluationOptionValues, item => item.evaluationCriteria, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   public evaluationOptionValues: EvaluationOptionValues[];
 
   static findByCond(query: any) {

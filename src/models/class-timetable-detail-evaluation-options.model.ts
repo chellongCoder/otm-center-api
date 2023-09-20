@@ -42,11 +42,15 @@ export class ClassTimetableDetailEvaluationOptions extends BaseEntity {
   @Expose({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @ManyToOne(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetailEvaluationOptions)
+  @ManyToOne(() => ClassTimetableDetailEvaluations, item => item.classTimetableDetailEvaluationOptions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'class_timetable_detail_evaluation_id' })
   classTimetableDetailEvaluation: ClassTimetableDetailEvaluations;
 
-  @ManyToOne(() => EvaluationOptionValues)
+  @ManyToOne(() => EvaluationOptionValues, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'evaluation_option_value_id' })
   evaluationOptionValue: EvaluationOptionValues;
 
