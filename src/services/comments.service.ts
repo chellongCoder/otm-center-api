@@ -76,14 +76,18 @@ export class CommentsService {
     if (!commentData?.id) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
-    return Comments.update(id, item);
+    if (commentData.userWorkspaceId === userWorkspaceId) {
+      return Comments.update(id, item);
+    } else {
+      throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
+    }
   }
 
   /**
    * delete
    */
   public async delete(id: number, userWorkspaceId: number) {
-    const commentData = await Comments.findOne({ where: id });
+    const commentData = await Comments.findOne({ where: { id } });
     if (!commentData?.id) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
