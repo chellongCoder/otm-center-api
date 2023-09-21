@@ -82,7 +82,15 @@ export class CommentsService {
   /**
    * delete
    */
-  public async delete(id: number) {
-    return Comments.delete(id);
+  public async delete(id: number, userWorkspaceId: number) {
+    const commentData = await Comments.findOne({ where: id });
+    if (!commentData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    if (commentData.userWorkspaceId === userWorkspaceId) {
+      return Comments.softRemove(commentData);
+    } else {
+      throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
+    }
   }
 }

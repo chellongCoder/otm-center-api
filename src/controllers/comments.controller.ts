@@ -62,9 +62,11 @@ export class CommentsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete comments' })
-  async delete(@Param('id') id: number, @Res() res: any) {
-    const data = await this.service.delete(id);
+  async delete(@Param('id') id: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.delete(id, user_workspace_context.id);
     return successResponse({ res, data, status_code: 200 });
   }
 }
