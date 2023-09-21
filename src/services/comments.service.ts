@@ -76,7 +76,7 @@ export class CommentsService {
     if (!commentData?.id) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
-    if (commentData.userWorkspaceId === userWorkspaceId) {
+    if (commentData.userWorkspaceId === userWorkspaceData.id) {
       return Comments.update(id, item);
     } else {
       throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
