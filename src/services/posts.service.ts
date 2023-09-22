@@ -226,30 +226,26 @@ export class PostsService {
         /**
          * update media link with post
          */
-        if (item?.linkMediaPosts && item.linkMediaPosts.length) {
-          const postMediaCurrent = postData.postMedias;
-          const bulkUpdatePostMedias: Partial<PostMedias>[] = [];
-          const postMediaDuplicate: number[] = [];
-
-          for (const linkMediaPostItem of item.linkMediaPosts) {
-            const existPostMedia = postMediaCurrent.find(el => el.link === linkMediaPostItem.link && el.type === linkMediaPostItem.type);
-            if (existPostMedia?.id) {
-              postMediaDuplicate.push(existPostMedia.id);
-              continue;
-            }
-            const postMediaCreate = new PostMedias();
-            postMediaCreate.link = linkMediaPostItem.link;
-            postMediaCreate.type = linkMediaPostItem.type;
-            postMediaCreate.postId = postData.id;
-            postMediaCreate.workspaceId = userWorkspaceData.workspaceId;
-            bulkUpdatePostMedias.push(postMediaCreate);
-          }
-          const postMediaDelete: number[] = postMediaCurrent.map(el => el.id).filter(el => !postMediaDuplicate.includes(el));
-          if (bulkUpdatePostMedias.length) {
-            await queryRunner.manager.getRepository(PostMedias).insert(bulkUpdatePostMedias);
-          }
+        const postMediaCurrent = postData.postMedias;
+        if ((item?.linkMediaPosts && item.linkMediaPosts.length) || postMediaCurrent.length) {
+          const postMediaDelete: number[] = postMediaCurrent.map(el => el.id);
           if (postMediaDelete.length) {
             await queryRunner.manager.getRepository(PostMedias).softDelete(postMediaDelete);
+          }
+          if (item?.linkMediaPosts && item.linkMediaPosts.length) {
+            const bulkUpdatePostMedias: Partial<PostMedias>[] = [];
+
+            for (const linkMediaPostItem of item.linkMediaPosts) {
+              const postMediaCreate = new PostMedias();
+              postMediaCreate.link = linkMediaPostItem.link;
+              postMediaCreate.type = linkMediaPostItem.type;
+              postMediaCreate.postId = postData.id;
+              postMediaCreate.workspaceId = userWorkspaceData.workspaceId;
+              bulkUpdatePostMedias.push(postMediaCreate);
+            }
+            if (bulkUpdatePostMedias.length) {
+              await queryRunner.manager.getRepository(PostMedias).insert(bulkUpdatePostMedias);
+            }
           }
         }
 
