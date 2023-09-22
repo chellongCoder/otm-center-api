@@ -15,6 +15,7 @@ import { ClassTimetableDetails } from './class-timetable-details.model';
 export enum AssignmentTypes {
   LINK = 'LINK',
   IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
 }
 @Entity('class_timetable_detail_assignments')
 export class ClassTimetableDetailAssignments extends BaseEntity {

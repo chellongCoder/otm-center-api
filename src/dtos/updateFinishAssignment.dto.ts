@@ -37,4 +37,11 @@ export class UpdateFinishAssignmentDto extends Repository<ClassLessons> {
   @JSONSchema({ description: 'list link images up assignment' })
   @Type(() => AssignmentLinkNotes)
   assignmentLinkImages: AssignmentLinkNotes[];
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @JSONSchema({ description: 'list link images up assignment' })
+  @Type(() => AssignmentLinkNotes)
+  assignmentLinkVideos: AssignmentLinkNotes[];
 }

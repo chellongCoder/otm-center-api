@@ -106,26 +106,43 @@ export class ClassTimetableDetailsService {
           homeworkAssignmentTime: moment().toDate(),
         });
         const bulkCreateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
-        for (const linkImageItem of item.assignmentLinkImages) {
-          if (linkImageItem.link) {
-            const itemCreate = new ClassTimetableDetailAssignments();
-            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
-            itemCreate.type = AssignmentTypes.IMAGE;
-            itemCreate.link = linkImageItem.link;
-            itemCreate.note = linkImageItem.note;
-            itemCreate.workspaceId = workspaceId;
-            bulkCreateAssignmentDetail.push(itemCreate);
+        if (item?.assignmentLinkImages?.length) {
+          for (const linkImageItem of item.assignmentLinkImages) {
+            if (linkImageItem.link) {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.IMAGE;
+              itemCreate.link = linkImageItem.link;
+              itemCreate.note = linkImageItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
           }
         }
-        for (const linkNoteItem of item.assignmentLinkNotes) {
-          if (linkNoteItem.link) {
-            const itemCreate = new ClassTimetableDetailAssignments();
-            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
-            itemCreate.type = AssignmentTypes.LINK;
-            itemCreate.link = linkNoteItem.link;
-            itemCreate.note = linkNoteItem.note;
-            itemCreate.workspaceId = workspaceId;
-            bulkCreateAssignmentDetail.push(itemCreate);
+        if (item?.assignmentLinkNotes?.length) {
+          for (const linkNoteItem of item.assignmentLinkNotes) {
+            if (linkNoteItem.link) {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.LINK;
+              itemCreate.link = linkNoteItem.link;
+              itemCreate.note = linkNoteItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
+          }
+        }
+        if (item?.assignmentLinkVideos?.length) {
+          for (const linkVideoItem of item.assignmentLinkVideos) {
+            if (linkVideoItem.link) {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.VIDEO;
+              itemCreate.link = linkVideoItem.link;
+              itemCreate.note = linkVideoItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
           }
         }
         await queryRunner.manager.getRepository(ClassTimetableDetailAssignments).insert(bulkCreateAssignmentDetail);
@@ -218,52 +235,82 @@ export class ClassTimetableDetailsService {
         const bulkCreateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
         const bulkUpdateAssignmentDetail: Partial<ClassTimetableDetailAssignments>[] = [];
         const assignmentDetailExist: number[] = [];
-        for (const linkImageItem of item.assignmentLinkImages) {
-          if (!linkImageItem.link) {
-            continue;
-          }
-          const existLinkImageItem = assignmentLinkImageCurrent.find(el => el.link === linkImageItem.link);
-          if (existLinkImageItem && existLinkImageItem.note === linkImageItem.note) {
-            assignmentDetailExist.push(existLinkImageItem.id);
-            continue;
-          } else if (existLinkImageItem) {
-            bulkUpdateAssignmentDetail.push({
-              ...existLinkImageItem,
-              note: linkImageItem.note,
-            });
-            assignmentDetailExist.push(existLinkImageItem.id);
-          } else {
-            const itemCreate = new ClassTimetableDetailAssignments();
-            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
-            itemCreate.type = AssignmentTypes.IMAGE;
-            itemCreate.link = linkImageItem.link;
-            itemCreate.note = linkImageItem.note;
-            itemCreate.workspaceId = workspaceId;
-            bulkCreateAssignmentDetail.push(itemCreate);
+        if (item?.assignmentLinkImages?.length) {
+          for (const linkImageItem of item.assignmentLinkImages) {
+            if (!linkImageItem.link) {
+              continue;
+            }
+            const existLinkImageItem = assignmentLinkImageCurrent.find(el => el.link === linkImageItem.link);
+            if (existLinkImageItem && existLinkImageItem.note === linkImageItem.note) {
+              assignmentDetailExist.push(existLinkImageItem.id);
+              continue;
+            } else if (existLinkImageItem) {
+              bulkUpdateAssignmentDetail.push({
+                ...existLinkImageItem,
+                note: linkImageItem.note,
+              });
+              assignmentDetailExist.push(existLinkImageItem.id);
+            } else {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.IMAGE;
+              itemCreate.link = linkImageItem.link;
+              itemCreate.note = linkImageItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
           }
         }
-        for (const linkNoteItem of item.assignmentLinkNotes) {
-          if (!linkNoteItem.link) {
-            continue;
+        if (item?.assignmentLinkNotes?.length) {
+          for (const linkNoteItem of item.assignmentLinkNotes) {
+            if (!linkNoteItem.link) {
+              continue;
+            }
+            const existLinkNoteItem = assignmentLinkLinkCurrent.find(el => el.link === linkNoteItem.link);
+            if (existLinkNoteItem && existLinkNoteItem.note === linkNoteItem.note) {
+              assignmentDetailExist.push(existLinkNoteItem.id);
+              continue;
+            } else if (existLinkNoteItem) {
+              bulkUpdateAssignmentDetail.push({
+                ...existLinkNoteItem,
+                note: linkNoteItem.note,
+              });
+              assignmentDetailExist.push(existLinkNoteItem.id);
+            } else {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.LINK;
+              itemCreate.link = linkNoteItem.link;
+              itemCreate.note = linkNoteItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
           }
-          const existLinkNoteItem = assignmentLinkLinkCurrent.find(el => el.link === linkNoteItem.link);
-          if (existLinkNoteItem && existLinkNoteItem.note === linkNoteItem.note) {
-            assignmentDetailExist.push(existLinkNoteItem.id);
-            continue;
-          } else if (existLinkNoteItem) {
-            bulkUpdateAssignmentDetail.push({
-              ...existLinkNoteItem,
-              note: linkNoteItem.note,
-            });
-            assignmentDetailExist.push(existLinkNoteItem.id);
-          } else {
-            const itemCreate = new ClassTimetableDetailAssignments();
-            itemCreate.classTimetableDetailId = classTimetableDetailData.id;
-            itemCreate.type = AssignmentTypes.LINK;
-            itemCreate.link = linkNoteItem.link;
-            itemCreate.note = linkNoteItem.note;
-            itemCreate.workspaceId = workspaceId;
-            bulkCreateAssignmentDetail.push(itemCreate);
+        }
+        if (item?.assignmentLinkVideos?.length) {
+          for (const linkVideoItem of item.assignmentLinkVideos) {
+            if (!linkVideoItem.link) {
+              continue;
+            }
+            const existLinkVideoItem = assignmentLinkLinkCurrent.find(el => el.link === linkVideoItem.link);
+            if (existLinkVideoItem && existLinkVideoItem.note === linkVideoItem.note) {
+              assignmentDetailExist.push(existLinkVideoItem.id);
+              continue;
+            } else if (existLinkVideoItem) {
+              bulkUpdateAssignmentDetail.push({
+                ...existLinkVideoItem,
+                note: linkVideoItem.note,
+              });
+              assignmentDetailExist.push(existLinkVideoItem.id);
+            } else {
+              const itemCreate = new ClassTimetableDetailAssignments();
+              itemCreate.classTimetableDetailId = classTimetableDetailData.id;
+              itemCreate.type = AssignmentTypes.LINK;
+              itemCreate.link = linkVideoItem.link;
+              itemCreate.note = linkVideoItem.note;
+              itemCreate.workspaceId = workspaceId;
+              bulkCreateAssignmentDetail.push(itemCreate);
+            }
           }
         }
         const bulkDeleteAssignmentDetail = classTimetableDetailAssignmentData.map(el => el.id).filter(el => !assignmentDetailExist.includes(el));
