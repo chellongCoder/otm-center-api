@@ -11,6 +11,7 @@ export class CreateCommentsDto {
     CategoriesCommentsEnum.APPLIANCE_ABSENT,
     CategoriesCommentsEnum.NOTIFICATION,
     CategoriesCommentsEnum.SCHEDULE_CLASS,
+    CategoriesCommentsEnum.SUPPORT,
   ])
   @JSONSchema({ description: 'category', example: CategoriesCommentsEnum.NEW_POST })
   category: CategoriesCommentsEnum;
