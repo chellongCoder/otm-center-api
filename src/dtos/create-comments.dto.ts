@@ -14,6 +14,7 @@ export class CreateCommentsDto {
   category: CategoriesCommentsEnum;
 
   @IsString()
+  @IsOptional()
   @JSONSchema({
     description:
       'targetKey string format detail_id or detail_$id_user_workspace_$id example with post have id = 1 => targetKey = detail_1. example with homework have timetable id = 1 and userWorkspaceId = 1 => targetKey = detail_1_user_workspace_1',

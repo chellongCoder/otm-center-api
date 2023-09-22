@@ -34,7 +34,7 @@ export class Comments extends BaseEntity {
   @Column({ name: 'category' })
   category: CategoriesCommentsEnum;
 
-  @Column({ name: 'target_key' })
+  @Column({ name: 'target_key', nullable: true })
   targetKey: string;
 
   @Column({ name: 'parent_id', nullable: true })
