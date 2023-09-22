@@ -37,12 +37,26 @@ export class AnnouncementsService {
    * findById
    */
   public async findById(id: number) {
-    return Announcements.findOne({
+    const data = await Announcements.findOne({
       where: {
         id,
       },
-      relations: ['workspace'],
+      relations: ['workspace', 'favoriteUserWorkspaces'],
     });
+
+    const targetKey = `detail_${id}`;
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey,
+        category: CategoriesCommentsEnum.NOTIFICATION,
+      },
+      relations: ['subComments'],
+    });
+    return {
+      ...data,
+      commentData,
+      countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0),
+    };
   }
 
   /**
