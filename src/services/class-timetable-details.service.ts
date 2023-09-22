@@ -305,7 +305,7 @@ export class ClassTimetableDetailsService {
             } else {
               const itemCreate = new ClassTimetableDetailAssignments();
               itemCreate.classTimetableDetailId = classTimetableDetailData.id;
-              itemCreate.type = AssignmentTypes.LINK;
+              itemCreate.type = AssignmentTypes.VIDEO;
               itemCreate.link = linkVideoItem.link;
               itemCreate.note = linkVideoItem.note;
               itemCreate.workspaceId = workspaceId;
