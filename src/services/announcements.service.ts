@@ -12,6 +12,7 @@ import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotifica
 import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import _ from 'lodash';
 import moment from 'moment-timezone';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class AnnouncementsService {
@@ -48,15 +49,39 @@ export class AnnouncementsService {
    * findById
    */
   public async getList(userWorkspaceData: UserWorkspaces, isImportant: boolean) {
-    return Announcements.find({
+    const announcementResult = await Announcements.find({
       where: {
         isImportant: typeof isImportant === 'undefined' ? isImportant : Boolean(!!isImportant),
         announcementUserWorkspaces: {
           userWorkspaceId: userWorkspaceData.id,
         },
       },
-      relations: ['workspace'],
+      relations: ['workspace', 'favoriteUserWorkspaces'],
     });
+    const targetKeys = announcementResult.map(el => `detail_${el.id}`);
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey: In(targetKeys),
+        workspaceId: userWorkspaceData.workspaceId,
+        category: CategoriesCommentsEnum.NOTIFICATION,
+      },
+      relations: ['subComments'],
+    });
+    const formatResult = [];
+    for (const announcementResultItem of announcementResult) {
+      const targetKey = `detail_${announcementResultItem.id}`;
+      const listComment = commentData.filter(el => el.targetKey === targetKey);
+      const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+      const countFavorite = announcementResultItem.favoriteUserWorkspaces.length;
+      const isLiked = announcementResultItem.favoriteUserWorkspaces.find(el => el.userWorkspaceId === userWorkspaceData.id) ? true : false;
+      formatResult.push({
+        ...announcementResultItem,
+        countComment,
+        isLiked,
+        countFavorite,
+      });
+    }
+    return formatResult;
   }
 
   /**

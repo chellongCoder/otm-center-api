@@ -36,6 +36,12 @@ export class CommentsService {
         category,
       },
       relations: ['rootComment', 'subComments', 'userWorkspace', 'subComments.userWorkspace'],
+      order: {
+        createdAt: 'ASC',
+        subComments: {
+          createdAt: 'ASC',
+        },
+      },
     });
   }
 
@@ -48,6 +54,12 @@ export class CommentsService {
         id,
       },
       relations: ['rootComment', 'subComments', 'userWorkspace'],
+      order: {
+        createdAt: 'ASC',
+        subComments: {
+          createdAt: 'ASC',
+        },
+      },
     });
   }
 
