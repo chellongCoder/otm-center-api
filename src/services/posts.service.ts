@@ -17,6 +17,7 @@ import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotifica
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import moment from 'moment-timezone';
 import { UpdatePostDto } from '@/dtos/update-post.dto';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class PostsService {
@@ -283,28 +284,78 @@ export class PostsService {
     return true;
   }
   public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
-    return Posts.find({
+    const postResult = await Posts.find({
       where: {
         isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
         workspaceId,
         byUserWorkspaceId: userWorkspaceId,
       },
-      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
     });
+    const targetKeys = postResult.map(el => `detail_${el.id}`);
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey: In(targetKeys),
+        workspaceId: workspaceId,
+        category: CategoriesCommentsEnum.NEW_POST,
+      },
+      relations: ['subComments'],
+    });
+
+    const formatResult = [];
+    for (const postResultItem of postResult) {
+      const targetKey = `detail_${postResultItem.id}`;
+      const listComment = commentData.filter(el => el.targetKey === targetKey);
+      const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+      const countFavorite = postResultItem.favoriteUserWorkspaces.length;
+      const isLiked = postResultItem.favoriteUserWorkspaces.find(el => el.userWorkspaceId === userWorkspaceId) ? true : false;
+      formatResult.push({
+        ...postResultItem,
+        countComment,
+        isLiked,
+        countFavorite,
+      });
+    }
+    return formatResult;
   }
   public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number) {
-    return Posts.find({
+    const postResult = await Posts.find({
       where: _.omitBy(
         {
           isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
           postUserWorkspaces: {
-            userWorkspaceId: userWorkspaceId,
+            userWorkspaceId,
           },
           workspaceId,
         },
         _.isNil,
       ),
-      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
     });
+    const targetKeys = postResult.map(el => `detail_${el.id}`);
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey: In(targetKeys),
+        workspaceId: workspaceId,
+        category: CategoriesCommentsEnum.NEW_POST,
+      },
+      relations: ['subComments'],
+    });
+
+    const formatResult = [];
+    for (const postResultItem of postResult) {
+      const targetKey = `detail_${postResultItem.id}`;
+      const listComment = commentData.filter(el => el.targetKey === targetKey);
+      const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+      const countFavorite = postResultItem.favoriteUserWorkspaces.length;
+      const isLiked = postResultItem.favoriteUserWorkspaces.find(el => el.userWorkspaceId === userWorkspaceId) ? true : false;
+      formatResult.push({
+        ...postResultItem,
+        countComment,
+        isLiked,
+        countFavorite,
+      });
+    }
+    return formatResult;
   }
 }
