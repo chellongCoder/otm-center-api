@@ -13,6 +13,7 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { AnnouncementUserWorkspaces } from './announcement-user-workspaces.model';
 import { Workspaces } from './workspaces.model';
+import { FavoriteUserWorkspaces } from './favorite-user-workspaces.model';
 
 @Entity('announcements')
 export class Announcements extends BaseEntity {
@@ -57,6 +58,11 @@ export class Announcements extends BaseEntity {
 
   @OneToMany(() => AnnouncementUserWorkspaces, item => item.announcement)
   public announcementUserWorkspaces: AnnouncementUserWorkspaces[];
+
+  @OneToMany(() => FavoriteUserWorkspaces, item => item.announcement, {
+    cascade: true,
+  })
+  public favoriteUserWorkspaces: FavoriteUserWorkspaces[];
 
   @ManyToOne(() => Workspaces)
   @JoinColumn({ name: 'workspace_id' })

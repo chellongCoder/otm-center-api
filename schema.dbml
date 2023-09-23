@@ -553,3 +553,10 @@ Table announcement_user_workspaces {
  announcement_id integer
  user_workspace_id integer
 }
+Table favorite_user_workspaces {
+ id integer [pk]
+ workspace_id integer
+ user_workspace_id integer
+ post_id integer
+ announcement_id integer
+}

@@ -19,9 +19,8 @@ export enum CategoriesCommentsEnum {
   HOMEWORK = 'HOMEWORK',
   SCHEDULE_CLASS = 'SCHEDULE_CLASS',
   NEW_POST = 'NEW_POST',
-  REGISTER_STUDENT = 'REGISTER_STUDENT',
-  REGISTER_TEACHER = 'REGISTER_TEACHER',
   NOTIFICATION = 'NOTIFICATION',
+  SUPPORT = 'SUPPORT',
 }
 @Entity('comments')
 export class Comments extends BaseEntity {
