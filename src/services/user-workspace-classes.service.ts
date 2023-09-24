@@ -8,6 +8,7 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { Timetables } from '@/models/timetables.model';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class UserWorkspaceClassesService {
@@ -198,13 +199,35 @@ export class UserWorkspaceClassesService {
         sessionNumberOrder: 'ASC',
       },
     });
+    let commentData: Comments[] = [];
+    if (status === HomeworkStatus.DONE) {
+      const targetKeys = timetableExistLesson.map(el => `detail_${el.id}_user_workspace_${userWorkspaceId}`);
+      commentData = await Comments.find({
+        where: {
+          targetKey: In(targetKeys),
+          workspaceId: workspaceId,
+          category: CategoriesCommentsEnum.HOMEWORK,
+        },
+        relations: ['subComments'],
+      });
+    }
     const results: any[] = [];
     for (const userWorkspaceClassItem of userWorkspaceClassData) {
       const timetables: Timetables[] = timetableExistLesson.filter(el => el.classId === userWorkspaceClassItem.classId);
+      const timetableResult = [];
+      for (const timetableItem of timetables) {
+        const targetKey = `detail_${timetableItem.id}_user_workspace_${userWorkspaceId}`;
+        const listComment = commentData.filter(el => el.targetKey === targetKey);
+        const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0) || 0;
+        timetableResult.push({
+          ...timetableItem,
+          countComment,
+        });
+      }
       if (timetables.length) {
         results.push({
           ...userWorkspaceClassItem,
-          timetables,
+          timetables: timetableResult,
           total: timetables.length,
         });
       }
