@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { Timetables } from '@/models/timetables.model';
-import { Like } from 'typeorm';
+import { FindOptionsWhere, Like } from 'typeorm';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { DbConnection } from '@/database/dbConnection';
@@ -330,7 +330,7 @@ export class ClassTimetableDetailsService {
   }
 
   public async getAttendances(timetableId: number, search?: string) {
-    let condition: any = {
+    let condition: FindOptionsWhere<Timetables> = {
       id: timetableId,
     };
     if (search) {
@@ -358,10 +358,8 @@ export class ClassTimetableDetailsService {
       where: condition,
       relations: [
         'classTimetableDetails',
+        'applianceAbsentTimetables.applianceAbsent',
         'classTimetableDetails.userWorkspace',
-        'classTimetableDetails.timetable',
-        'classTimetableDetails.timetable.applianceAbsentTimetables',
-        'classTimetableDetails.timetable.applianceAbsentTimetables.applianceAbsent',
         'classTimetableDetails.classTimetableDetailEvaluations',
         'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
