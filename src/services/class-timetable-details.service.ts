@@ -430,6 +430,7 @@ export class ClassTimetableDetailsService {
         'classTimetableDetails.userWorkspace.userWorkspaceDevices',
       ],
     });
+    console.log('chh_log ---> updateStudentAttendance ---> timeTableData:', timeTableData);
     if (!timeTableData?.id) {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
@@ -441,10 +442,10 @@ export class ClassTimetableDetailsService {
       await queryRunner.startTransaction();
       try {
         if (item.attendanceNote) {
-          await queryRunner.manager.getRepository(Timetables).save({
-            id: timeTableData.id,
-            attendanceNote: item.attendanceNote,
-          });
+          // await queryRunner.manager.getRepository(Timetables).save({
+          //   id: timeTableData.id,
+          //   attendanceNote: item.attendanceNote,
+          // });
         }
         const classTimetableDetailData: ClassTimetableDetails[] = timeTableData.classTimetableDetails;
 
@@ -491,10 +492,10 @@ export class ClassTimetableDetailsService {
           }
         }
         msg.data.playerIds = _.uniq(playerIdsPush);
-        await sendNotificationToRabbitMQ(msg);
+        // await sendNotificationToRabbitMQ(msg);
 
-        await queryRunner.manager.getRepository(ClassTimetableDetails).save(bulkUpdateClassTimetableDetail);
-        await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
+        // await queryRunner.manager.getRepository(ClassTimetableDetails).save(bulkUpdateClassTimetableDetail);
+        // await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
