@@ -359,6 +359,9 @@ export class ClassTimetableDetailsService {
       relations: [
         'classTimetableDetails',
         'classTimetableDetails.userWorkspace',
+        'classTimetableDetails.timetable',
+        'classTimetableDetails.timetable.applianceAbsentTimetables',
+        'classTimetableDetails.timetable.applianceAbsentTimetables.applianceAbsent',
         'classTimetableDetails.classTimetableDetailEvaluations',
         'classTimetableDetails.classTimetableDetailEvaluations.evaluationCriteria',
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions',
