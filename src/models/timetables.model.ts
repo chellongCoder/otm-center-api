@@ -18,6 +18,7 @@ import { ClassShiftsClassrooms } from './class-shifts-classrooms.model';
 import { ClassLessons } from './class-lessons.model';
 import { ClassLectures } from './class-lectures.model';
 import { ClassTimetableDetails } from './class-timetable-details.model';
+import { ApplianceAbsentTimetables } from './appliance-absent-timetables.model';
 
 @Entity('timetables')
 export class Timetables extends BaseEntity {
@@ -100,6 +101,9 @@ export class Timetables extends BaseEntity {
 
   @OneToMany(() => ClassTimetableDetails, item => item.timetable)
   public classTimetableDetails: ClassTimetableDetails[];
+
+  @OneToMany(() => ApplianceAbsentTimetables, item => item.timetable)
+  public applianceAbsentTimetables: ApplianceAbsentTimetables[];
 
   static findByCond(query: any) {
     const queryBuilder = this.createQueryBuilder('timetables');

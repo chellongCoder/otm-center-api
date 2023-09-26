@@ -16,8 +16,8 @@ import { UserWorkspaces } from '@/models/user-workspaces.model';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import { TimeFormat } from '@/constants';
-import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -40,7 +40,7 @@ export class ApplianceAbsentsService {
   }
 
   public async getListStudentApplianceAbsents(userWorkspaceId: number, workspaceId: number) {
-    return await ApplianceAbsents.find({
+    const applianceAbsentResult = await ApplianceAbsents.find({
       where: {
         userWorkspaceId: userWorkspaceId,
         workspaceId: workspaceId,
@@ -50,6 +50,27 @@ export class ApplianceAbsentsService {
         createdAt: 'DESC',
       },
     });
+
+    const targetKeys = applianceAbsentResult.map(el => `detail_${el.id}_user_workspace_${userWorkspaceId}`);
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey: In(targetKeys),
+        workspaceId: workspaceId,
+        category: CategoriesCommentsEnum.APPLIANCE_ABSENT,
+      },
+      relations: ['subComments'],
+    });
+    const formatResult = [];
+    for (const applianceAbsentResultItem of applianceAbsentResult) {
+      const targetKey = `detail_${applianceAbsentResultItem.id}_user_workspace_${userWorkspaceId}`;
+      const listComment = commentData.filter(el => el.targetKey === targetKey);
+      const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+      formatResult.push({
+        ...applianceAbsentResultItem,
+        countComment,
+      });
+    }
+    return formatResult;
   }
 
   public async getListTeacherApplianceAbsents(userWorkspaceId: number, workspaceId: number, classId: number) {

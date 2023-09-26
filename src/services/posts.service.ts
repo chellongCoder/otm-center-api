@@ -47,7 +47,7 @@ export class PostsService {
       where: {
         id,
       },
-      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace'],
+      relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
     });
   }
 
