@@ -21,11 +21,14 @@ import errorMiddleware from '@/middlewares/error.middleware';
 import * as i18n from 'i18n';
 import { LANGUAGES } from './constants';
 import { authMiddleware } from './auth/authorizationChecker';
+import createSocket from '@services/socket.service';
+import { Server } from 'socket.io';
 
 export default class App {
   public app: express.Application;
   public port: string | number;
   public env: string;
+  public io: any;
 
   constructor() {
     this.app = express();
@@ -44,6 +47,42 @@ export default class App {
 
   public getServer() {
     return this.app;
+  }
+
+  public listen() {
+    this.io = new Server(4001);
+    // this.io.attachApp(this.app, {});
+    this.io.on('connection', socket => {
+      socket.emit('noArg');
+      socket.emit('basicEmit', 1, '2', Buffer.from([3]));
+      socket.emit('withAck', '4', e => {
+        // e is inferred as number
+      });
+
+      // works when broadcast to all
+      this.io.emit('noArg');
+
+      // works when broadcasting to a room
+      this.io.to('room1').emit('basicEmit', 1, '2', Buffer.from([3]));
+
+      socket.on('hello', () => {
+        // ...
+      });
+    });
+
+    this.io.serverSideEmit('ping');
+
+    this.io.on('ping', () => {
+      // ...
+    });
+    this.app.listen(this.port, () => {
+      logger.info(`=================================`);
+      logger.info(`======= ENV: ${this.env} =======`);
+      logger.info(`🚀 App listening on the port ${this.port}`);
+      logger.info(`=================================`);
+      logger.info(`🚀 API Document: http://localhost:${this.port}/api-docs`);
+      logger.info(`=================================`);
+    });
   }
 
   private initializeMiddlewares() {
@@ -109,11 +148,13 @@ export default class App {
 
   private initializeRoutes() {
     useContainer(Container);
+
     useExpressServer(this.app, {
       // cors: {
       //   origin: config.get('cors.origin'),
       //   credentials: config.get('cors.credentials'),
       // },
+
       routePrefix: '/api',
       middlewares: [path.join(__dirname + '/middlewares/*{.ts,.js}')],
       controllers: [path.join(__dirname + '/controllers/*{.ts,.js}')],
@@ -133,15 +174,4 @@ export default class App {
       directory: path.join(__dirname, '..', 'locales'),
     });
   };
-
-  public listen() {
-    this.app.listen(this.port, () => {
-      logger.info(`=================================`);
-      logger.info(`======= ENV: ${this.env} =======`);
-      logger.info(`🚀 App listening on the port ${this.port}`);
-      logger.info(`=================================`);
-      logger.info(`🚀 API Document: http://localhost:${this.port}/api-docs`);
-      logger.info(`=================================`);
-    });
-  }
 }
