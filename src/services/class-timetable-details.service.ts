@@ -22,6 +22,7 @@ import { CategoriesNotificationEnum, SendMessageNotificationRabbit, sendNotifica
 import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-notifications.model';
 import _ from 'lodash';
 import { UpdateContentAssignmentDto } from '@/dtos/updateContentAssignment.dto';
+import { Classes } from '@/models/classes.model';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -446,6 +447,14 @@ export class ClassTimetableDetailsService {
             attendanceNote: item.attendanceNote,
           });
         }
+        /**
+         * update attendedNumber of class
+         */
+        if (timeTableData.class.attendedNumber < timeTableData.sessionNumberOrder) {
+          await queryRunner.manager.getRepository(Classes).update(timeTableData.classId, {
+            attendedNumber: timeTableData.sessionNumberOrder,
+          });
+        }
         const classTimetableDetailData: ClassTimetableDetails[] = timeTableData.classTimetableDetails;
 
         const bulkUpdateClassTimetableDetail: Partial<ClassTimetableDetails>[] = [];
@@ -553,7 +562,14 @@ export class ClassTimetableDetailsService {
       const queryRunner = connection.createQueryRunner();
       await queryRunner.connect();
       await queryRunner.startTransaction();
-
+      /**
+       * update attendedNumber of class
+       */
+      if (timetableData.class.attendedNumber < timetableData.sessionNumberOrder) {
+        await queryRunner.manager.getRepository(Classes).update(timetableData.classId, {
+          attendedNumber: timetableData.sessionNumberOrder,
+        });
+      }
       /**
        * push notification to student
        */
