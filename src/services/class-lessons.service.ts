@@ -16,6 +16,7 @@ import { TimeFormat } from '@/constants';
 import _ from 'lodash';
 import { DbConnection } from '@/database/dbConnection';
 import { ClassLessonImages } from '@/models/class-lesson-images.model';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class ClassLessonsService {
@@ -116,7 +117,7 @@ export class ClassLessonsService {
     });
   }
   public async getHomeworkByTimetableId(timetableId: number, workspaceId: number) {
-    return Timetables.findOne({
+    const timetableResult = await Timetables.findOne({
       where: {
         id: timetableId,
         workspaceId,
@@ -134,6 +135,32 @@ export class ClassLessonsService {
         fromTime: 'ASC',
       },
     });
+    if (timetableResult && timetableResult.classTimetableDetails && timetableResult.classTimetableDetails.length) {
+      const targetKeys = timetableResult.classTimetableDetails.map(el => `detail_${el.timetableId}_user_workspace_${el.userWorkspaceId}`);
+      const commentData: Comments[] = await Comments.find({
+        where: {
+          targetKey: In(targetKeys),
+          workspaceId: workspaceId,
+          category: CategoriesCommentsEnum.HOMEWORK,
+        },
+        relations: ['subComments'],
+      });
+
+      const classTimetableDetailFormat = [];
+      for (const classTimetableDetailItem of timetableResult.classTimetableDetails) {
+        const targetKey = `detail_${classTimetableDetailItem.id}`;
+        const listComment = commentData.filter(el => el.targetKey === targetKey);
+        const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+        classTimetableDetailFormat.push({
+          ...classTimetableDetailItem,
+          countComment,
+        });
+      }
+      return {
+        ...timetableResult,
+        classTimetableDetails: classTimetableDetailFormat,
+      };
+    } else return timetableResult;
   }
   /**
    * create
