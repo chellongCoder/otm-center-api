@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { UpdateFinishAssignmentDto } from '@/dtos/updateFinishAssignment.dto';
 import { Timetables } from '@/models/timetables.model';
-import { FindOptionsWhere, Like } from 'typeorm';
+import { FindOptionsWhere, In, Like } from 'typeorm';
 import { UpdateStudentAttendanceDto } from '@/dtos/updateStudentAttentdance.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { DbConnection } from '@/database/dbConnection';
@@ -23,6 +23,7 @@ import { AppType, UserWorkspaceNotifications } from '@/models/user-workspace-not
 import _ from 'lodash';
 import { UpdateContentAssignmentDto } from '@/dtos/updateContentAssignment.dto';
 import { Classes } from '@/models/classes.model';
+import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 
 @Service()
 export class ClassTimetableDetailsService {
@@ -355,7 +356,7 @@ export class ClassTimetableDetailsService {
         },
       };
     }
-    return Timetables.findOne({
+    const timetableResult = await Timetables.findOne({
       where: condition,
       relations: [
         'classTimetableDetails',
@@ -367,6 +368,33 @@ export class ClassTimetableDetailsService {
         'classTimetableDetails.classTimetableDetailEvaluations.classTimetableDetailEvaluationOptions.evaluationOptionValue',
       ],
     });
+
+    if (timetableResult && timetableResult.classTimetableDetails && timetableResult.classTimetableDetails.length) {
+      const targetKeys = timetableResult.classTimetableDetails.map(el => `detail_${el.timetableId}_user_workspace_${el.userWorkspaceId}`);
+      const commentData: Comments[] = await Comments.find({
+        where: {
+          targetKey: In(targetKeys),
+          workspaceId: timetableResult.workspaceId,
+          category: CategoriesCommentsEnum.EVALUATION,
+        },
+        relations: ['subComments'],
+      });
+
+      const classTimetableDetailFormat = [];
+      for (const classTimetableDetailItem of timetableResult.classTimetableDetails) {
+        const targetKey = `detail_${classTimetableDetailItem.id}_user_workspace_${classTimetableDetailItem.userWorkspaceId}`;
+        const listComment = commentData.filter(el => el.targetKey === targetKey);
+        const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
+        classTimetableDetailFormat.push({
+          ...classTimetableDetailItem,
+          countComment,
+        });
+      }
+      return {
+        ...timetableResult,
+        classTimetableDetails: classTimetableDetailFormat,
+      };
+    } else return timetableResult;
   }
   public async updateClassTimetableDetailMarking(id: number, item: UpdateClassTimetableDetailMarkingDto, userWorkspaceId: number) {
     const classTimetableDetailData = await ClassTimetableDetails.findOne({
