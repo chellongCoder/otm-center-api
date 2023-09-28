@@ -393,4 +393,7 @@ export class AuthService {
       workspace_data: workspaceData,
     };
   }
+  public async logout(userWorkspaceData: UserWorkspaces) {
+    return true;
+  }
 }
