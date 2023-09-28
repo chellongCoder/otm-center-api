@@ -134,6 +134,9 @@ export class CommentsService {
               category: CategoriesNotificationEnum.COMMENT,
               content: messageNotification,
               id: targetTimetableId,
+              detail: {
+                category: item.category,
+              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -167,6 +170,9 @@ export class CommentsService {
               category: CategoriesNotificationEnum.COMMENT,
               content: messageNotification,
               id: targetTimetableId,
+              detail: {
+                category: item.category,
+              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -207,6 +213,9 @@ export class CommentsService {
             category: CategoriesNotificationEnum.COMMENT,
             content: messageNotification,
             id: targetAbsentId,
+            detail: {
+              category: item.category,
+            },
             playerIds: _.uniq(playerIds),
           },
         };
