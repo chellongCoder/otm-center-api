@@ -75,8 +75,26 @@ export class CommentsService {
    * create
    */
   public async create(item: CreateCommentsDto, userWorkspaceData: UserWorkspaces) {
-    const targetTimetableId = Number(item.targetKey.split('_')[1]);
-    const targetUserWorkspaceId = Number(item.targetKey.split('_')[4]);
+    let targetTimetableId = 0;
+    let targetUserWorkspaceId = 0;
+    if (item?.targetKey) {
+      targetTimetableId = Number(item.targetKey.split('_')[1]);
+      targetUserWorkspaceId = Number(item.targetKey.split('_')[4]);
+    } else if (item?.parentId) {
+      const parentComment = await Comments.findOne({
+        where: {
+          id: item.parentId,
+        },
+      });
+      if (parentComment?.id) {
+        targetTimetableId = Number(parentComment.targetKey.split('_')[1]);
+        targetUserWorkspaceId = Number(parentComment.targetKey.split('_')[4]);
+      } else {
+        throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+      }
+    } else {
+      throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
+    }
     if (item.category === CategoriesCommentsEnum.HOMEWORK || item.category === CategoriesCommentsEnum.EVALUATION) {
       const timetableData = await Timetables.findOne({
         where: {
@@ -116,6 +134,9 @@ export class CommentsService {
               category: CategoriesNotificationEnum.COMMENT,
               content: messageNotification,
               id: targetTimetableId,
+              detail: {
+                category: item.category,
+              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -149,6 +170,9 @@ export class CommentsService {
               category: CategoriesNotificationEnum.COMMENT,
               content: messageNotification,
               id: targetTimetableId,
+              detail: {
+                category: item.category,
+              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -189,6 +213,9 @@ export class CommentsService {
             category: CategoriesNotificationEnum.COMMENT,
             content: messageNotification,
             id: targetAbsentId,
+            detail: {
+              category: item.category,
+            },
             playerIds: _.uniq(playerIds),
           },
         };
