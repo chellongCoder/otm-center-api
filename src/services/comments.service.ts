@@ -79,7 +79,7 @@ export class CommentsService {
     let targetUserWorkspaceId = 0;
     if (item?.targetKey) {
       targetTimetableId = Number(item.targetKey.split('_')[1]);
-      targetUserWorkspaceId = Number(item.targetKey.split('_')[4]);
+      targetUserWorkspaceId = item.targetKey.split('_')[4] ? Number(item.targetKey.split('_')[4]) : 0;
     } else if (item?.parentId) {
       const parentComment = await Comments.findOne({
         where: {
@@ -88,7 +88,7 @@ export class CommentsService {
       });
       if (parentComment?.id) {
         targetTimetableId = Number(parentComment.targetKey.split('_')[1]);
-        targetUserWorkspaceId = Number(parentComment.targetKey.split('_')[4]);
+        targetUserWorkspaceId = parentComment.targetKey.split('_')[4] ? Number(parentComment.targetKey.split('_')[4]) : 0;
       } else {
         throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
       }
@@ -155,7 +155,7 @@ export class CommentsService {
             bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
           }
         }
-        if (targetUserWorkspaceId !== userWorkspaceData.id) {
+        if (targetUserWorkspaceId !== userWorkspaceData.id && targetUserWorkspaceId) {
           const userWorkspaceDeviceData = await UserWorkspaceDevices.find({
             where: {
               userWorkspaceId: targetUserWorkspaceId,
