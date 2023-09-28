@@ -51,7 +51,7 @@ export class ApplianceAbsentsService {
       },
     });
 
-    const targetKeys = applianceAbsentResult.map(el => `detail_${el.id}_user_workspace_${userWorkspaceId}`);
+    const targetKeys = applianceAbsentResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
       where: {
         targetKey: In(targetKeys),
@@ -62,7 +62,7 @@ export class ApplianceAbsentsService {
     });
     const formatResult = [];
     for (const applianceAbsentResultItem of applianceAbsentResult) {
-      const targetKey = `detail_${applianceAbsentResultItem.id}_user_workspace_${userWorkspaceId}`;
+      const targetKey = `detail_${applianceAbsentResultItem.id}`;
       const listComment = commentData.filter(el => el.targetKey === targetKey);
       const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
       formatResult.push({
