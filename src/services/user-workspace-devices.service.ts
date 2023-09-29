@@ -1,6 +1,7 @@
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
 
 @Service()
 export class UserWorkspaceDevicesService {
@@ -35,23 +36,35 @@ export class UserWorkspaceDevicesService {
   /**
    * create
    */
-  public async create(item: Partial<UserWorkspaceDevices>, userWorkspaceId: number, workspaceId: number) {
-    const userWorkspaceDeviceData = await UserWorkspaceDevices.findOne({
-      where: {
-        workspaceId,
-        userWorkspaceId,
-        playerId: item.playerId,
-      },
-    });
-    if (!userWorkspaceDeviceData?.id) {
+  public async create(item: Partial<UserWorkspaceDevices>, userWorkspaceData: UserWorkspaces) {
+    if (item?.deviceId) {
+      const existDeviceData = await UserWorkspaceDevices.findOne({
+        where: {
+          workspaceId: userWorkspaceData.workspaceId,
+          userWorkspaceId: userWorkspaceData.id,
+          deviceId: item.deviceId,
+        },
+      });
+      if (existDeviceData?.id) {
+        if (existDeviceData.deviceId === item.deviceId && existDeviceData.playerId === item.playerId) {
+          return;
+        }
+        await UserWorkspaceDevices.softRemove(existDeviceData);
+        const results = await UserWorkspaceDevices.insert({
+          ...item,
+          userWorkspaceId: userWorkspaceData.id,
+          workspaceId: userWorkspaceData.workspaceId,
+        });
+        return results;
+      }
       const results = await UserWorkspaceDevices.insert({
         ...item,
-        userWorkspaceId,
-        workspaceId,
+        userWorkspaceId: userWorkspaceData.id,
+        workspaceId: userWorkspaceData.workspaceId,
       });
       return results;
     }
-    return true;
+    return;
   }
 
   /**

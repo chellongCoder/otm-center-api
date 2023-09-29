@@ -47,8 +47,8 @@ export class TimetablesService {
   public async findByIdTeacher(id: number) {
     let status: LearningStatus;
     const learnedStudent = await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
-      .where('class_timetable_details.timetableId = :id', { id })
-      .andWhere('class_timetable_details.learningStatus = :status', { status: LearningStatus.LEARNED })
+      .where('class_timetable_details.timetable_id = :id', { id })
+      .andWhere('class_timetable_details.learning_status = :status', { status: LearningStatus.LEARNED })
       .getManyAndCount();
 
     if (learnedStudent[1] > 0) {

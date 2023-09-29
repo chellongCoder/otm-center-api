@@ -34,9 +34,9 @@ export class UserWorkspaceNotificationsController {
   @Get('/list')
   @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_notifications list' })
-  async getListNotification(@Res() res: any, @Req() req: any) {
+  async getListNotification(@QueryParam('page') page: number, @QueryParam('limit') limit: number, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getListNotification(user_workspace_context.id, workspace_context.id);
+    const data = await this.service.getListNotification(user_workspace_context.id, workspace_context.id, page, limit);
     return successResponse({ res, data, status_code: 200 });
   }
 
