@@ -35,8 +35,8 @@ export class UserWorkspaceDevicesController {
   @Authorized()
   @OpenAPI({ summary: 'Create user_workspace_devices' })
   async create(@Body({ required: true }) body: UserWorkspaceDevices, @Res() res: any, @Req() req: any) {
-    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 

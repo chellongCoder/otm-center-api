@@ -287,14 +287,7 @@ export class UserWorkspaceShiftScopesService {
         fromTime: 'desc',
       },
     });
-    // const subQueryTimetable = Timetables.createQueryBuilder('subQueryTimetable')
-    //   .where('subQueryTimetable.class_id in (:...classId)', { classId: classesIds })
-    //   .groupBy('subQueryTimetable.class_id');
-    // const latestTimetable = await Timetables.createQueryBuilder('record')
-    //   // .where('record.id In (' + subQueryTimetable.getQuery() + ')')
-    //   .innerJoin('(' + subQueryTimetable.getQuery() + ')', 'sub', 'record.id = sub.max AND record.created_at = sub.created_at')
-    //   .setParameters(subQueryTimetable.getParameters())
-    //   .getMany();
+
     const teachingDashboard: any[] = [];
     for (const classItem of classesData) {
       const userWorkspaceInClass = userWorkspaceClasses.filter(el => el.classId === classItem.id);

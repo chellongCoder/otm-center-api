@@ -34,7 +34,9 @@ export class AuthController {
   @OpenAPI({ summary: 'logout' })
   async logout(@Res() res: any, @Req() req: any) {
     const { user_workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.authService.logout(user_workspace_context);
+    const deviceId = req.headers['x-device-id'] as string | undefined;
+
+    const data = await this.authService.logout(user_workspace_context, deviceId || '');
     return successResponse({ res, data, status_code: 200 });
   }
 }

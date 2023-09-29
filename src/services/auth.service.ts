@@ -23,6 +23,7 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { UserWorkspaceAccess } from '@/interfaces/user-workspace-access';
 import { UserWorkspacesToken } from '@/interfaces/user-workspace-token';
 import { Service } from 'typedi';
+import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 @Service()
 export class AuthService {
   twilioService: any;
@@ -393,7 +394,19 @@ export class AuthService {
       workspace_data: workspaceData,
     };
   }
-  public async logout(userWorkspaceData: UserWorkspaces) {
+  public async logout(userWorkspaceData: UserWorkspaces, deviceId: string) {
+    if (!deviceId) {
+      return;
+    }
+    const userWorkspaceDeviceData = await UserWorkspaceDevices.findOne({
+      where: {
+        deviceId,
+        userWorkspaceId: userWorkspaceData.id,
+      },
+    });
+    if (userWorkspaceDeviceData?.id) {
+      await UserWorkspaceDevices.softRemove(userWorkspaceDeviceData);
+    }
     return true;
   }
 }
