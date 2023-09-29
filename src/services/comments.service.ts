@@ -135,7 +135,7 @@ export class CommentsService {
               content: messageNotification,
               id: targetTimetableId,
               detail: {
-                category: item.category,
+                categoryNotification: item.category,
               },
               playerIds: _.uniq(playerIds),
             },
@@ -171,7 +171,7 @@ export class CommentsService {
               content: messageNotification,
               id: targetTimetableId,
               detail: {
-                category: item.category,
+                categoryNotification: item.category,
               },
               playerIds: _.uniq(playerIds),
             },
@@ -214,7 +214,7 @@ export class CommentsService {
             content: messageNotification,
             id: targetAbsentId,
             detail: {
-              category: item.category,
+              categoryNotification: item.category,
             },
             playerIds: _.uniq(playerIds),
           },
