@@ -1,4 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { caches } from '@/caches';
+import { CACHE_PREFIX } from '@/caches/constants';
 import { CheckShiftClassroomValidDto } from '@/dtos/check-shift-classroom-valid.dto';
 import { CreateClassScheduleDto } from '@/dtos/create-user-workspace-shift-scope.dto';
 import { successResponse } from '@/helpers/response.helper';
@@ -43,16 +45,37 @@ export class UserWorkspaceShiftScopesController {
     @Req() req: any,
   ) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getTeachingSchedule(
+
+    let data: any;
+    const cacheKey = [
+      CACHE_PREFIX.CACHE_DASHBOARD,
+      'teaching_schedule',
       page,
       limit,
       order,
       search,
       userWorkspaceId || user_workspace_context.id,
-      workspaceId || workspace_context.id,
       fromDate,
       toDate,
-    );
+      workspaceId || workspace_context.id,
+    ].join(`_`);
+    const cacheData = await caches().getCaches(cacheKey);
+
+    if (cacheData) {
+      data = cacheData;
+    } else {
+      data = await this.service.getTeachingSchedule(
+        page,
+        limit,
+        order,
+        search,
+        userWorkspaceId || user_workspace_context.id,
+        workspaceId || workspace_context.id,
+        fromDate,
+        toDate,
+      );
+      await caches().setCache(cacheKey, data);
+    }
     return successResponse({ res, data, status_code: 200 });
   }
 
@@ -70,14 +93,34 @@ export class UserWorkspaceShiftScopesController {
     @Req() req: any,
   ) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getTeachingDashboard(
+
+    let data: any;
+    const cacheKey = [
+      CACHE_PREFIX.CACHE_DASHBOARD,
+      'teaching_dashboard',
+      workspaceId || workspace_context.id,
+      currentDate,
       page,
       limit,
       order,
       userWorkspaceId || user_workspace_context.id,
-      workspaceId || workspace_context.id,
-      currentDate,
-    );
+    ].join(`_`);
+    const cacheData = await caches().getCaches(cacheKey);
+
+    if (cacheData) {
+      data = cacheData;
+    } else {
+      data = await this.service.getTeachingDashboard(
+        page,
+        limit,
+        order,
+        userWorkspaceId || user_workspace_context.id,
+        workspaceId || workspace_context.id,
+        currentDate,
+      );
+      await caches().setCache(cacheKey, data);
+    }
+
     return successResponse({ res, data, status_code: 200 });
   }
 

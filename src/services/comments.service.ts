@@ -105,7 +105,13 @@ export class CommentsService {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }
     if (item.category === CategoriesCommentsEnum.HOMEWORK || item.category === CategoriesCommentsEnum.EVALUATION) {
-      const cacheKey = [CACHE_PREFIX.CACHE_TIMETABLE, CategoriesNotificationEnum.COMMENT, targetTimetableId, userWorkspaceData.id].join(`_`);
+      const cacheKey = [
+        CACHE_PREFIX.CACHE_TIMETABLE,
+        CategoriesNotificationEnum.COMMENT,
+        targetTimetableId,
+        userWorkspaceData.id,
+        userWorkspaceData.workspaceId,
+      ].join(`_`);
       let timetableData: Timetables | null = null;
       const cacheData = await caches().getCaches(cacheKey);
       if (cacheData) {

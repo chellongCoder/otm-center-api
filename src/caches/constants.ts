@@ -251,4 +251,12 @@ export enum CACHE_PREFIX {
    * Timetable
    */
   CACHE_TIMETABLE = 'CACHE_TIMETABLE',
+  /**
+   * Post
+   */
+  CACHE_POST = 'CACHE_POST',
+  /**
+   * Dashboard
+   */
+  CACHE_DASHBOARD = 'CACHE_DASHBOARD',
 }
