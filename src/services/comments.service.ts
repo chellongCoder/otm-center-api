@@ -299,7 +299,7 @@ export class CommentsService {
       throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
     }
   }
-  public async countByTargetKey(targetKey: string, category: string) {
+  public async countByTargetKey(targetKey: string, category: CategoriesCommentsEnum) {
     if (!targetKey || !category) {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }

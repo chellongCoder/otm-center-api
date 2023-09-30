@@ -54,7 +54,7 @@ export class CommentsController {
   @Authorized()
   @OpenAPI({ summary: 'countByTargetKey' })
   async countByTargetKey(@QueryParam('targetKey') targetKey: string, @QueryParam('category') category: string, @Res() res: any) {
-    const data = await this.service.countByTargetKey(targetKey, category);
+    const data = await this.service.countByTargetKey(targetKey, category as CategoriesCommentsEnum);
     return successResponse({ res, data, status_code: 200 });
   }
 
