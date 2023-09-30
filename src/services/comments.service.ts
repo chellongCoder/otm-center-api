@@ -299,4 +299,17 @@ export class CommentsService {
       throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
     }
   }
+  public async countByTargetKey(targetKey: string, category: string) {
+    if (!targetKey || !category) {
+      throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
+    }
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey,
+        category,
+      },
+      relations: ['subComments'],
+    });
+    return { countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0) };
+  }
 }
