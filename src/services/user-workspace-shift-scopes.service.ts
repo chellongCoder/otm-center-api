@@ -286,17 +286,33 @@ export class UserWorkspaceShiftScopesService {
         date: 'desc',
         fromTime: 'desc',
       },
+      relations: ['classTimetableDetails'],
     });
 
     const teachingDashboard: any[] = [];
     for (const classItem of classesData) {
       const userWorkspaceInClass = userWorkspaceClasses.filter(el => el.classId === classItem.id);
       const latestTimetable = timetableData.find(el => el.classId === classItem.id);
+      let isAllAttendance = true;
+      let isAllEvaluation = true;
+      if (latestTimetable?.id) {
+        const latestClassTimetableDetailData = latestTimetable.classTimetableDetails;
+        for (const latestClassTimetableDetailItem of latestClassTimetableDetailData) {
+          if (!latestClassTimetableDetailItem.attendanceByUserWorkspaceId) {
+            isAllAttendance = false;
+          }
+          if (!latestClassTimetableDetailItem.evaluationByUserWorkspaceId) {
+            isAllEvaluation = false;
+          }
+        }
+      }
       teachingDashboard.push({
         ...classItem,
         userWorkspaces: userWorkspaceInClass,
         userWorkspacesCount: userWorkspaceInClass.length,
         latestTimetable,
+        isAllAttendance,
+        isAllEvaluation,
       });
     }
     return {
@@ -304,8 +320,5 @@ export class UserWorkspaceShiftScopesService {
       total,
       pages: Math.ceil(total / limit),
     };
-  }
-  public async getTeachingDashboardStatus(userWorkspaceId: number, workspaceId: number, currentDate: number) {
-    console.log('chh_log ---> currentDate:', currentDate);
   }
 }
