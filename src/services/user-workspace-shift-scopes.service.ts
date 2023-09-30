@@ -286,24 +286,33 @@ export class UserWorkspaceShiftScopesService {
         date: 'desc',
         fromTime: 'desc',
       },
+      relations: ['classTimetableDetails'],
     });
-    // const subQueryTimetable = Timetables.createQueryBuilder('subQueryTimetable')
-    //   .where('subQueryTimetable.class_id in (:...classId)', { classId: classesIds })
-    //   .groupBy('subQueryTimetable.class_id');
-    // const latestTimetable = await Timetables.createQueryBuilder('record')
-    //   // .where('record.id In (' + subQueryTimetable.getQuery() + ')')
-    //   .innerJoin('(' + subQueryTimetable.getQuery() + ')', 'sub', 'record.id = sub.max AND record.created_at = sub.created_at')
-    //   .setParameters(subQueryTimetable.getParameters())
-    //   .getMany();
+
     const teachingDashboard: any[] = [];
     for (const classItem of classesData) {
       const userWorkspaceInClass = userWorkspaceClasses.filter(el => el.classId === classItem.id);
       const latestTimetable = timetableData.find(el => el.classId === classItem.id);
+      let isAllAttendance = true;
+      let isAllEvaluation = true;
+      if (latestTimetable?.id) {
+        const latestClassTimetableDetailData = latestTimetable.classTimetableDetails;
+        for (const latestClassTimetableDetailItem of latestClassTimetableDetailData) {
+          if (!latestClassTimetableDetailItem.attendanceByUserWorkspaceId) {
+            isAllAttendance = false;
+          }
+          if (!latestClassTimetableDetailItem.evaluationByUserWorkspaceId) {
+            isAllEvaluation = false;
+          }
+        }
+      }
       teachingDashboard.push({
         ...classItem,
         userWorkspaces: userWorkspaceInClass,
         userWorkspacesCount: userWorkspaceInClass.length,
         latestTimetable,
+        isAllAttendance,
+        isAllEvaluation,
       });
     }
     return {

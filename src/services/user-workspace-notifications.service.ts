@@ -66,8 +66,8 @@ export class UserWorkspaceNotificationsService {
   public async delete(id: number) {
     return UserWorkspaceNotifications.delete(id);
   }
-  public async getListNotification(userWorkspaceId: number, workspaceId: number) {
-    return UserWorkspaceNotifications.find({
+  public async getListNotification(userWorkspaceId: number, workspaceId: number, page = 1, limit = 10) {
+    const [resultData, total] = await UserWorkspaceNotifications.findAndCount({
       where: {
         receiverUserWorkspaceId: userWorkspaceId,
         workspaceId,
@@ -76,6 +76,13 @@ export class UserWorkspaceNotificationsService {
       order: {
         createdAt: 'DESC',
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+    return {
+      data: resultData,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 }

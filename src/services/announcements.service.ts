@@ -62,8 +62,8 @@ export class AnnouncementsService {
   /**
    * findById
    */
-  public async getList(userWorkspaceData: UserWorkspaces, isImportant: boolean) {
-    const announcementResult = await Announcements.find({
+  public async getList(userWorkspaceData: UserWorkspaces, isImportant: boolean, page = 1, limit = 10) {
+    const [announcementResult, total] = await Announcements.findAndCount({
       where: {
         isImportant: typeof isImportant === 'undefined' ? isImportant : Boolean(!!isImportant),
         announcementUserWorkspaces: {
@@ -71,6 +71,8 @@ export class AnnouncementsService {
         },
       },
       relations: ['workspace', 'favoriteUserWorkspaces'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
     const targetKeys = announcementResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
@@ -95,7 +97,11 @@ export class AnnouncementsService {
         countFavorite,
       });
     }
-    return formatResult;
+    return {
+      data: formatResult,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   /**

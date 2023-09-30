@@ -1,4 +1,4 @@
-import { ApplianceAbsents } from '@/models/appliance-absents.model';
+import { AbsentStatus, ApplianceAbsents } from '@/models/appliance-absents.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { DbConnection } from '@/database/dbConnection';
@@ -18,6 +18,7 @@ import _ from 'lodash';
 import { TimeFormat } from '@/constants';
 import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
 import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
+import { AttendanceStatus, ClassTimetableDetails } from '@/models/class-timetable-details.model';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -286,7 +287,9 @@ export class ApplianceAbsentsService {
     });
     let shiftMessages = '';
     const applianceAbsentTimetableData = applianceAbsentData.applianceAbsentTimetables;
+    const timetableIds: number[] = [];
     for (const applianceAbsentTimetableItem of applianceAbsentTimetableData) {
+      timetableIds.push(applianceAbsentTimetableItem.timetableId);
       shiftMessages = `${shiftMessages ? `${shiftMessages}, ca` : ''} ${moment(
         applianceAbsentTimetableItem.timetable.fromTime,
         TimeFormat.time,
@@ -294,6 +297,18 @@ export class ApplianceAbsentsService {
         applianceAbsentTimetableItem.timetable.date,
       ).format(TimeFormat.date)}`;
     }
+    /**
+     * update AttendanceStatus of ClassTimetableDetails
+     */
+    if (item.status === AbsentStatus.APPROVED) {
+      await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
+        .update(ClassTimetableDetails)
+        .set({ attendanceStatus: AttendanceStatus.ABSENT_WITH_LEAVE })
+        .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
+        .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspace.id })
+        .execute();
+    }
+
     const contentNotify = `Đơn xin nghỉ của học viên ${applianceAbsentData.userWorkspace.fullname} ca${shiftMessages} đã được phê duyệt`;
 
     const playerIds: string[] = [];
