@@ -114,7 +114,7 @@ export function authMiddleware(): (action: Action, roles: any[]) => Promise<bool
         await caches().setCache(cacheKey, permissionData);
       }
 
-      if (permissionData && !roles.find(role => permissionData.permission.key.indexOf(role) !== -1)) {
+      if (permissionData && !roles.find(role => permissionData?.permission?.key?.indexOf(role) !== -1)) {
         throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
       }
       mobileContext['user_workspace_permission'] = permissionData?.permission.key;
