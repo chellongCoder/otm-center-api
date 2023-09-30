@@ -29,9 +29,16 @@ export class CommentsController {
   @Get('/list')
   @Authorized()
   @OpenAPI({ summary: 'Get comments list' })
-  async getListComments(@QueryParam('targetKey') targetKey: string, @QueryParam('category') category: string, @Res() res: any, @Req() req: any) {
+  async getListComments(
+    @QueryParam('targetKey') targetKey: string,
+    @QueryParam('category') category: string,
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @Res() res: any,
+    @Req() req: any,
+  ) {
     const { workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getListComments(targetKey, category as CategoriesCommentsEnum, workspace_context.id);
+    const data = await this.service.getListComments(targetKey, category as CategoriesCommentsEnum, workspace_context.id, page, limit);
     return successResponse({ res, data, status_code: 200 });
   }
 

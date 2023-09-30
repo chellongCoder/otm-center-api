@@ -36,8 +36,8 @@ export class CommentsService {
   /**
    * getListComments
    */
-  public async getListComments(targetKey: string, category: CategoriesCommentsEnum, workspaceId: number) {
-    return Comments.find({
+  public async getListComments(targetKey: string, category: CategoriesCommentsEnum, workspaceId: number, page = 1, limit = 10) {
+    const [resultData, total] = await Comments.findAndCount({
       where: {
         targetKey,
         workspaceId,
@@ -50,7 +50,14 @@ export class CommentsService {
           createdAt: 'ASC',
         },
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+    return {
+      data: resultData,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   /**
