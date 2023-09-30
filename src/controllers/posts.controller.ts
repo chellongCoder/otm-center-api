@@ -42,7 +42,7 @@ export class PostsController {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
     const data = await this.service.create(body, user_workspace_context, workspace_context);
 
-    await caches().removeCacheWithRelation(CACHE_PREFIX.CACHE_POST, workspace_context.id);
+    await caches().removeCacheWithRelation(CACHE_PREFIX.CACHE_POST, `${workspace_context.id}`);
     return successResponse({ res, data, status_code: 201 });
   }
 
