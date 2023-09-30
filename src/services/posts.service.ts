@@ -43,12 +43,25 @@ export class PostsService {
    * findById
    */
   public async findById(id: number) {
-    return Posts.findOne({
+    const data = await Posts.findOne({
       where: {
         id,
       },
       relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
     });
+
+    const targetKey = `detail_${id}`;
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey,
+        category: CategoriesCommentsEnum.NEW_POST,
+      },
+      relations: ['subComments'],
+    });
+    return {
+      ...data,
+      countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0),
+    };
   }
 
   /**
