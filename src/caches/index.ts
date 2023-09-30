@@ -8,7 +8,7 @@ export const caches = () => {
     if (ttl) {
       return await cacheHelper().set(key, value, ttl);
     } else {
-      const ttlConfig: Number = config.get('redis.ttl') ? Number(config.get('redis.ttl')) : 1;
+      const ttlConfig: number = config.get('redis.ttl') ? Number(config.get('redis.ttl')) : 1;
       return await cacheHelper().set(key, value, ttlConfig);
     }
   };
