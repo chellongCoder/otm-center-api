@@ -8,8 +8,13 @@ export const caches = () => {
     if (ttl) {
       return await cacheHelper().set(key, value, ttl);
     } else {
-      const ttlConfig: number = config.get('redis.ttl') ? Number(config.get('redis.ttl')) : 1;
-      return await cacheHelper().set(key, value, ttlConfig);
+      if (process.env.REDIS_TTL) {
+        const ttlConfig: number = Number(process.env.REDIS_TTL) || 1;
+        return await cacheHelper().set(key, value, ttlConfig);
+      } else if (config.get('redis.ttl')) {
+        const ttlConfig: number = Number(config.get('redis.ttl')) || 1;
+        return await cacheHelper().set(key, value, ttlConfig);
+      }
     }
   };
 

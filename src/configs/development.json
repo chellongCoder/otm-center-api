@@ -39,6 +39,7 @@
     "host": "localhost",
     "password": "",
     "port": 6380,
+    "username": "",
     "ttl": 300
   },
   "notification": {
