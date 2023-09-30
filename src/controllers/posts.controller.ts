@@ -45,13 +45,19 @@ export class PostsController {
   @Get('/newsfeed/list')
   @Authorized([PermissionKeys.TEACHER, PermissionKeys.STUDENT])
   @OpenAPI({ summary: 'Get posts by id' })
-  async getNewsfeed(@Res() res: any, @QueryParam('isPin') isPin: boolean, @Req() req: any) {
+  async getNewsfeed(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @Res() res: any,
+    @QueryParam('isPin') isPin: boolean,
+    @Req() req: any,
+  ) {
     const { user_workspace_context, user_workspace_permission, workspace_context }: MobileContext = req.mobile_context;
     let data: any;
     if (user_workspace_permission === PermissionKeys.TEACHER) {
-      data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id);
+      data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     } else {
-      data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id);
+      data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     }
 
     return successResponse({ res, data, status_code: 200 });

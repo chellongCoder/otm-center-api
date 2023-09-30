@@ -305,4 +305,7 @@ export class UserWorkspaceShiftScopesService {
       pages: Math.ceil(total / limit),
     };
   }
+  public async getTeachingDashboardStatus(userWorkspaceId: number, workspaceId: number, currentDate: number) {
+    console.log('chh_log ---> currentDate:', currentDate);
+  }
 }
