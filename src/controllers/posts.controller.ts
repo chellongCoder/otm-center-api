@@ -1,4 +1,6 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { caches } from '@/caches';
+import { CACHE_PREFIX } from '@/caches/constants';
 import { CreatePostDto } from '@/dtos/create-post.dto';
 import { UpdatePostDto } from '@/dtos/update-post.dto';
 import { successResponse } from '@/helpers/response.helper';
@@ -54,10 +56,18 @@ export class PostsController {
   ) {
     const { user_workspace_context, user_workspace_permission, workspace_context }: MobileContext = req.mobile_context;
     let data: any;
-    if (user_workspace_permission === PermissionKeys.TEACHER) {
-      data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
+    const cacheKey = [CACHE_PREFIX.CACHE_POST, user_workspace_context.id, isPin, workspace_context.id, page, limit].join(`_`);
+    const cacheData = await caches().getCaches(cacheKey);
+
+    if (cacheData) {
+      data = cacheData;
     } else {
-      data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
+      if (user_workspace_permission === PermissionKeys.TEACHER) {
+        data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
+      } else {
+        data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
+      }
+      await caches().setCache(cacheKey, data);
     }
 
     return successResponse({ res, data, status_code: 200 });
