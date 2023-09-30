@@ -5,10 +5,21 @@ import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 
 export const cacheHelper = () => {
   const getCacheServer = () => {
+    let port = 0;
+    try {
+      if (process.env.REDIS_PORT) {
+        port = Number(process.env.REDIS_PORT);
+      } else {
+        port = Number(config.get('redis.port'));
+      }
+    } catch (error) {
+      console.log('chh_log ---> getCacheServer ---> error:', error);
+    }
     const cacheServer = new Redis({
-      host: config.get('redis.host'),
-      port: config.get('redis.port'),
-      password: config.get('redis.password'),
+      host: process.env.REDIS_HOST || config.get('redis.host'),
+      port: port,
+      password: process.env.REDIS_PASSWORD || config.get('redis.password'),
+      username: process.env.REDIS_USER_NAME || config.get('redis.username'),
     });
 
     if (!cacheServer) {
