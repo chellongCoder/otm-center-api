@@ -55,9 +55,9 @@ export class UserWorkspaceShiftScopesController {
       order,
       search,
       userWorkspaceId || user_workspace_context.id,
-      workspaceId || workspace_context.id,
       fromDate,
       toDate,
+      workspaceId || workspace_context.id,
     ].join(`_`);
     const cacheData = await caches().getCaches(cacheKey);
 
@@ -99,11 +99,11 @@ export class UserWorkspaceShiftScopesController {
       CACHE_PREFIX.CACHE_DASHBOARD,
       'teaching_dashboard',
       workspaceId || workspace_context.id,
-      userWorkspaceId || user_workspace_context.id,
       currentDate,
       page,
       limit,
       order,
+      userWorkspaceId || user_workspace_context.id,
     ].join(`_`);
     const cacheData = await caches().getCaches(cacheKey);
 

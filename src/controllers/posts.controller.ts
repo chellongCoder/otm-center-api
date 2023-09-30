@@ -41,6 +41,8 @@ export class PostsController {
   async create(@Body({ required: true }) body: CreatePostDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
     const data = await this.service.create(body, user_workspace_context, workspace_context);
+
+    await caches().removeCacheWithRelation(CACHE_PREFIX.CACHE_POST, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
@@ -56,7 +58,7 @@ export class PostsController {
   ) {
     const { user_workspace_context, user_workspace_permission, workspace_context }: MobileContext = req.mobile_context;
     let data: any;
-    const cacheKey = [CACHE_PREFIX.CACHE_POST, user_workspace_context.id, isPin, workspace_context.id, page, limit].join(`_`);
+    const cacheKey = [CACHE_PREFIX.CACHE_POST, user_workspace_context.id, isPin, page, limit, workspace_context.id].join(`_`);
     const cacheData = await caches().getCaches(cacheKey);
 
     if (cacheData) {
