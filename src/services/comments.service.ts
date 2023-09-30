@@ -305,8 +305,8 @@ export class CommentsService {
     }
     const commentData: Comments[] = await Comments.find({
       where: {
-        targetKey,
-        category,
+        targetKey: targetKey,
+        category: category,
       },
       relations: ['subComments'],
     });
