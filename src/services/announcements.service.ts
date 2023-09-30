@@ -54,7 +54,6 @@ export class AnnouncementsService {
     });
     return {
       ...data,
-      commentData,
       countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0),
     };
   }
@@ -204,7 +203,6 @@ export class AnnouncementsService {
             newUserWorkspaceNotification.workspaceId = workspaceData.id;
             bulkCreateUserWorkspaceNotifications.push(newUserWorkspaceNotification);
           }
-          console.log('chh_log ---> create ---> bulkCreateUserWorkspaceNotifications:', bulkCreateUserWorkspaceNotifications);
           await queryRunner.manager.getRepository(UserWorkspaceNotifications).insert(bulkCreateUserWorkspaceNotifications);
         }
         await queryRunner.commitTransaction();

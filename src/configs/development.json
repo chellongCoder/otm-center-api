@@ -37,8 +37,9 @@
   },
   "redis": {
     "host": "localhost",
+    "password": "",
     "port": 6380,
-    "ttl": 1
+    "ttl": 300
   },
   "notification": {
     "AMQBSERVER_LINK": "amqp://admin:HH223344@rabbit.2soft.top",

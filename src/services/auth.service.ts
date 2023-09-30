@@ -24,6 +24,8 @@ import { UserWorkspaceAccess } from '@/interfaces/user-workspace-access';
 import { UserWorkspacesToken } from '@/interfaces/user-workspace-token';
 import { Service } from 'typedi';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
+import { CACHE_PREFIX } from '@/caches/constants';
+import { caches } from '@/caches';
 @Service()
 export class AuthService {
   twilioService: any;
@@ -331,68 +333,47 @@ export class AuthService {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
     }
 
-    const workspaceData = await Workspaces.findOne({
-      where: {
-        id: workspaceId,
-      },
-    });
+    const cacheKeyWorkspace = [CACHE_PREFIX.CACHE_WORKSPACE, workspaceId].join(`_`);
+    let workspaceData: Workspaces | null = null;
+    const cacheDataWorkspace = await caches().getCaches(cacheKeyWorkspace);
+    if (cacheDataWorkspace) {
+      workspaceData = cacheDataWorkspace;
+    } else {
+      workspaceData = await Workspaces.findOne({
+        where: {
+          id: workspaceId,
+        },
+      });
+      await caches().setCache(cacheKeyWorkspace, workspaceData);
+    }
+
     if (workspaceData?.host !== workspace_host) {
       throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
     }
-    const userWorkspaceData = await UserWorkspaces.findOne({
-      where: {
-        id: userWorkspaceId,
-        workspaceId: workspaceData.id,
-      },
-    });
+
+    const cacheKeyUserWorkspace = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userWorkspaceId, workspaceData.id].join(`_`);
+    let userWorkspaceData: UserWorkspaces | null = null;
+    const cacheDataUserWorkspace = await caches().getCaches(cacheKeyUserWorkspace);
+    if (cacheDataUserWorkspace) {
+      userWorkspaceData = cacheDataUserWorkspace;
+    } else {
+      userWorkspaceData = await UserWorkspaces.findOne({
+        where: {
+          id: userWorkspaceId,
+          workspaceId: workspaceData.id,
+        },
+      });
+      await caches().setCache(cacheKeyUserWorkspace, userWorkspaceData);
+    }
 
     if (!userWorkspaceData?.id) {
       throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
     }
-
-    // const workspaceData = await workspacesRepository.findByHost({
-    //   host: workspace_host,
-    //   is_active: true,
-    // });
-
-    // if (!workspaceData) {
-    //   throw new Exception(ExceptionName.WORKSPACE_NOT_FOUND, ExceptionCode.WORKSPACE_NOT_FOUND, 400);
-    // }
-
-    // const userData = await usersRepository.findOneByFilter({
-    //   id: '3c4302af-c707-4e25-a7f5-6cf65caaa826',
-    //   account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM,
-    // }); //coithegioicoi
-    // // const userData = await usersRepository.findOneByFilter({ id: '8568f37c-8ca5-40b2-a6fc-48b1749d64f1', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// my lan
-    // // const userData = await usersRepository.findOneByFilter({ id: '1756badf-ab44-4662-ada3-33286fb7ad73', account_type: ENUM_MODEL.ACCOUNT_TYPE.SYSTEM });/// smile
-
-    // if (!userData) {
-    //   throw new Exception(ExceptionName.USER_NOT_FOUND, ExceptionCode.USER_NOT_FOUND, 400);
-    // }
-
-    // let userWorkspaceData: userWorkspaces | null = null;
-    // const cacheKey = [CACHE_PREFIX.CACHE_USER_WORKSPACE, userData.id, workspaceData.id].join(`_`);
-    // const cacheData = await caches.getCaches(cacheKey);
-    // if (cacheData) {
-    //   userWorkspaceData = cacheData;
-    // } else {
-    //   userWorkspaceData = await userWorkspacesRepository.findOneByFilter({
-    //     filter: {
-    //       user_id: userData.id,
-    //       workspace_id: workspaceData.id,
-    //     },
-    //   });
-    //   await caches.setCache(cacheKey, userWorkspaceData);
-    // }
-
-    // if (!userWorkspaceData) {
-    //   throw new Exception(ExceptionName.USER_WORKSPACE_NOT_FOUND, ExceptionCode.USER_WORKSPACE_NOT_FOUND, 400);
-    // }
-
-    return {
+    const userData = {
       user_workspace_data: userWorkspaceData,
       workspace_data: workspaceData,
     };
+    return userData;
   }
   public async logout(userWorkspaceData: UserWorkspaces, deviceId: string) {
     if (!deviceId) {

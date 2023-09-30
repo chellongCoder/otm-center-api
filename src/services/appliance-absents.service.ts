@@ -124,7 +124,7 @@ export class ApplianceAbsentsService {
    * findById
    */
   public async findById(id: number) {
-    return ApplianceAbsents.findOne({
+    const data = await ApplianceAbsents.findOne({
       where: {
         id,
       },
@@ -138,6 +138,19 @@ export class ApplianceAbsentsService {
         'applianceAbsentTimetables.timetable.classShiftsClassroom.classroom',
       ],
     });
+
+    const targetKey = `detail_${id}`;
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey,
+        category: CategoriesCommentsEnum.APPLIANCE_ABSENT,
+      },
+      relations: ['subComments'],
+    });
+    return {
+      ...data,
+      countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0),
+    };
   }
 
   /**
