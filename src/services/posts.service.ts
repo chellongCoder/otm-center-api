@@ -283,14 +283,16 @@ export class PostsService {
     }
     return true;
   }
-  public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number) {
-    const postResult = await Posts.find({
+  public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number, page = 1, limit = 10) {
+    const [postResult, total] = await Posts.findAndCount({
       where: {
         isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
         workspaceId,
         byUserWorkspaceId: userWorkspaceId,
       },
       relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
     const targetKeys = postResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
@@ -316,10 +318,14 @@ export class PostsService {
         countFavorite,
       });
     }
-    return formatResult;
+    return {
+      data: formatResult,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
-  public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number) {
-    const postResult = await Posts.find({
+  public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number, page = 1, limit = 10) {
+    const [postResult, total] = await Posts.findAndCount({
       where: _.omitBy(
         {
           isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
@@ -331,6 +337,8 @@ export class PostsService {
         _.isNil,
       ),
       relations: ['postMedias', 'byUserWorkspace', 'postUserWorkspaces', 'postUserWorkspaces.userWorkspace', 'favoriteUserWorkspaces'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
     const targetKeys = postResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
@@ -356,6 +364,10 @@ export class PostsService {
         countFavorite,
       });
     }
-    return formatResult;
+    return {
+      data: formatResult,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 }

@@ -81,6 +81,15 @@ export class UserWorkspaceShiftScopesController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Get('/teaching_dashboard_status')
+  @Authorized([PermissionKeys.TEACHER])
+  @OpenAPI({ summary: 'Get teaching status attendance and evaluation in home screen' })
+  async getTeachingDashboardStatus(@QueryParam('currentDate') currentDate: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.getTeachingDashboardStatus(user_workspace_context.id, workspace_context.id, currentDate);
+    return successResponse({ res, data, status_code: 200 });
+  }
+
   @Get('/:id')
   @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_shift_scopes by id' })

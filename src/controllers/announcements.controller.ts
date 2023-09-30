@@ -28,9 +28,15 @@ export class AnnouncementsController {
   @Get('/list')
   @Authorized([PermissionKeys.STUDENT, PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get announcements list' })
-  async getList(@QueryParam('isImportant') isImportant: boolean, @Res() res: any, @Req() req: any) {
+  async getList(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
+    @QueryParam('isImportant') isImportant: boolean,
+    @Res() res: any,
+    @Req() req: any,
+  ) {
     const { user_workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getList(user_workspace_context, isImportant);
+    const data = await this.service.getList(user_workspace_context, isImportant, page, limit);
     return successResponse({ res, data, status_code: 200 });
   }
 
