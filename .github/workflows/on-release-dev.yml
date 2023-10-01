@@ -41,10 +41,10 @@ jobs:
         ENV_AUTH_TWILLO: "8399e57efbcf4ac4e422d6a5d6f6b897"
         ENV_AMQBSERVER_LINK: "amqp://admin:HH223344@rabbit.2soft.top"
         ENV_QUEUE_ORDER_SEND_NOTI_NAME: "otm-noti-queue"
-        ENV_REDIS_HOST: "redis-16160.c295.ap-southeast-1-1.ec2.cloud.redislabs.com"
-        ENV_REDIS_PASSWORD: "SFQCf6XbaRPKv79mWcs72ymiJLSXjzI8"
+        ENV_REDIS_HOST: "149.28.158.115"
+        ENV_REDIS_PASSWORD: "Hh223344@"
         ENV_REDIS_USER_NAME: "default"
-        ENV_REDIS_PORT: 16160
+        ENV_REDIS_PORT: 6379
         ENV_REDIS_TTL: 300
 
     - name: Build and push Docker image
