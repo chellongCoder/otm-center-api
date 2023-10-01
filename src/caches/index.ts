@@ -1,10 +1,21 @@
+import config from 'config';
 import { CACHE_PREFIX } from './constants';
 import { cacheRelations } from './cacheRelations';
 import { cacheHelper } from '@/helpers/cache.helper';
 
 export const caches = () => {
-  const setCache = async (key: string, value: any, ttl = 1) => {
-    return await cacheHelper().set(key, value, ttl);
+  const setCache = async (key: string, value: any, ttl?: number) => {
+    if (ttl) {
+      return await cacheHelper().set(key, value, ttl);
+    } else {
+      if (process.env.REDIS_TTL) {
+        const ttlConfig: number = Number(process.env.REDIS_TTL) || 1;
+        return await cacheHelper().set(key, value, ttlConfig);
+      } else if (config.get('redis.ttl')) {
+        const ttlConfig: number = Number(config.get('redis.ttl')) || 1;
+        return await cacheHelper().set(key, value, ttlConfig);
+      }
+    }
   };
 
   const removeCache = async (key: string) => {

@@ -13,6 +13,8 @@ import { TimeFormat } from '@/constants';
 import moment from 'moment-timezone';
 import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.model';
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
+import { CACHE_PREFIX } from '@/caches/constants';
+import { caches } from '@/caches';
 
 @Service()
 export class CommentsService {
@@ -103,17 +105,32 @@ export class CommentsService {
       throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
     }
     if (item.category === CategoriesCommentsEnum.HOMEWORK || item.category === CategoriesCommentsEnum.EVALUATION) {
-      const timetableData = await Timetables.findOne({
-        where: {
-          id: targetTimetableId,
-        },
-        relations: [
-          'class',
-          'classShiftsClassroom.userWorkspaceShiftScopes',
-          'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
-          'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace.userWorkspaceDevices',
-        ],
-      });
+      const cacheKey = [
+        CACHE_PREFIX.CACHE_TIMETABLE,
+        CategoriesNotificationEnum.COMMENT,
+        targetTimetableId,
+        userWorkspaceData.id,
+        userWorkspaceData.workspaceId,
+      ].join(`_`);
+      let timetableData: Timetables | null = null;
+      const cacheData = await caches().getCaches(cacheKey);
+      if (cacheData) {
+        timetableData = cacheData;
+      } else {
+        timetableData = await Timetables.findOne({
+          where: {
+            id: targetTimetableId,
+          },
+          relations: [
+            'class',
+            'classShiftsClassroom.userWorkspaceShiftScopes',
+            'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
+            'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace.userWorkspaceDevices',
+          ],
+        });
+        await caches().setCache(cacheKey, timetableData);
+      }
+
       if (timetableData) {
         const playerIds: string[] = [];
         const messageNotification = `Có bình luận mới trong ${
@@ -281,5 +298,18 @@ export class CommentsService {
     } else {
       throw new Exception(ExceptionName.PERMISSION_DENIED, ExceptionCode.PERMISSION_DENIED);
     }
+  }
+  public async countByTargetKey(targetKey: string, category: CategoriesCommentsEnum) {
+    if (!targetKey || !category) {
+      throw new Exception(ExceptionName.VALIDATE_FAILED, ExceptionCode.VALIDATE_FAILED);
+    }
+    const commentData: Comments[] = await Comments.find({
+      where: {
+        targetKey: targetKey,
+        category: category,
+      },
+      relations: ['subComments'],
+    });
+    return { countComment: commentData.length + commentData.map(el => el.subComments.length).reduce((total, count) => total + count, 0) };
   }
 }
