@@ -8,15 +8,15 @@ export enum CategoriesNotificationEnum {
   HOMEWORK = 'HOMEWORK',
   SCHEDULE_CLASS = 'SCHEDULE_CLASS',
   NEW_POST = 'NEW_POST',
-  COMMENT = 'COMMENT',
   REGISTER_STUDENT = 'REGISTER_STUDENT',
   REGISTER_TEACHER = 'REGISTER_TEACHER',
   NOTIFICATION = 'NOTIFICATION',
   ATTENDANCE = 'ATTENDANCE',
+  COMMENT = 'COMMENT',
 }
 export type DataMessageNotificationRabbit = {
   content: string;
-  category: CategoriesNotificationEnum;
+  category: CategoriesNotificationEnum | any;
   id?: number;
   detail?: object;
   playerIds: string[];
