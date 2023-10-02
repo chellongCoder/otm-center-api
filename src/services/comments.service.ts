@@ -155,12 +155,9 @@ export class CommentsService {
           const msg: SendMessageNotificationRabbit = {
             type: AppType.TEACHER,
             data: {
-              category: CategoriesNotificationEnum.COMMENT,
+              category: `${CategoriesNotificationEnum.COMMENT}_${item.category}`,
               content: messageNotification,
               id: targetTimetableId,
-              detail: {
-                categoryNotification: item.category,
-              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -191,12 +188,9 @@ export class CommentsService {
           const msg: SendMessageNotificationRabbit = {
             type: AppType.STUDENT,
             data: {
-              category: CategoriesNotificationEnum.COMMENT,
+              category: `${CategoriesNotificationEnum.COMMENT}_${item.category}`,
               content: messageNotification,
               id: targetTimetableId,
-              detail: {
-                categoryNotification: item.category,
-              },
               playerIds: _.uniq(playerIds),
             },
           };
@@ -234,12 +228,9 @@ export class CommentsService {
         const msg: SendMessageNotificationRabbit = {
           type: AppType.STUDENT,
           data: {
-            category: CategoriesNotificationEnum.COMMENT,
+            category: `${CategoriesNotificationEnum.COMMENT}_${item.category}`,
             content: messageNotification,
             id: targetAbsentId,
-            detail: {
-              categoryNotification: item.category,
-            },
             playerIds: _.uniq(playerIds),
           },
         };
