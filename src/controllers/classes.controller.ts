@@ -84,7 +84,7 @@ export class ClassesController {
   }
 
   @Post('/')
-  @Authorized()
+  @Authorized([PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Create classes' })
   async create(@Body({ required: true }) body: Classes, @Res() res: any) {
     const data = await this.service.create(body);

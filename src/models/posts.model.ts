@@ -15,6 +15,7 @@ import { PostUserWorkspaces } from './post-user-workspaces.model';
 import { PostMedias } from './post-medias.model';
 import { UserWorkspaces } from './user-workspaces.model';
 import { FavoriteUserWorkspaces } from './favorite-user-workspaces.model';
+import { Classes } from './classes.model';
 
 @Entity('posts')
 export class Posts extends BaseEntity {
@@ -67,6 +68,10 @@ export class Posts extends BaseEntity {
   @ManyToOne(() => UserWorkspaces)
   @JoinColumn({ name: 'by_user_workspace_id' })
   byUserWorkspace: UserWorkspaces;
+
+  @ManyToOne(() => Classes)
+  @JoinColumn({ name: 'class_id' })
+  class: Classes;
 
   @OneToMany(() => FavoriteUserWorkspaces, item => item.post, {
     cascade: true,
