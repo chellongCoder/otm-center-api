@@ -15,6 +15,9 @@ import _ from 'lodash';
 import { DbConnection } from '@/database/dbConnection';
 import { DailyEvaluations } from '@/models/daily-evaluations.model';
 import { UpdateStatusClassDto } from '@/dtos/updateStatusClass.dto';
+import { CreateClassDto } from '@/dtos/create-class.dto';
+import { Workspaces } from '@/models/workspaces.model';
+import moment from 'moment-timezone';
 
 @Service()
 export class ClassesService {
@@ -102,33 +105,52 @@ export class ClassesService {
   /**
    * create
    */
-  public async create(item: Classes) {
+  public async create(item: CreateClassDto, workspaceData: Workspaces) {
     const connection = await DbConnection.getConnection();
     if (connection) {
       const queryRunner = connection.createQueryRunner();
       await queryRunner.connect();
       await queryRunner.startTransaction();
       try {
-        const classCreate = await await queryRunner.manager.getRepository(Classes).insert(item);
         const courseData = await Courses.findOne({
           where: {
             id: item.courseId,
-            workspaceId: item.workspaceId,
+            workspaceId: workspaceData.id,
           },
         });
         if (!courseData?.id) {
           throw new Exception(ExceptionName.COURSE_NOT_FOUND, ExceptionCode.COURSE_NOT_FOUND);
         }
+        const newClass = new Classes();
+        newClass.name = item.name;
+        newClass.courseId = item.courseId;
+        newClass.fromTime = moment(item.fromTime, 'YYYY-MM-DD').toDate();
+        if (item?.toTime) {
+          newClass.toTime = moment(item.toTime, 'YYYY-MM-DD').toDate();
+        }
+        newClass.attendedNumber = item?.attendedNumber;
+        newClass.sessionOfVietnameseTeacher = item?.sessionOfVietnameseTeacher;
+        newClass.sessionOfForeignTeacher = item?.sessionOfForeignTeacher;
+        newClass.maximumStudent = item?.maximumStudent;
+        newClass.maximumStudentSession = item?.maximumStudentSession;
+        newClass.code = item.code;
+        newClass.note = item?.note;
+        newClass.status = item?.status;
+        newClass.dailyEvaluationId = item.dailyEvaluationId;
+
+        newClass.sessionNumber = courseData.numberOfLesson;
+        newClass.workspaceId = workspaceData.id;
+        const classCreate = await await queryRunner.manager.getRepository(Classes).insert(newClass);
         const courseLessons = await Lessons.find({
           where: {
             courseId: courseData.id,
-            workspaceId: item.workspaceId,
+            workspaceId: workspaceData.id,
           },
         });
         const courseLectures = await Lectures.find({
           where: {
             courseId: courseData.id,
-            workspaceId: item.workspaceId,
+            workspaceId: workspaceData.id,
           },
         });
 
@@ -141,7 +163,7 @@ export class ClassesService {
           classLessonCreate.exercise = courseLessonItem.exercise;
           classLessonCreate.sessionNumberOrder = courseLessonItem.sessionNumberOrder;
           classLessonCreate.classId = classCreate.identifiers[0].id;
-          classLessonCreate.workspaceId = item.workspaceId;
+          classLessonCreate.workspaceId = workspaceData.id;
           bulkCreateClassLessons.push(classLessonCreate);
         }
         for (const courseLectureItem of courseLectures) {
@@ -153,7 +175,7 @@ export class ClassesService {
           classLectureCreate.equipment = courseLectureItem.equipment;
           classLectureCreate.isUseName = courseLectureItem.isUseName;
           classLectureCreate.classId = classCreate.identifiers[0].id;
-          classLectureCreate.workspaceId = item.workspaceId;
+          classLectureCreate.workspaceId = workspaceData.id;
 
           bulkCreateClassLectures.push(classLectureCreate);
         }
