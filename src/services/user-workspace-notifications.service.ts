@@ -2,6 +2,7 @@ import { NotificationStatus, UserWorkspaceNotifications } from '@/models/user-wo
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
+import { UserWorkspaces } from '@/models/user-workspaces.model';
 
 @Service()
 export class UserWorkspaceNotificationsService {
@@ -30,6 +31,7 @@ export class UserWorkspaceNotificationsService {
       where: {
         id,
       },
+      relations: ['senderUserWorkspace', 'receiverUserWorkspace'],
     });
   }
 
@@ -63,8 +65,18 @@ export class UserWorkspaceNotificationsService {
   /**
    * delete
    */
-  public async delete(id: number) {
-    return UserWorkspaceNotifications.delete(id);
+  public async delete(id: number, userWorkspaceData: UserWorkspaces) {
+    const userWorkspaceNotificationData = await UserWorkspaceNotifications.findOne({
+      where: {
+        id,
+        receiverUserWorkspaceId: userWorkspaceData.id,
+        workspaceId: userWorkspaceData.workspaceId,
+      },
+    });
+    if (!userWorkspaceNotificationData?.id) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    return UserWorkspaceNotifications.softRemove(userWorkspaceNotificationData);
   }
   public async getListNotification(userWorkspaceId: number, workspaceId: number, page = 1, limit = 10) {
     const [resultData, total] = await UserWorkspaceNotifications.findAndCount({
@@ -84,5 +96,16 @@ export class UserWorkspaceNotificationsService {
       total,
       pages: Math.ceil(total / limit),
     };
+  }
+  public async updateReadAll(userWorkspaceData: UserWorkspaces) {
+    const updateData = {
+      status: NotificationStatus.SEEN,
+    };
+    const whereCondition = {
+      status: NotificationStatus.NEW,
+      receiverUserWorkspaceId: userWorkspaceData.id,
+      workspaceId: userWorkspaceData.workspaceId,
+    };
+    return await UserWorkspaceNotifications.createQueryBuilder().update(UserWorkspaceNotifications).set(updateData).where(whereCondition).execute();
   }
 }

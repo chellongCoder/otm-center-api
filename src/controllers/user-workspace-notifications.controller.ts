@@ -31,6 +31,15 @@ export class UserWorkspaceNotificationsController {
     return successResponse({ res, data, status_code: 200 });
   }
 
+  @Post('/read_all')
+  @Authorized()
+  @OpenAPI({ summary: 'Update status seen all notification' })
+  async updateReadAll(@Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.updateReadAll(user_workspace_context);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
   @Get('/list')
   @Authorized()
   @OpenAPI({ summary: 'Get user_workspace_notifications list' })
@@ -57,9 +66,11 @@ export class UserWorkspaceNotificationsController {
   }
 
   @Delete('/:id')
+  @Authorized()
   @OpenAPI({ summary: 'Delete user_workspace_notifications' })
-  async delete(@Param('id') id: number, @Res() res: any) {
-    const data = await this.service.delete(id);
+  async delete(@Param('id') id: number, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.delete(id, user_workspace_context);
     return successResponse({ res, data, status_code: 200 });
   }
 }
