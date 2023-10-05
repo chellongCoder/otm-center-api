@@ -1,4 +1,5 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { UpdateStatusUserWorkspaceClassesDto } from '@/dtos/update-status-user-workspace-class.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
 import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
@@ -78,6 +79,14 @@ export class UserWorkspaceClassesController {
   @OpenAPI({ summary: 'Create user_workspace_classes(Ghi danh học viên vào lớp học)' })
   async create(@Body({ required: true }) body: UserWorkspaceClasses, @Res() res: any) {
     const data = await this.service.create(body);
+    return successResponse({ res, data, status_code: 201 });
+  }
+
+  @Put('/detail/:id')
+  @Authorized([PermissionKeys.STAFF, PermissionKeys.TEACHER])
+  @OpenAPI({ summary: 'update status user_workspace_classes(chuyển trạng thái học của học sinh trong lớp)' })
+  async updateDetailStatus(@Param('id') id: number, @Body({ required: true }) body: UpdateStatusUserWorkspaceClassesDto, @Res() res: any) {
+    const data = await this.service.updateDetailStatus(id, body);
     return successResponse({ res, data, status_code: 201 });
   }
 
