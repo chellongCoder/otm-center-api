@@ -9,6 +9,7 @@ import { UserWorkspaces } from '@/models/user-workspaces.model';
 import { Timetables } from '@/models/timetables.model';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
+import { UpdateStatusUserWorkspaceClassesDto } from '@/dtos/update-status-user-workspace-class.dto';
 
 @Service()
 export class UserWorkspaceClassesService {
@@ -262,7 +263,12 @@ export class UserWorkspaceClassesService {
     }
     return UserWorkspaceClasses.find({
       where: conditionUserWorkspaceClass,
-      relations: ['class', 'userWorkspace'],
+      relations: ['class', 'userWorkspace', 'userWorkspace.userWorkspaceDevices'],
+    });
+  }
+  public async updateDetailStatus(id: number, item: UpdateStatusUserWorkspaceClassesDto) {
+    return await UserWorkspaceClasses.update(id, {
+      status: item.status,
     });
   }
 }

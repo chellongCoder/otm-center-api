@@ -15,6 +15,7 @@ import { UserWorkspaceShiftScopes } from '@/models/user-workspace-shift-scopes.m
 import { UserWorkspaceDevices } from '@/models/user-workspace-devices.model';
 import { CACHE_PREFIX } from '@/caches/constants';
 import { caches } from '@/caches';
+import { Posts } from '@/models/posts.model';
 
 @Service()
 export class CommentsService {
@@ -246,6 +247,46 @@ export class CommentsService {
         newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceData.id;
         newUserWorkspaceNotification.workspaceId = userWorkspaceData.workspaceId;
         await UserWorkspaceNotifications.insert(newUserWorkspaceNotification);
+      }
+    }
+    if (item.category === CategoriesCommentsEnum.NEW_POST) {
+      const targetPostId = targetTimetableId;
+      const postData = await Posts.findOne({
+        where: {
+          id: targetPostId,
+        },
+        relations: ['class', 'byUserWorkspace', 'byUserWorkspace.userWorkspaceDevices'],
+      });
+      if (postData?.id && postData.byUserWorkspaceId !== userWorkspaceData.id) {
+        const playerIds: string[] = [];
+        const messageNotification = `Có bình luận mới trong bài viết lớp ${postData.class.name}`;
+        const userWorkspaceDeviceData = postData.byUserWorkspace.userWorkspaceDevices;
+        for (const userWorkspaceDeviceItem of userWorkspaceDeviceData) {
+          playerIds.push(userWorkspaceDeviceItem.playerId);
+        }
+        if (playerIds.length) {
+          const msg: SendMessageNotificationRabbit = {
+            type: AppType.TEACHER,
+            data: {
+              category: `${CategoriesNotificationEnum.COMMENT}_${item.category}`,
+              content: messageNotification,
+              id: targetPostId,
+              playerIds: _.uniq(playerIds),
+            },
+          };
+          await sendNotificationToRabbitMQ(msg);
+
+          const newUserWorkspaceNotification = new UserWorkspaceNotifications();
+          newUserWorkspaceNotification.content = messageNotification;
+          newUserWorkspaceNotification.appType = AppType.TEACHER;
+          newUserWorkspaceNotification.msg = JSON.stringify(msg);
+          newUserWorkspaceNotification.detailId = `${targetPostId}`;
+          newUserWorkspaceNotification.date = moment().toDate();
+          newUserWorkspaceNotification.receiverUserWorkspaceId = postData.byUserWorkspaceId;
+          newUserWorkspaceNotification.senderUserWorkspaceId = userWorkspaceData.id;
+          newUserWorkspaceNotification.workspaceId = userWorkspaceData.workspaceId;
+          await UserWorkspaceNotifications.insert(newUserWorkspaceNotification);
+        }
       }
     }
     const results = await Comments.insert({

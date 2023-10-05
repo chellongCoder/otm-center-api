@@ -1,7 +1,8 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { CreateClassDto } from '@/dtos/create-class.dto';
 import { UpdateStatusClassDto } from '@/dtos/updateStatusClass.dto';
 import { successResponse } from '@/helpers/response.helper';
-import { Classes, StatusClasses } from '@/models/classes.model';
+import { StatusClasses } from '@/models/classes.model';
 import { PermissionKeys } from '@/models/permissions.model';
 import { ClassesService } from '@/services/classes.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
@@ -84,10 +85,11 @@ export class ClassesController {
   }
 
   @Post('/')
-  @Authorized()
+  @Authorized([PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Create classes' })
-  async create(@Body({ required: true }) body: Classes, @Res() res: any) {
-    const data = await this.service.create(body);
+  async create(@Body({ required: true }) body: CreateClassDto, @Res() res: any, @Req() req: any) {
+    const { workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, workspace_context);
     return successResponse({ res, data, status_code: 201 });
   }
 

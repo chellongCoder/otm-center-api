@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Workspaces } from './workspaces.model';
-import { Courses } from './courses.model';
 import { UserWorkspaces } from './user-workspaces.model';
 
 export enum ClassScheduleTypes {
