@@ -4,6 +4,7 @@ import { DataSourceOptions } from 'typeorm';
 /**
  *
  */
+console.log('__dirname', __dirname);
 export default {
   type: 'postgres',
   host: process.env.DB_HOST || config.get('dbConfig.host'),
@@ -11,7 +12,7 @@ export default {
   username: process.env.DB_USER || config.get('dbConfig.user'),
   password: process.env.DB_PASS || config.get('dbConfig.password'),
   database: process.env.DB_DBNAME || config.get('dbConfig.database'),
-  synchronize: config.get('dbConfig.synchronize') || false,
+  synchronize: false,
   logging: false,
   // // COMMENT FOR SEED
   // host: process.env.DB_HOST,
@@ -22,14 +23,14 @@ export default {
   // synchronize: false,
   // logging: false,
   // =======================
-  entities: [path.join(__dirname, '../models/**/*{.ts,.js}')],
-  seeds: [path.join(__dirname, '../database/seeds/**/*{.ts,.js}')],
-  factories: [path.join(__dirname, '../database/factories/**/*{.ts,.js}')],
-  migrations: [path.join(__dirname, '../database/migrations/**/*.ts')],
-  subscribers: [path.join(__dirname, '../subscriber/**/*.ts')],
+  entities: [__dirname + '/../*.model.{js,ts}'],
+  seeds: ['src/database/seeds/*{.ts,.js}'],
+  factories: ['src/database/factories/**/*{.ts,.js}'],
+  migrations: ['src/database/migrations/*.ts'],
+  subscribers: ['src/subscriber/*.ts'],
   cli: {
     entitiesDir: 'src/models',
-    migrationsDir: 'database/migrations',
+    migrationsDir: 'src/database/migrations',
     subscribersDir: 'src/subscriber',
   },
   logger: 'advanced-console',
