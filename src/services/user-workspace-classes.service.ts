@@ -263,7 +263,7 @@ export class UserWorkspaceClassesService {
     }
     return UserWorkspaceClasses.find({
       where: conditionUserWorkspaceClass,
-      relations: ['class', 'userWorkspace'],
+      relations: ['class', 'userWorkspace', 'userWorkspace.userWorkspaceDevices'],
     });
   }
   public async updateDetailStatus(id: number, item: UpdateStatusUserWorkspaceClassesDto) {
