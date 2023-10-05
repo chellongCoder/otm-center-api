@@ -23,7 +23,7 @@ export default {
   // synchronize: false,
   // logging: false,
   // =======================
-  entities: [__dirname + '/../*.model.{js,ts}'],
+  entities: [__dirname + '/../models/*.model.{js,ts}'],
   seeds: ['src/database/seeds/*{.ts,.js}'],
   factories: ['src/database/factories/**/*{.ts,.js}'],
   migrations: ['src/database/migrations/*.ts'],
