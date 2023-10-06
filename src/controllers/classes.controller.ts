@@ -29,17 +29,17 @@ export class ClassesController {
   }
 
   @Get('/owner-teacher')
-  @Authorized()
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get lớp học' })
   async getOwnerClasses(
     @QueryParam('page') page: number,
     @QueryParam('limit') limit: number,
-    @QueryParam('order') order: string,
-    @QueryParam('search') search: string,
     @QueryParam('status', { type: 'string' }) status: StatusClasses,
     @Res() res: any,
+    @Req() req: any,
   ) {
-    const data = await this.service.findAllClasses(page, limit, order, search, status);
+    const { user_workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.findAllClasses(user_workspace_context, page, limit, status);
     return successResponse({ res, data, status_code: 200 });
   }
 
