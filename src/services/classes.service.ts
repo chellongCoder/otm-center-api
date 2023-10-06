@@ -39,27 +39,27 @@ export class ClassesService {
     };
   }
 
-  public async findAllClasses(page = 1, limit = 10, order = 'id:asc', search: string, status: StatusClasses) {
-    const orderCond = QueryParser.toOrderCond(order);
-
-    const filteredData = await Classes.findByCond({
-      sort: orderCond.sort,
-      order: orderCond.order,
+  public async findAllClasses(userWorkspaceData: UserWorkspaces, page = 1, limit = 10, status: StatusClasses) {
+    const [classData, total] = await Classes.findAndCount({
+      where: {
+        classShiftsClassrooms: {
+          userWorkspaceShiftScopes: {
+            userWorkspaceId: userWorkspaceData.id,
+          },
+        },
+        status: status,
+      },
       skip: (page - 1) * limit,
       take: limit,
-      cache: false,
-      search: QueryParser.toFilters(search),
-      relations: {
-        course: true,
-      },
-      where: {
-        status: status,
+      relations: ['course', 'classShiftsClassrooms', 'classShiftsClassrooms.userWorkspaceShiftScopes'],
+      order: {
+        id: 'ASC',
       },
     });
     return {
-      data: filteredData[0],
-      total: filteredData[1],
-      pages: Math.ceil(filteredData[1] / limit),
+      data: classData,
+      total,
+      pages: Math.ceil(total / limit),
     };
   }
   public async GetClassTimetableByDate(page = 1, limit = 10, order = 'id:asc', search: string, status: StatusClasses) {
