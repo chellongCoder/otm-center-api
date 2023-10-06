@@ -38,7 +38,7 @@ jobs:
         ENV_DB_USER: "postgres"
         ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
         ENV_DB_DBNAME: "otm_realdata"
-        ENV_AUTH_TWILLO: "8399e57efbcf4ac4e422d6a5d6f6b897"
+        ENV_AUTH_TWILLO: "7273610daa51572a25ee30c180536251"
         ENV_AMQBSERVER_LINK: "amqp://admin:HH223344@rabbit.2soft.top"
         ENV_QUEUE_ORDER_SEND_NOTI_NAME: "otm-noti-queue"
         ENV_REDIS_HOST: "149.28.158.115"
