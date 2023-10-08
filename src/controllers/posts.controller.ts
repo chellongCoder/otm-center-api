@@ -1,6 +1,7 @@
 import { MobileContext } from '@/auth/authorizationChecker';
 import { caches } from '@/caches';
 import { CACHE_PREFIX } from '@/caches/constants';
+import { TTLTime } from '@/constants';
 import { CreatePostDto } from '@/dtos/create-post.dto';
 import { UpdatePostDto } from '@/dtos/update-post.dto';
 import { successResponse } from '@/helpers/response.helper';
@@ -73,7 +74,7 @@ export class PostsController {
       }
       console.time('setCache');
 
-      await caches().setCache(cacheKey, data);
+      await caches().setCache(cacheKey, data, TTLTime.month);
       console.timeEnd('setCache');
     }
 
