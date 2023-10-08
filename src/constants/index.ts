@@ -27,3 +27,8 @@ export enum TimeFormat {
   hours = 'HH:mm',
   time = 'HH:mm:ss',
 }
+export enum TTLTime {
+  default = 300, // 5*60
+  day = 86400, // 60*60*24
+  month = 2592000, // 60*60*24*30
+}
