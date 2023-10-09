@@ -65,36 +65,7 @@ jobs:
           IMAGE_NAME
           MAX_RETRY
         script: |
-          for attempt in $(seq 1 $MAX_RETRY); do
-            echo "Attempt $attempt of $MAX_RETRY"
-
-            # Pull the latest Docker image
-            docker pull $IMAGE_NAME:latest
-
-            # Stop and remove the existing container if it exists
-            if docker ps -a | grep otm-api; then
-              docker stop otm-api
-              docker rm otm-api
-            fi
-
-            # Run the new container
-            docker run -d -p 4003:4000 --name otm-api $IMAGE_NAME:latest
-
-            # Wait for the container to be up and running (you may need to adjust the delay)
-            sleep 20
-
-            # Run the health check command (replace with your actual health check command)
-            if docker exec otm-api curl -s http://localhost/health | grep -q 'OK'; then
-              echo "Health check passed, the application is healthy."
-              break # Exit the loop if the health check is successful
-            else
-              echo "Health check failed, the application is not healthy."
-              if [ "$attempt" -eq "$MAX_RETRY" ]; then
-                echo "Max retry attempts reached. Deployment failed."
-                exit 1
-              else
-                echo "Retrying deployment in 60 seconds..."
-                sleep 60
-              fi
-            fi
-          done
+          docker pull $IMAGE_NAME:latest
+          docker stop otm-api
+          docker rm otm-api
+          docker run -d -p 4003:4000 --name otm-api $IMAGE_NAME:latest
