@@ -34,20 +34,19 @@ jobs:
     - name: Create .env file
       uses: ozaytsev86/create-env-file@v1
       with:
-        envs: |
-          ENV_DB_HOST=125.212.235.135
-          ENV_DB_PORT=5432
-          ENV_DB_USER=postgres
-          ENV_DB_PASS=uu8D]HV,bm-7}DzLu@j$
-          ENV_DB_DBNAME=otm_realdata
-          ENV_AUTH_TWILLO=7273610daa51572a25ee30c180536251
-          ENV_AMQBSERVER_LINK=amqp://admin:HH223344@rabbit.2soft.top
-          ENV_QUEUE_ORDER_SEND_NOTI_NAME=otm-noti-queue
-          ENV_REDIS_HOST=149.28.158.115
-          ENV_REDIS_PASSWORD=Hh223344@
-          ENV_REDIS_USER_NAME=default
-          ENV_REDIS_PORT=6379
-          ENV_REDIS_TTL=300
+        ENV_DB_HOST: "125.212.235.135"
+        ENV_DB_PORT: 5432
+        ENV_DB_USER: "postgres"
+        ENV_DB_PASS: "uu8D]HV,bm-7}DzLu@j$"
+        ENV_DB_DBNAME: "otm_realdata"
+        ENV_AUTH_TWILLO: "7273610daa51572a25ee30c180536251"
+        ENV_AMQBSERVER_LINK: "amqp://admin:HH223344@rabbit.2soft.top"
+        ENV_QUEUE_ORDER_SEND_NOTI_NAME: "otm-noti-queue"
+        ENV_REDIS_HOST: "149.28.158.115"
+        ENV_REDIS_PASSWORD: "Hh223344@"
+        ENV_REDIS_USER_NAME: "default"
+        ENV_REDIS_PORT: 6379
+        ENV_REDIS_TTL: 300
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
@@ -62,7 +61,9 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
-        envs: IMAGE_NAME
+        envs: 
+          IMAGE_NAME
+          MAX_RETRY
         script: |
           for attempt in $(seq 1 $MAX_RETRY); do
             echo "Attempt $attempt of $MAX_RETRY"
