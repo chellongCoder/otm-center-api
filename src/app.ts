@@ -133,8 +133,19 @@ export default class App {
       directory: path.join(__dirname, '..', 'locales'),
     });
   };
-
+  public healthCheck() {
+    this.app.get('/health', (req, res) => {
+      // Check the health of your application here
+      const isHealthy = true; // Replace with your health check logic
+      if (isHealthy) {
+        res.status(200).send('OK');
+      } else {
+        res.status(500).send('Internal Server Error');
+      }
+    });
+  }
   public listen() {
+    this.healthCheck();
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
