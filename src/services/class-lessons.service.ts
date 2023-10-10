@@ -68,7 +68,7 @@ export class ClassLessonsService {
     };
   }
 
-  public async getHomeworkByClassId(classId: number, workspaceId: number, search: string) {
+  public async getHomeworkByClassId(classId: number, workspaceId: number, search: string, page = 1, limit = 10) {
     const whereCondition = [];
     if (search) {
       whereCondition.push(
@@ -100,7 +100,7 @@ export class ClassLessonsService {
         sessionNumberOrder: Number(search),
       });
     }
-    return Timetables.find({
+    const [timetableData, total] = Timetables.findAndCount({
       where: whereCondition,
       relations: [
         'classLecture',
@@ -114,7 +114,14 @@ export class ClassLessonsService {
         date: 'ASC',
         fromTime: 'ASC',
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+    return {
+      data: timetableData,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
   public async getHomeworkByTimetableId(timetableId: number, workspaceId: number) {
     const timetableResult = await Timetables.findOne({

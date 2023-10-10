@@ -42,6 +42,8 @@ export class ClassLessonsController {
   @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get homework by classId' })
   async getHomeworkByClassId(
+    @QueryParam('page') page: number,
+    @QueryParam('limit') limit: number,
     @Param('classId') classId: number,
     @QueryParam('workspaceId') workspaceId: number,
     @QueryParam('search') search: string,
@@ -49,7 +51,7 @@ export class ClassLessonsController {
     @Req() req: any,
   ) {
     const { workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getHomeworkByClassId(classId, workspace_context.id, search);
+    const data = await this.service.getHomeworkByClassId(classId, workspace_context.id, search, page, limit);
     return successResponse({ res, data, status_code: 200 });
   }
   /**
