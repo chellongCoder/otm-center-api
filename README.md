@@ -17,3 +17,4 @@ tiếp luồng:
 --> input từ một khoá học (courses) import các thông tin của khoá học vào lớp học [
   --> các bài giảng(lectures) và bài học(lessons) của khoá học sẽ sao lưu sang bảng class_lectures và class_lessons
 ]
+.
