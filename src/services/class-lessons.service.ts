@@ -100,7 +100,7 @@ export class ClassLessonsService {
         sessionNumberOrder: Number(search),
       });
     }
-    const [timetableData, total] = Timetables.findAndCount({
+    const [timetableData, total] = await Timetables.findAndCount({
       where: whereCondition,
       relations: [
         'classLecture',
