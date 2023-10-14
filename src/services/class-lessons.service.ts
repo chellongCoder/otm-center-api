@@ -2,7 +2,7 @@ import { ClassLessons } from '@/models/class-lessons.model';
 import { Service } from 'typedi';
 import { QueryParser } from '@/utils/query-parser';
 import { Timetables } from '@/models/timetables.model';
-import { In, Like } from 'typeorm';
+import { In, LessThanOrEqual, Like } from 'typeorm';
 import { UpdateExerciseClassLessonDto } from '@/dtos/update-exercise-class-lesson.dto';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
@@ -205,6 +205,7 @@ export class ClassLessonsService {
     const userWorkspaceClassData = await UserWorkspaceClasses.find({
       where: {
         classId: timetableData.class.id,
+        fromDate: LessThanOrEqual(moment(timetableData.date).toDate()),
       },
       relations: ['class', 'userWorkspace'],
     });
