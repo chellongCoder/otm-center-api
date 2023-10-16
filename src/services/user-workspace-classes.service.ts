@@ -192,10 +192,11 @@ export class UserWorkspaceClassesService {
         ...conditionTimetable,
         classTimetableDetails: {
           homeworkAssignment: Not(IsNull()),
+          userWorkspaceId,
         },
       };
     } else {
-      const classTimetableDetailData = await ClassTimetableDetails.find({
+      const classTimetableDetailFinishData = await ClassTimetableDetails.find({
         where: {
           timetable: {
             classId: In(classIds),
@@ -204,10 +205,13 @@ export class UserWorkspaceClassesService {
           userWorkspaceId,
         },
       });
-      const timetableHasAssignmentIds = classTimetableDetailData.map(el => el.timetableId);
+      const timetableHasAssignmentIds = classTimetableDetailFinishData.map(el => el.timetableId);
       conditionTimetable = {
         ...conditionTimetable,
         id: Not(In(timetableHasAssignmentIds)),
+        classTimetableDetails: {
+          userWorkspaceId,
+        },
       };
     }
     const timetableExistLesson = await Timetables.find({
