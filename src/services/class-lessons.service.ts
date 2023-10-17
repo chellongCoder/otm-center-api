@@ -82,8 +82,36 @@ export class ClassLessonsService {
         {
           workspaceId,
           classId,
+          classLecture: {
+            content: Like(`%${search}%`),
+          },
+        },
+        {
+          workspaceId,
+          classId,
+          classLecture: {
+            exercise: Like(`%${search}%`),
+          },
+        },
+        {
+          workspaceId,
+          classId,
           classLesson: {
             name: Like(`%${search}%`),
+          },
+        },
+        {
+          workspaceId,
+          classId,
+          classLesson: {
+            content: Like(`%${search}%`),
+          },
+        },
+        {
+          workspaceId,
+          classId,
+          classLesson: {
+            exercise: Like(`%${search}%`),
           },
         },
       );
