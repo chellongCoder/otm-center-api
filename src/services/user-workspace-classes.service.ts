@@ -10,6 +10,8 @@ import { Timetables } from '@/models/timetables.model';
 import { ClassTimetableDetails } from '@/models/class-timetable-details.model';
 import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 import { UpdateStatusUserWorkspaceClassesDto } from '@/dtos/update-status-user-workspace-class.dto';
+import { DbConnection } from '@/database/dbConnection';
+import { CreateUserWorkspaceClassesDto } from '@/dtos/create-user-workspace-class.dto';
 
 @Service()
 export class UserWorkspaceClassesService {
@@ -56,11 +58,11 @@ export class UserWorkspaceClassesService {
   /**
    * create
    */
-  public async create(item: UserWorkspaceClasses) {
+  public async create(item: CreateUserWorkspaceClassesDto, userWorkspaceId: number, workspaceId: number) {
     const userWorkspaceData = await UserWorkspaces.findOne({
       where: {
         id: item.userWorkspaceId,
-        workspaceId: item.workspaceId,
+        workspaceId: workspaceId,
       },
     });
     if (!userWorkspaceData?.id) {
@@ -69,7 +71,7 @@ export class UserWorkspaceClassesService {
     const classData = await Classes.findOne({
       where: {
         id: item.classId,
-        workspaceId: item.workspaceId,
+        workspaceId: workspaceId,
       },
     });
     if (!classData?.id) {
@@ -79,40 +81,64 @@ export class UserWorkspaceClassesService {
       where: {
         userWorkspaceId: userWorkspaceData.id,
         classId: classData.id,
-        workspaceId: item.workspaceId,
+        workspaceId: workspaceId,
       },
     });
     if (checkExist?.id) {
       throw new Exception(ExceptionName.DATA_IS_EXIST, ExceptionCode.DATA_IS_EXIST);
     }
-    const results = await UserWorkspaceClasses.insert(item);
-    /**
-     * Add student to timetable
-     */
-    let timeTableData: Timetables[] = [];
-    // WIP check classScheduleType type
-    if (item.classScheduleType === ClassScheduleTypes.ALL) {
-      timeTableData = await Timetables.find({
-        where: {
-          classId: classData.id,
-          workspaceId: item.workspaceId,
-          date: MoreThanOrEqual(moment(item.fromDate, 'YYYY-MM-DD').toDate()),
-        },
-      });
-    }
-    const bulkCreateClassTimetableDetails: ClassTimetableDetails[] = [];
-    for (const timetableItem of timeTableData) {
-      const classTimetableDetailCreate = new ClassTimetableDetails();
-      classTimetableDetailCreate.timetableId = timetableItem.id;
-      classTimetableDetailCreate.userWorkspaceId = item.userWorkspaceId;
-      classTimetableDetailCreate.workspaceId = item.workspaceId;
 
-      bulkCreateClassTimetableDetails.push(classTimetableDetailCreate);
+    const connection = await DbConnection.getConnection();
+    if (connection) {
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const newUserWorkspaceClass = new UserWorkspaceClasses();
+        newUserWorkspaceClass.classId = classData?.id;
+        newUserWorkspaceClass.workspaceId = workspaceId;
+        newUserWorkspaceClass.userWorkspaceId = userWorkspaceData?.id;
+        newUserWorkspaceClass.fromDate = moment(item.fromDate, 'YYYY-MM-DD').toDate();
+        newUserWorkspaceClass.classScheduleType = item.classScheduleType;
+        await queryRunner.manager.getRepository(UserWorkspaceClasses).insert(newUserWorkspaceClass);
+
+        /**
+         * Add student to timetable
+         */
+        let timeTableData: Timetables[] = [];
+        // WIP check classScheduleType type
+        // if (item.classScheduleType === ClassScheduleTypes.ALL) {
+        timeTableData = await Timetables.find({
+          where: {
+            classId: classData.id,
+            workspaceId: workspaceId,
+            date: MoreThanOrEqual(moment(item.fromDate, 'YYYY-MM-DD').toDate()),
+          },
+        });
+        // }
+        const bulkCreateClassTimetableDetails: ClassTimetableDetails[] = [];
+        if (timeTableData.length) {
+          for (const timetableItem of timeTableData) {
+            const classTimetableDetailCreate = new ClassTimetableDetails();
+            classTimetableDetailCreate.timetableId = timetableItem.id;
+            classTimetableDetailCreate.userWorkspaceId = item.userWorkspaceId;
+            classTimetableDetailCreate.workspaceId = workspaceId;
+
+            bulkCreateClassTimetableDetails.push(classTimetableDetailCreate);
+          }
+          if (bulkCreateClassTimetableDetails.length) {
+            await queryRunner.manager.getRepository(ClassTimetableDetails).insert(bulkCreateClassTimetableDetails);
+          }
+        }
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
     }
-    if (bulkCreateClassTimetableDetails.length) {
-      await ClassTimetableDetails.insert(bulkCreateClassTimetableDetails);
-    }
-    return results;
+    return true;
   }
 
   /**
@@ -166,10 +192,11 @@ export class UserWorkspaceClassesService {
         ...conditionTimetable,
         classTimetableDetails: {
           homeworkAssignment: Not(IsNull()),
+          userWorkspaceId,
         },
       };
     } else {
-      const classTimetableDetailData = await ClassTimetableDetails.find({
+      const classTimetableDetailFinishData = await ClassTimetableDetails.find({
         where: {
           timetable: {
             classId: In(classIds),
@@ -178,10 +205,13 @@ export class UserWorkspaceClassesService {
           userWorkspaceId,
         },
       });
-      const timetableHasAssignmentIds = classTimetableDetailData.map(el => el.timetableId);
+      const timetableHasAssignmentIds = classTimetableDetailFinishData.map(el => el.timetableId);
       conditionTimetable = {
         ...conditionTimetable,
         id: Not(In(timetableHasAssignmentIds)),
+        classTimetableDetails: {
+          userWorkspaceId,
+        },
       };
     }
     const timetableExistLesson = await Timetables.find({

@@ -1,8 +1,9 @@
 import { MobileContext } from '@/auth/authorizationChecker';
+import { CreateUserWorkspaceClassesDto } from '@/dtos/create-user-workspace-class.dto';
 import { UpdateStatusUserWorkspaceClassesDto } from '@/dtos/update-status-user-workspace-class.dto';
 import { successResponse } from '@/helpers/response.helper';
 import { PermissionKeys } from '@/models/permissions.model';
-import { UserWorkspaceClassTypes, UserWorkspaceClasses, HomeworkStatus } from '@/models/user-workspace-classes.model';
+import { UserWorkspaceClassTypes, HomeworkStatus } from '@/models/user-workspace-classes.model';
 import { UserWorkspaceClassesService } from '@/services/user-workspace-classes.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -75,10 +76,11 @@ export class UserWorkspaceClassesController {
   }
 
   @Post('/')
-  @Authorized()
+  @Authorized([PermissionKeys.STAFF])
   @OpenAPI({ summary: 'Create user_workspace_classes(Ghi danh học viên vào lớp học)' })
-  async create(@Body({ required: true }) body: UserWorkspaceClasses, @Res() res: any) {
-    const data = await this.service.create(body);
+  async create(@Body({ required: true }) body: CreateUserWorkspaceClassesDto, @Res() res: any, @Req() req: any) {
+    const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
+    const data = await this.service.create(body, user_workspace_context.id, workspace_context.id);
     return successResponse({ res, data, status_code: 201 });
   }
 
