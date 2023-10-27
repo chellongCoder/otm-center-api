@@ -4,7 +4,7 @@ import { QueryParser } from '@/utils/query-parser';
 import { DbConnection } from '@/database/dbConnection';
 import { Exception, ExceptionCode, ExceptionName } from '@/exceptions';
 import { Timetables } from '@/models/timetables.model';
-import { In } from 'typeorm';
+import { Between, FindOptionsWhere, In } from 'typeorm';
 import { ApplianceAbsentTimetables } from '@/models/appliance-absent-timetables.model';
 import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
 import { ClassesService } from './classes.service';
@@ -19,6 +19,7 @@ import { TimeFormat } from '@/constants';
 import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
 import { CategoriesCommentsEnum, Comments } from '@/models/comments.model';
 import { AttendanceStatus, ClassTimetableDetails } from '@/models/class-timetable-details.model';
+import { Classes } from '@/models/classes.model';
 
 @Service()
 export class ApplianceAbsentsService {
@@ -74,16 +75,60 @@ export class ApplianceAbsentsService {
     return formatResult;
   }
 
-  public async getListTeacherApplianceAbsents(userWorkspaceId: number, workspaceId: number, classId: number) {
-    const classData = await this.classesService.checkExistClass(classId, workspaceId, ['timetables']);
-    const timetableIds = classData.timetables.map(el => el.id);
-    const applianceAbsentResult = await ApplianceAbsents.find({
-      where: {
-        workspaceId: workspaceId,
-        applianceAbsentTimetables: {
-          timetableId: In(timetableIds),
+  public async getListTeacherApplianceAbsents(
+    userWorkspaceId: number,
+    workspaceId: number,
+    classId?: number,
+    status?: AbsentStatus,
+    fromDate?: number,
+    toDate?: number,
+  ) {
+    let timetableIds: number[] = [];
+    if (classId) {
+      const classData = await this.classesService.checkExistClass(classId, workspaceId, ['timetables']);
+      timetableIds = classData.timetables.map(el => el.id);
+    } else {
+      const classTeacher = await Classes.find({
+        where: {
+          classShiftsClassrooms: {
+            userWorkspaceShiftScopes: {
+              userWorkspaceId: userWorkspaceId,
+            },
+          },
         },
+        relations: ['timetables'],
+      });
+      if (classTeacher && classTeacher.length) {
+        timetableIds = classTeacher.reduce((acc, curr) => {
+          acc.push(...curr.timetables.map(el => el.id));
+          return acc;
+        }, <number[]>[]);
+      }
+    }
+    let condition: FindOptionsWhere<ApplianceAbsents> = {
+      workspaceId: workspaceId,
+      applianceAbsentTimetables: {
+        timetableId: In(timetableIds),
       },
+    };
+    if (fromDate && toDate) {
+      condition = {
+        ...condition,
+        applianceAbsentTimetables: {
+          timetable: {
+            date: Between(moment(fromDate, 'YYYYMMDD').toDate(), moment(toDate, 'YYYYMMDD').toDate()),
+          },
+        },
+      };
+    }
+    if (status) {
+      condition = {
+        ...condition,
+        status,
+      };
+    }
+    const applianceAbsentResult = await ApplianceAbsents.find({
+      where: condition,
       relations: [
         'userWorkspace',
         'updateByUserWorkspace',

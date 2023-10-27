@@ -79,7 +79,7 @@ export class ClassTimetableDetailsController {
   }
 
   @Post('/student_evaluation')
-  @Authorized()
+  @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Đánh giá hàng ngày học sinh' })
   async updateEvaluationStudentInLesson(@Body({ required: true }) body: UpdateEvaluationInLessonDto, @Res() res: any, @Req() req: any) {
     const { user_workspace_context }: MobileContext = req.mobile_context;
