@@ -3,6 +3,7 @@ import { ApplianceAbsentsDto } from '@/dtos/create-appliance-absent.dto';
 import { UpdateNoteApplianceAbsentsDto } from '@/dtos/update-note-appliance-absent.dto';
 import { UpdateStatusApplianceAbsentsDto } from '@/dtos/update-status-appliance-absent.dto';
 import { successResponse } from '@/helpers/response.helper';
+import { AbsentStatus } from '@/models/appliance-absents.model';
 import { PermissionKeys } from '@/models/permissions.model';
 import { ApplianceAbsentsService } from '@/services/appliance-absents.service';
 import { Authorized, Body, Controller, Delete, Get, Param, Post, Put, QueryParam, Req, Res } from 'routing-controllers';
@@ -46,9 +47,23 @@ export class ApplianceAbsentsController {
   @Get('/teacher/list')
   @Authorized([PermissionKeys.TEACHER])
   @OpenAPI({ summary: 'Get appliance_absents list of teacher' })
-  async getListTeacherApplianceAbsents(@QueryParam('classId') classId: number, @Res() res: any, @Req() req: any) {
+  async getListTeacherApplianceAbsents(
+    @QueryParam('classId') classId: number,
+    @QueryParam('status') status: string,
+    @QueryParam('fromDate') fromDate: number,
+    @QueryParam('toDate') toDate: number,
+    @Res() res: any,
+    @Req() req: any,
+  ) {
     const { user_workspace_context, workspace_context }: MobileContext = req.mobile_context;
-    const data = await this.service.getListTeacherApplianceAbsents(user_workspace_context.id, workspace_context.id, classId);
+    const data = await this.service.getListTeacherApplianceAbsents(
+      user_workspace_context.id,
+      workspace_context.id,
+      classId,
+      status as AbsentStatus,
+      fromDate,
+      toDate,
+    );
     return successResponse({ res, data, status_code: 200 });
   }
 
