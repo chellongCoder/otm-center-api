@@ -64,19 +64,15 @@ export class PostsController {
     const cacheData = await caches().getCaches(cacheKey);
     console.timeEnd('get_cache');
 
-    if (cacheData) {
-      data = cacheData;
+    if (user_workspace_permission === PermissionKeys.TEACHER) {
+      data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     } else {
-      if (user_workspace_permission === PermissionKeys.TEACHER) {
-        data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
-      } else {
-        data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
-      }
-      console.time('setCache');
-
-      await caches().setCache(cacheKey, data, TTLTime.month);
-      console.timeEnd('setCache');
+      data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     }
+    console.time('setCache');
+
+    await caches().setCache(cacheKey, data, TTLTime.day);
+    console.timeEnd('setCache');
 
     return successResponse({ res, data, status_code: 200 });
   }
