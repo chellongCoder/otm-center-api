@@ -401,6 +401,31 @@ export class ApplianceAbsentsService {
    * delete
    */
   public async delete(id: number) {
-    return ApplianceAbsents.delete(id);
+    const applianceAbsentData = await ApplianceAbsents.findOne({
+      where: {
+        id,
+      },
+      relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable'],
+    });
+    if (!applianceAbsentData) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const applianceAbsentTimetableData = applianceAbsentData.applianceAbsentTimetables;
+    const timetableIds: number[] = [];
+    for (const applianceAbsentTimetableItem of applianceAbsentTimetableData) {
+      timetableIds.push(applianceAbsentTimetableItem.timetableId);
+    }
+    /**
+     * update AttendanceStatus of ClassTimetableDetails
+     */
+    if (timetableIds) {
+      await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
+        .update(ClassTimetableDetails)
+        .set({ attendanceStatus: undefined })
+        .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
+        .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
+        .execute();
+    }
+    return ApplianceAbsents.softRemove(applianceAbsentData);
   }
 }
