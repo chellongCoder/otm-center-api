@@ -297,7 +297,6 @@ export class PostsService {
     return true;
   }
   public async getNewsfeedTeacher(userWorkspaceId: number, isPin: boolean, workspaceId: number, page = 1, limit = 10) {
-    console.time('query_Posts.findAndCount');
     const [postResult, total] = await Posts.findAndCount({
       where: {
         isPin: typeof isPin === 'undefined' ? isPin : Boolean(!!isPin),
@@ -308,8 +307,6 @@ export class PostsService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    console.timeEnd('query_Posts.findAndCount');
-    console.time('query_Comments.find');
 
     const targetKeys = postResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
@@ -320,8 +317,6 @@ export class PostsService {
       },
       relations: ['subComments'],
     });
-    console.timeEnd('query_Comments.find');
-    console.time('for_loop_postResult');
 
     const formatResult = [];
     for (const postResultItem of postResult) {
@@ -337,7 +332,6 @@ export class PostsService {
         countFavorite,
       });
     }
-    console.timeEnd('for_loop_postResult');
 
     return {
       data: formatResult,
@@ -346,8 +340,6 @@ export class PostsService {
     };
   }
   public async getNewsfeed(userWorkspaceId: number, isPin: boolean | undefined, workspaceId: number, page = 1, limit = 10) {
-    console.time('query_Posts.findAndCount');
-
     const [postResult, total] = await Posts.findAndCount({
       where: _.omitBy(
         {
@@ -363,9 +355,6 @@ export class PostsService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    console.timeEnd('query_Posts.findAndCount');
-
-    console.time('query_Comments.find');
 
     const targetKeys = postResult.map(el => `detail_${el.id}`);
     const commentData: Comments[] = await Comments.find({
@@ -376,9 +365,6 @@ export class PostsService {
       },
       relations: ['subComments'],
     });
-    console.timeEnd('query_Comments.find');
-
-    console.time('for_loop_postResult');
 
     const formatResult = [];
     for (const postResultItem of postResult) {
@@ -394,7 +380,6 @@ export class PostsService {
         countFavorite,
       });
     }
-    console.timeEnd('for_loop_postResult');
 
     return {
       data: formatResult,

@@ -407,6 +407,7 @@ export class ApplianceAbsentsService {
       },
       relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable'],
     });
+    console.log('chh_log ---> delete ---> applianceAbsentData:', applianceAbsentData);
     if (!applianceAbsentData) {
       throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
     }
@@ -415,6 +416,7 @@ export class ApplianceAbsentsService {
     for (const applianceAbsentTimetableItem of applianceAbsentTimetableData) {
       timetableIds.push(applianceAbsentTimetableItem.timetableId);
     }
+    console.log('chh_log ---> delete ---> timetableIds:', timetableIds, applianceAbsentData.userWorkspaceId);
     /**
      * update AttendanceStatus of ClassTimetableDetails
      */
@@ -426,6 +428,7 @@ export class ApplianceAbsentsService {
         .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
         .execute();
     }
-    return ApplianceAbsents.softRemove(applianceAbsentData);
+    await ApplianceAbsents.softRemove(applianceAbsentData);
+    return true;
   }
 }
