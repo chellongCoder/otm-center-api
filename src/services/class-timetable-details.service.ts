@@ -399,7 +399,7 @@ export class ClassTimetableDetailsService {
   public async updateClassTimetableDetailMarking(id: number, item: UpdateClassTimetableDetailMarkingDto, userWorkspaceId: number) {
     const classTimetableDetailData = await ClassTimetableDetails.findOne({
       where: {
-        id,
+        timetableId: id,
       },
       relations: ['userWorkspace', 'userWorkspace.userWorkspaceDevices', 'timetable'],
     });
