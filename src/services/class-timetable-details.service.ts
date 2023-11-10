@@ -382,7 +382,7 @@ export class ClassTimetableDetailsService {
 
       const classTimetableDetailFormat = [];
       for (const classTimetableDetailItem of timetableResult.classTimetableDetails) {
-        const targetKey = `detail_${classTimetableDetailItem.id}_user_workspace_${classTimetableDetailItem.userWorkspaceId}`;
+        const targetKey = `detail_${classTimetableDetailItem.timetableId}_user_workspace_${classTimetableDetailItem.userWorkspaceId}`;
         const listComment = commentData.filter(el => el.targetKey === targetKey);
         const countComment = listComment.length + listComment.map(el => el.subComments.length).reduce((total, count) => total + count, 0);
         classTimetableDetailFormat.push({
