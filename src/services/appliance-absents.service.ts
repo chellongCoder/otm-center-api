@@ -440,7 +440,7 @@ export class ApplianceAbsentsService {
               timetableId: In(timetableIds),
               userWorkspaceId: applianceAbsentData.userWorkspaceId,
             },
-            { attendanceStatus: null as unknown as AttendanceStatus },
+            { attendanceStatus: undefined },
           );
           await queryRunner.manager.getRepository(ApplianceAbsents).softRemove(applianceAbsentData);
           await queryRunner.commitTransaction();
