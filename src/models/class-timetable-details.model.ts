@@ -21,6 +21,7 @@ export enum AttendanceStatus {
   LATE = 'LATE', // MUỘN
   ABSENT_WITH_LEAVE = 'ABSENT_WITH_LEAVE', // NGHỈ CÓ PHÉP
   ABSENT = 'ABSENT', // NGHỈ KHÔNG PHÉP
+  ABSENT_REMOVED = 'ABSENT_REMOVED',
 }
 
 export enum LearningStatus {
