@@ -427,19 +427,21 @@ export class ApplianceAbsentsService {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-          await queryRunner.manager
-            .createQueryBuilder()
-            .update(ClassTimetableDetails)
-            .set({ attendanceStatus: null as unknown as AttendanceStatus })
-            .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
-            .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
-            .execute()
-            .then(result => {
-              console.log('Update successful:', result);
-            })
-            .catch(error => {
-              console.error('Error updating entity:', error);
-            });
+          // const query = await queryRunner.manager
+          //   .createQueryBuilder()
+          //   .update(ClassTimetableDetails)
+          //   .set({ attendanceStatus: null as unknown as AttendanceStatus })
+          //   .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
+          //   .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
+          //   .execute();
+          // console.log('chh_log ---> delete ---> query:', query);
+          await queryRunner.manager.getRepository(ClassTimetableDetails).update(
+            {
+              timetableId: In(timetableIds),
+              userWorkspaceId: applianceAbsentData.userWorkspaceId,
+            },
+            { attendanceStatus: null as unknown as AttendanceStatus },
+          );
           await queryRunner.manager.getRepository(ApplianceAbsents).softRemove(applianceAbsentData);
           await queryRunner.commitTransaction();
         } catch (error) {
