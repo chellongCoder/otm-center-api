@@ -45,7 +45,7 @@ export class ClassTimetableDetails extends BaseEntity {
   learningStatus: LearningStatus;
 
   @Column({ name: 'attendance_status', nullable: true })
-  attendanceStatus: AttendanceStatus;
+  attendanceStatus: AttendanceStatus | null;
 
   @Column({ name: 'attendance_note', nullable: true })
   attendanceNote: string;

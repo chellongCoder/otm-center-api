@@ -423,7 +423,7 @@ export class ApplianceAbsentsService {
     if (timetableIds) {
       await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
         .update(ClassTimetableDetails)
-        .set({ attendanceStatus: undefined })
+        .set({ attendanceStatus: null })
         .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
         .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
         .execute();
