@@ -423,12 +423,20 @@ export class ApplianceAbsentsService {
     if (timetableIds) {
       await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
         .update(ClassTimetableDetails)
-        .set({ attendanceStatus: null })
+        .set({ attendanceStatus: undefined })
         .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
         .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
-        .execute();
+        .execute()
+        .then(result => {
+          console.log('Update successful:', result);
+        })
+        .catch(error => {
+          console.error('Error updating entity:', error);
+        });
+      await ApplianceAbsents.softRemove(applianceAbsentData);
+    } else {
+      await ApplianceAbsents.softRemove(applianceAbsentData);
     }
-    await ApplianceAbsents.softRemove(applianceAbsentData);
     return true;
   }
 }
