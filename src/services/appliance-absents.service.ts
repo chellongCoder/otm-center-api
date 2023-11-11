@@ -421,19 +421,34 @@ export class ApplianceAbsentsService {
      * update AttendanceStatus of ClassTimetableDetails
      */
     if (timetableIds) {
-      await ClassTimetableDetails.createQueryBuilder('class_timetable_details')
-        .update(ClassTimetableDetails)
-        .set({ attendanceStatus: undefined })
-        .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
-        .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
-        .execute()
-        .then(result => {
-          console.log('Update successful:', result);
-        })
-        .catch(error => {
-          console.error('Error updating entity:', error);
-        });
-      await ApplianceAbsents.softRemove(applianceAbsentData);
+      const connection = await DbConnection.getConnection();
+      if (connection) {
+        const queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+          await queryRunner.manager
+            .createQueryBuilder()
+            .update(ClassTimetableDetails)
+            .set({ attendanceStatus: undefined })
+            .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
+            .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
+            .execute()
+            .then(result => {
+              console.log('Update successful:', result);
+            })
+            .catch(error => {
+              console.error('Error updating entity:', error);
+            });
+          await queryRunner.manager.getRepository(ApplianceAbsents).softRemove(applianceAbsentData);
+          await queryRunner.commitTransaction();
+        } catch (error) {
+          await queryRunner.rollbackTransaction();
+          throw error;
+        } finally {
+          await queryRunner.release();
+        }
+      }
     } else {
       await ApplianceAbsents.softRemove(applianceAbsentData);
     }
