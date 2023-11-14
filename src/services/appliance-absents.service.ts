@@ -401,6 +401,59 @@ export class ApplianceAbsentsService {
    * delete
    */
   public async delete(id: number) {
-    return ApplianceAbsents.delete(id);
+    const applianceAbsentData = await ApplianceAbsents.findOne({
+      where: {
+        id,
+      },
+      relations: ['applianceAbsentTimetables', 'applianceAbsentTimetables.timetable'],
+    });
+    console.log('chh_log ---> delete ---> applianceAbsentData:', applianceAbsentData);
+    if (!applianceAbsentData) {
+      throw new Exception(ExceptionName.DATA_NOT_FOUND, ExceptionCode.DATA_NOT_FOUND);
+    }
+    const applianceAbsentTimetableData = applianceAbsentData.applianceAbsentTimetables;
+    const timetableIds: number[] = [];
+    for (const applianceAbsentTimetableItem of applianceAbsentTimetableData) {
+      timetableIds.push(applianceAbsentTimetableItem.timetableId);
+    }
+    console.log('chh_log ---> delete ---> timetableIds:', timetableIds, applianceAbsentData.userWorkspaceId);
+    /**
+     * update AttendanceStatus of ClassTimetableDetails
+     */
+    if (timetableIds) {
+      const connection = await DbConnection.getConnection();
+      if (connection) {
+        const queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+          // const query = await queryRunner.manager
+          //   .createQueryBuilder()
+          //   .update(ClassTimetableDetails)
+          //   .set({ attendanceStatus: null as unknown as AttendanceStatus })
+          //   .where('class_timetable_details.timetable_id IN  (:...timetableIds)', { timetableIds })
+          //   .andWhere('class_timetable_details.user_workspace_id = :id', { id: applianceAbsentData.userWorkspaceId })
+          //   .execute();
+          // console.log('chh_log ---> delete ---> query:', query);
+          await queryRunner.manager.getRepository(ClassTimetableDetails).update(
+            {
+              timetableId: In(timetableIds),
+              userWorkspaceId: applianceAbsentData.userWorkspaceId,
+            },
+            { attendanceStatus: AttendanceStatus.ABSENT_REMOVED },
+          );
+          await queryRunner.manager.getRepository(ApplianceAbsents).softRemove(applianceAbsentData);
+          await queryRunner.commitTransaction();
+        } catch (error) {
+          await queryRunner.rollbackTransaction();
+          throw error;
+        } finally {
+          await queryRunner.release();
+        }
+      }
+    } else {
+      await ApplianceAbsents.softRemove(applianceAbsentData);
+    }
+    return true;
   }
 }

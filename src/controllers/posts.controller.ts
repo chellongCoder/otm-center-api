@@ -57,23 +57,23 @@ export class PostsController {
     @QueryParam('isPin') isPin: boolean,
     @Req() req: any,
   ) {
-    console.time('get_cache');
     const { user_workspace_context, user_workspace_permission, workspace_context }: MobileContext = req.mobile_context;
     let data: any;
-    const cacheKey = [CACHE_PREFIX.CACHE_POST, user_workspace_context.id, isPin, page, limit, workspace_context.id].join(`_`);
+    const cacheKey = [CACHE_PREFIX.CACHE_POST, user_workspace_context.id, isPin, page, limit, workspace_context.id, user_workspace_permission].join(
+      `_`,
+    );
     const cacheData = await caches().getCaches(cacheKey);
-    console.timeEnd('get_cache');
+    if (cacheData) {
+      return successResponse({ res, data: cacheData, status_code: 200 });
+    }
 
     if (user_workspace_permission === PermissionKeys.TEACHER) {
       data = await this.service.getNewsfeedTeacher(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     } else {
       data = await this.service.getNewsfeed(user_workspace_context.id, isPin, workspace_context.id, page, limit);
     }
-    console.time('setCache');
 
     await caches().setCache(cacheKey, data, TTLTime.day);
-    console.timeEnd('setCache');
-
     return successResponse({ res, data, status_code: 200 });
   }
   @Put('/:id')
