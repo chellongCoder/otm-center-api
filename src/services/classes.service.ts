@@ -217,7 +217,7 @@ export class ClassesService {
     return Classes.delete(id);
   }
   public async getClassSchedule(id: number) {
-    return await Timetables.find({
+    const timetable = await Timetables.find({
       where: {
         classId: id,
       },
@@ -225,6 +225,7 @@ export class ClassesService {
         'class',
         'classLesson',
         'shift',
+        'classTimetableDetails',
         'classShiftsClassroom.userWorkspaceShiftScopes',
         'classShiftsClassroom.classroom',
         'classShiftsClassroom.userWorkspaceShiftScopes.userWorkspace',
@@ -233,6 +234,7 @@ export class ClassesService {
         sessionNumberOrder: 'ASC',
       },
     });
+    return timetable;
   }
   public async getClassStudentSchedule(classId: number, userWorkspaceId: number, workspaceId: number) {
     await this.checkExistClass(classId, workspaceId);
