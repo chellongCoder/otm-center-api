@@ -119,6 +119,6 @@ export class Classes extends BaseEntity {
         }
       }
     }
-    return queryBuilder.where(query.where).orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
+    return queryBuilder.orderBy(query.sort, query.order).skip(query.skip).take(query.take).getManyAndCount();
   }
 }
